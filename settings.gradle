@@ -1,0 +1,3 @@
+rootProject.name = 'debug-variable-sl'
+include 'inner-tool'
+

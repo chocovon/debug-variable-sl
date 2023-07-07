@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.7.2'
+}
+
+group 'com.github.chocovon'
+version '1.4.0'
+//ext {
+//    toolVersion='1.0'
+//}
+//jar {
+//    manifest {
+//        attributes 'Tool-Name': 'inner-tool',
+//                'Tool-Version': ext.toolVersion
+//    }
+//}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation files("${System.getProperty("java.home")}/../lib/tools.jar")
+}
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+//    version '2017.3.6'
+    version '2020.2.3'
+    plugins = ['java', 'android']
+}
+patchPluginXml {
+    sinceBuild(173)
+    untilBuild()
+    changeNotes """
+      1.4.0 
+        New: Android support.
+      """
+}
+
+task dvslBuild(type: GradleBuild) {
+    tasks = [':inner-tool:buildInnerTool', 'buildPlugin']
+}

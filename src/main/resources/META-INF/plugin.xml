@@ -1,0 +1,49 @@
+<idea-plugin require-restart="true">
+    <id>com.github.chocovon.debug-variable-sl</id>
+    <name>Debug Variable Save Load</name>
+    <vendor url="https://github.com/chocovon">chocovon</vendor>
+
+    <description>
+        <![CDATA[
+            Save and load objects in debugger variable tree.
+            In addition, copying JSON or Java code from saved objects are available too.
+            <br>
+            <h3>Usage</h3>
+            <ul>
+                <li>In a debugger breakpoint stack frame, right click on a variable, you will see
+                "Save Value" and "Load Value..." on the menu.</li>
+                <li>"Save Value" will directly save the selected value.</li>
+                <li>"Load Value..." will popup a list of previously saved values, you can select one
+                and load it to the variable. It works just like "Set Value".</li>
+            </ul>
+            <br>
+            <h3>NOTES</h3>
+            <ul>
+                <li>The plugin applies Kryo to serialize and persist the objects.
+                It is basically designed to save/load pure data objects.
+                If the type of the object is not supported by Kryo's default serializer, it cannot be saved. </li>
+                <li>All data are saved in USER_HOME/.IntelliJPlugin/DebuggerVariableSaveLoader/</li>
+            </ul>
+        ]]>
+    </description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.xdebugger</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <preloadingActivity implementation="extension.InitPluginActivity"/>
+    </extensions>
+
+    <actions>
+        <action class="action.LoadValueAction" id="LoadValueAction"
+                text="Load Value..." description="Load previously saved value.">
+            <add-to-group group-id="XDebugger.ValueGroup" anchor="after" relative-to-action="XDebugger.CopyName"/>
+        </action>
+        <action class="action.SaveValueAction" id="SaveValueAction"
+                text="Save Value" description="Save selected value.">
+            <add-to-group group-id="XDebugger.ValueGroup" anchor="after" relative-to-action="XDebugger.CopyName"/>
+        </action>
+
+    </actions>
+</idea-plugin>
