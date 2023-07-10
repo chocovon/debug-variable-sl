@@ -3,6 +3,9 @@ plugins {
     id 'org.jetbrains.intellij' version '0.7.2'
 }
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 group 'com.github.chocovon'
 version '1.4.0'
 //ext {

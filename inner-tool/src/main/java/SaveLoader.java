@@ -1,32 +1,39 @@
 import com.alibaba.fastjson.JSON;
+import message.GenCodeMessage;
 import message.LoadMessage;
 import message.SaveMessage;
 import util.KryoUtil;
 import util.ObjectCodeGenerator;
+import util.Settings;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SaveLoader {
-    public static Method[] methods = new Method[3];
+    public static final Method[] methods = new Method[4];
 
-    public static Method[] saveLoadMethods() {
+    static {
+        Map<String, Integer> map = new HashMap<>();
+
+        map.put("save", map.size());
+        map.put("load", map.size());
+        map.put("getCode", map.size());
+        map.put("genCodeExternal", map.size());
+
         Method[] allMethods = SaveLoader.class.getDeclaredMethods();
         for (Method m : allMethods) {
-            switch (m.getName()) {
-                case "save":
-                    methods[0] = m;
-                    break;
-                case "load":
-                    methods[1] = m;
-                    break;
-                case "getCode":
-                    methods[2] = m;
-                    break;
+            Integer index = map.get(m.getName());
+            if (index != null) {
+                methods[index] = m;
             }
         }
+    }
+
+    public static Method[] saveLoadMethods() {
         return methods;
     }
 
@@ -70,12 +77,38 @@ public class SaveLoader {
         try {
             Object object = KryoUtil.loadObject(isoBytes.getBytes(StandardCharsets.ISO_8859_1));
             codeMessage.status = "ok";
-            codeMessage.code = new ObjectCodeGenerator(object, Integer.MAX_VALUE).genCode();
+            Settings settings = new Settings();
+            settings.skipNulls = false;
+            codeMessage.code = new ObjectCodeGenerator(object, settings).genCode();
         } catch (Throwable e) {
             codeMessage.status = "err";
             codeMessage.err = getStackTrace(e);
         }
         return codeMessage;
+    }
+
+    public static GenCodeMessage genCode(Object object) {
+        return genCodeInternal(object, new Settings());
+    }
+
+    public static GenCodeMessage genCodeExternal(Object object, String settingsAsJson) {
+        return genCodeInternal(object, JSON.parseObject(settingsAsJson, Settings.class));
+    }
+
+    public static GenCodeMessage genCodeInternal(Object object, Settings settings) {
+
+        GenCodeMessage genCodeMessage = new GenCodeMessage();
+
+        try {
+            genCodeMessage.code = new ObjectCodeGenerator(object, settings).genCode();
+            genCodeMessage.status = "ok";
+        } catch (Throwable e) {
+            genCodeMessage.err = getStackTrace(e);
+            genCodeMessage.status = "kryo";
+            return genCodeMessage;
+        }
+
+        return genCodeMessage;
     }
 
     private static String getStackTrace(Throwable e) {

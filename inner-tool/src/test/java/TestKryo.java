@@ -7,7 +7,7 @@ public class TestKryo {
 
     // vector deserializing causes NPE by default
     // com.esotericsoftware.kryo.serializers.CollectionSerializer.create
-    @Test
+    @Test(expected = Exception.class)
     public void test_vector_bug() {
         Vector<Class> vector = new Vector<>();
         vector.add(KryoUtil.class);

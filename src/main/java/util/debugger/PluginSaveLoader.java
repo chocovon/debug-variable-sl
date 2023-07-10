@@ -1,10 +1,20 @@
 package util.debugger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.debugger.engine.evaluation.EvaluateException;
 import com.intellij.xdebugger.impl.ui.tree.nodes.XValueNodeImpl;
-import com.sun.jdi.*;
+import com.sun.jdi.ClassNotLoadedException;
+import com.sun.jdi.IncompatibleThreadStateException;
+import com.sun.jdi.InvalidTypeException;
+import com.sun.jdi.InvocationException;
+import com.sun.jdi.ObjectReference;
+import com.sun.jdi.StringReference;
+import com.sun.jdi.ThreadReference;
+import com.sun.jdi.Value;
+import data.Settings;
 import data.VariableInfo;
 import data.model.SavedValue;
+import data.tool.GenCodeMessage;
 import data.tool.ToolMessage;
 import util.exception.JsonSerializeException;
 import util.exception.SaveValueInnerException;
@@ -13,10 +23,42 @@ import util.file.FileUtil;
 
 import java.io.IOException;
 
-import static config.Config.*;
-import static data.tool.ToolMessage.Status.*;
+import static config.Config.DEFAULT_PATH_ABSOLUTE;
+import static config.Config.ERR_SUFFIX;
+import static config.Config.JSON_SUFFIX;
+import static config.Config.META_NAME;
+import static data.tool.Status.JSON_ERROR;
+import static data.tool.Status.KRYO_ERROR;
+import static data.tool.Status.OK;
 
 public class PluginSaveLoader {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    public static String copyValueAsJavaCode(XValueNodeImpl node, Settings settings) throws Exception {
+        NodeComponents comp = new NodeComponents(node);
+
+        VariableInfo vi = comp.variableInfo;
+
+        String result;
+
+        if (comp.isPrimitive() || comp.value == null) {
+            String clazz = vi.getType().replaceAll(".*\\.", "");
+            result = clazz + " " + vi.getName() + " = " + comp.getPrimitive() + ";";
+        } else {
+            ObjectReference genCodeMethod = VmMethodService.getGenCodeMethod(comp);
+
+            GenCodeMessage retMessage = genCodeObject(comp, genCodeMethod, settings);
+
+            if (retMessage.getStatus() == OK) {
+                result = retMessage.getCode();
+            } else {
+                result = retMessage.getErr();
+            }
+        }
+
+        return result;
+    }
+
     public static void save(XValueNodeImpl node) throws ClassNotLoadedException, EvaluateException, IOException, InvocationException, IncompatibleThreadStateException, InvalidTypeException, SaveValueInnerException, JsonSerializeException, StackFrameThreadException {
         NodeComponents comp = new NodeComponents(node);
 
@@ -68,6 +110,19 @@ public class PluginSaveLoader {
                 ((StringReference) msg.getValue(msg.referenceType().fieldByName("status"))).value(),
                 ((StringReference) msg.getValue(msg.referenceType().fieldByName("kryo"))).value(),
                 ((StringReference) msg.getValue(msg.referenceType().fieldByName("json"))).value()
+        );
+    }
+
+    private static GenCodeMessage genCodeObject(NodeComponents comp, ObjectReference genCodeMethod, Settings settings) throws Exception {
+        StringReference settingsValue = comp.vm.mirrorOf(OBJECT_MAPPER.writeValueAsString(settings));
+
+        ObjectReference msg = (ObjectReference) ValueUtil.invokeMethod(genCodeMethod, "invoke",
+                comp.thread, null, comp.value, settingsValue);
+
+        return new GenCodeMessage(
+                ((StringReference) msg.getValue(msg.referenceType().fieldByName("status"))).value(),
+                ((StringReference) msg.getValue(msg.referenceType().fieldByName("code"))).value(),
+                ((StringReference) msg.getValue(msg.referenceType().fieldByName("err"))).value()
         );
     }
 
