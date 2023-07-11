@@ -7,7 +7,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 group 'com.github.chocovon'
-version '1.4.0'
+version '2.0.0'
 //ext {
 //    toolVersion='1.0'
 //}
@@ -37,8 +37,8 @@ patchPluginXml {
     sinceBuild(173)
     untilBuild()
     changeNotes """
-      1.4.0 
-        New: Android support.
+      2.0.0 
+        added 'Copy Value as Java Code' dialog with options support
       """
 }
 

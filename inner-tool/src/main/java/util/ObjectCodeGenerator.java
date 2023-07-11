@@ -13,27 +13,52 @@ public class ObjectCodeGenerator {
     private class ObjectCode {
         int level;
         int constructorLevel;
-        String baseClassName;
+        String variableType;
         String referenceName;
-        String className;
+        Object object;
+
         String assignmentCode;
 
-        ObjectCode(int level, String referenceName, String className, String baseClassName) {
+        ObjectCode(int level, String referenceName, Object object, String variableType) {
             this.level = level;
             this.referenceName = referenceName;
-            this.className = className;
+            this.object = object;
             this.constructorLevel = level;
-            this.baseClassName = baseClassName;
+            this.variableType = variableType;
         }
 
         String getConstructCode() {
-            String className0 = settings.useBaseClasses && baseClassName != null ? baseClassName : className;
-            return className0 + " " + referenceName + " = new " + className + "();\n";
+            String className0;
+            Class<?> clazz = object.getClass();
+            String simpleName = clazz.getName()
+                    .replaceAll(".*\\.", "")
+                    .replaceAll(".*\\$\\d+", "")
+                    .replaceAll("\\$", ".")
+                    ;
+            String constructorClass = simpleName.replace(";", "[]");
+            if (variableType == null) {
+                className0 = constructorClass;
+            } else {
+                className0 = settings.useBaseClasses ? variableType : constructorClass;
+            }
+
+            String constructorCall;
+            if (clazz.isArray()) {
+                int length = Array.getLength(object);
+                constructorCall = simpleName.replace(";",  "[" + length + "]");
+            } else {
+                constructorCall = simpleName + "()";
+            }
+
+            return className0 + " " + referenceName + " = new " + constructorCall + ";\n";
         }
     }
 
     private final Object rootObj;
     private final Settings settings;
+
+    private String variableName;
+    private String variableType;
 
     private final UniqueNameGenerator uniqueNameGenerator = new UniqueNameGenerator();
     private final Map<Object, ObjectCode> existingObjectCode = new IdentityHashMap<>();
@@ -45,8 +70,20 @@ public class ObjectCodeGenerator {
         this.settings = settings;
     }
 
+    public ObjectCodeGenerator(Object rootObj, GenCodeRequest genCodeRequest) {
+        this.rootObj = rootObj;
+        this.settings = genCodeRequest.getSettings();
+        this.variableName = genCodeRequest.getVariableName();
+        String variableType = genCodeRequest.getVariableType();
+        if (variableType != null) {
+            this.variableType = variableType
+                    .replaceAll(".*\\.", "")
+                    .replace("$", ".");
+        }
+    }
+
     public String genCode() {
-        String root = createObjectCode(this.rootObj, 0, null, null);
+        String root = createObjectCode(this.rootObj, 0, this.variableType, this.variableName);
 
         List<ObjectCode> outputCodes = new ArrayList<>(existingObjectCode.values());
         Collections.sort(outputCodes, new Comparator<ObjectCode>() {
@@ -106,7 +143,7 @@ public class ObjectCodeGenerator {
         return ret.toString();
     }
 
-    private String createObjectCode(Object object, int level, String fieldClassName, String fieldName) {
+    private String createObjectCode(Object object, int level, String variableType, String variableName) {
         if (object == null || level > this.settings.maxLevel) {
             return "null";
         } else if (isWrapperType(object.getClass())) {
@@ -138,21 +175,21 @@ public class ObjectCodeGenerator {
                 return existed.referenceName;
             } else {
                 Class<?> clz = object.getClass();
-                String referenceName = fieldName != null
-                        ? uniqueNameGenerator.createUniqueName(fieldName)
+                String referenceName = variableName != null
+                        ? uniqueNameGenerator.createUniqueName(variableName)
                         : genReferenceName(clz);
-                ObjectCode objectCode = new ObjectCode(level, referenceName, clz.getSimpleName(), fieldClassName);
+                ObjectCode objectCode = new ObjectCode(level, referenceName, object, variableType);
                 existingObjectCode.put(object, objectCode);
 
                 String code;
                 if (clz.isArray()) {
-                    code = getArrayCode(object, level, referenceName, fieldClassName);
+                    code = getArrayCode(object, level, referenceName);
                 } else if (object instanceof Collection) {
-                    code = getCollectionCode((Collection<?>) object, level, referenceName, fieldClassName);
+                    code = getCollectionCode((Collection<?>) object, level, referenceName);
                 } else if (object instanceof Map) {
-                    code = getMapCode((Map<?, ?>) object, level, referenceName, fieldClassName);
+                    code = getMapCode((Map<?, ?>) object, level, referenceName);
                 } else {
-                    code = getPojoCode(object, level, referenceName, fieldClassName);
+                    code = getPojoCode(object, level, referenceName);
                 }
 
                 objectCode.assignmentCode = code;
@@ -162,7 +199,7 @@ public class ObjectCodeGenerator {
         }
     }
 
-    private String getMapCode(Map<?, ?> object, int level, String referenceName, String baseClassName) {
+    private String getMapCode(Map<?, ?> object, int level, String referenceName) {
         StringBuilder str = new StringBuilder();
         for (Object key : object.keySet()) {
             String keyStr = createObjectCode(key, level + 1, null, null);
@@ -172,7 +209,7 @@ public class ObjectCodeGenerator {
         return str.toString();
     }
 
-    private String getCollectionCode(Collection<?> object, int level, String referenceName, String baseClassName) {
+    private String getCollectionCode(Collection<?> object, int level, String referenceName) {
         StringBuilder str = new StringBuilder();
         for (Object ele : object) {
             String eleVal = createObjectCode(ele, level + 1, null, null);
@@ -181,7 +218,7 @@ public class ObjectCodeGenerator {
         return str.toString();
     }
 
-    private String getArrayCode(Object object, int level, String referenceName, String baseClassName) {
+    private String getArrayCode(Object object, int level, String referenceName) {
         StringBuilder str = new StringBuilder();
         int length = Array.getLength(object);
         for (int i = 0; i < length; i++) {
@@ -191,7 +228,7 @@ public class ObjectCodeGenerator {
         return str.toString();
     }
 
-    private String getPojoCode(Object object, int level, String referenceName, String baseClassName) {
+    private String getPojoCode(Object object, int level, String referenceName) {
         Class<?> clz = object.getClass();
         StringBuilder str = new StringBuilder();
         List<Field> fields = getAllFields(clz);
@@ -321,7 +358,7 @@ public class ObjectCodeGenerator {
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
-    private static <K,V> void putToList(Map<K, List<V>> map, K key, V value) {
+    private static <K, V> void putToList(Map<K, List<V>> map, K key, V value) {
         List<V> list = map.get(key);
         if (list == null) {
             list = new ArrayList<>();

@@ -15,6 +15,7 @@ import data.Settings;
 import data.VariableInfo;
 import data.model.SavedValue;
 import data.tool.GenCodeMessage;
+import data.tool.GenCodeRequest;
 import data.tool.ToolMessage;
 import util.exception.JsonSerializeException;
 import util.exception.SaveValueInnerException;
@@ -34,29 +35,33 @@ import static data.tool.Status.OK;
 public class PluginSaveLoader {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    public static String copyValueAsJavaCode(XValueNodeImpl node, Settings settings) throws Exception {
+    public static String genJavaCode(XValueNodeImpl node, Settings settings) throws Exception {
         NodeComponents comp = new NodeComponents(node);
 
         VariableInfo vi = comp.variableInfo;
 
-        String result;
+        String code;
 
         if (comp.isPrimitive() || comp.value == null) {
             String clazz = vi.getType().replaceAll(".*\\.", "");
-            result = clazz + " " + vi.getName() + " = " + comp.getPrimitive() + ";";
+            code = clazz + " " + vi.getName() + " = " + comp.getPrimitive() + ";";
         } else {
             ObjectReference genCodeMethod = VmMethodService.getGenCodeMethod(comp);
 
-            GenCodeMessage retMessage = genCodeObject(comp, genCodeMethod, settings);
+            GenCodeRequest genCodeRequest = new GenCodeRequest();
+            genCodeRequest.setSettings(settings);
+            genCodeRequest.setVariableName(vi.getName());
+            genCodeRequest.setVariableType(vi.getType());
+            GenCodeMessage retMessage = genCodeObject(comp, genCodeMethod, genCodeRequest);
 
             if (retMessage.getStatus() == OK) {
-                result = retMessage.getCode();
+                code = retMessage.getCode();
             } else {
-                result = retMessage.getErr();
+                code = "// " + retMessage.getErr();
             }
         }
 
-        return result;
+        return code;
     }
 
     public static void save(XValueNodeImpl node) throws ClassNotLoadedException, EvaluateException, IOException, InvocationException, IncompatibleThreadStateException, InvalidTypeException, SaveValueInnerException, JsonSerializeException, StackFrameThreadException {
@@ -113,11 +118,11 @@ public class PluginSaveLoader {
         );
     }
 
-    private static GenCodeMessage genCodeObject(NodeComponents comp, ObjectReference genCodeMethod, Settings settings) throws Exception {
-        StringReference settingsValue = comp.vm.mirrorOf(OBJECT_MAPPER.writeValueAsString(settings));
+    private static GenCodeMessage genCodeObject(NodeComponents comp, ObjectReference genCodeMethod, GenCodeRequest genCodeRequest) throws Exception {
+        StringReference genCodeRequestValue = comp.vm.mirrorOf(OBJECT_MAPPER.writeValueAsString(genCodeRequest));
 
         ObjectReference msg = (ObjectReference) ValueUtil.invokeMethod(genCodeMethod, "invoke",
-                comp.thread, null, comp.value, settingsValue);
+                comp.thread, null, comp.value, genCodeRequestValue);
 
         return new GenCodeMessage(
                 ((StringReference) msg.getValue(msg.referenceType().fieldByName("status"))).value(),

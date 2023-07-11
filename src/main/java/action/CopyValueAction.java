@@ -33,7 +33,7 @@ public class CopyValueAction extends XDebuggerTreeActionBase {
         try {
             CopyValueDialog popup = new CopyValueDialog(e.getProject(), initialSettings, settings -> {
                 try {
-                    return PluginSaveLoader.copyValueAsJavaCode(node, settings);
+                    return PluginSaveLoader.genJavaCode(node, settings);
                 } catch (Exception exception) {
                     return "Error: " + exception.getMessage();
                 }

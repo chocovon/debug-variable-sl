@@ -8,7 +8,7 @@ public class Settings {
     public boolean skipDefaults = true;
     public boolean useBaseClasses = true;
     public boolean addEmptyLines = true;
-    public int maxLevel = 3;
+    public int maxLevel = 10;
 
     public boolean isSkipNulls() {
         return skipNulls;

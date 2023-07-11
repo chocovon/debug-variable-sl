@@ -2,6 +2,7 @@ import com.alibaba.fastjson.JSON;
 import message.GenCodeMessage;
 import message.LoadMessage;
 import message.SaveMessage;
+import util.GenCodeRequest;
 import util.KryoUtil;
 import util.ObjectCodeGenerator;
 import util.Settings;
@@ -88,19 +89,24 @@ public class SaveLoader {
     }
 
     public static GenCodeMessage genCode(Object object) {
-        return genCodeInternal(object, new Settings());
+        return genCodeInternal(object, new GenCodeRequest());
     }
 
-    public static GenCodeMessage genCodeExternal(Object object, String settingsAsJson) {
-        return genCodeInternal(object, JSON.parseObject(settingsAsJson, Settings.class));
+    public static GenCodeMessage genCodeExternal(Object object, String genCodeRequestAsJson) {
+        return genCodeInternal(object, JSON.parseObject(genCodeRequestAsJson, GenCodeRequest.class));
     }
 
     public static GenCodeMessage genCodeInternal(Object object, Settings settings) {
+        GenCodeRequest genCodeRequest = new GenCodeRequest();
+        genCodeRequest.setSettings(settings);
+        return genCodeInternal(object, genCodeRequest);
+    }
 
+    public static GenCodeMessage genCodeInternal(Object object, GenCodeRequest genCodeRequest) {
         GenCodeMessage genCodeMessage = new GenCodeMessage();
 
         try {
-            genCodeMessage.code = new ObjectCodeGenerator(object, settings).genCode();
+            genCodeMessage.code = new ObjectCodeGenerator(object, genCodeRequest).genCode();
             genCodeMessage.status = "ok";
         } catch (Throwable e) {
             genCodeMessage.err = getStackTrace(e);

@@ -1,6 +1,7 @@
 import message.GenCodeMessage;
 import org.junit.Assert;
 import org.junit.Test;
+import util.GenCodeRequest;
 import util.Settings;
 
 import java.util.HashMap;
@@ -8,7 +9,7 @@ import java.util.Map;
 
 public class GenCodeTest {
     @Test
-    public void testString()  {
+    public void testString() {
         String simple = "hello";
         GenCodeMessage genCodeMessage = SaveLoader.genCode(simple);
         Assert.assertEquals("String string = \"hello\";", genCodeMessage.code);
@@ -85,7 +86,7 @@ public class GenCodeTest {
                 "testObject.some = 1;\n" +
                 "TestObject testObject2 = new TestObject();\n" +
                 "testObject2.some = 1;\n" +
-                "TestObject[] testObjectArr = new TestObject[]();\n" +
+                "TestObject[] testObjectArr = new TestObject[2];\n" +
                 "testObjectArr[0] = testObject;\n" +
                 "testObjectArr[1] = testObject2;\n", genCodeMessage.code);
     }
@@ -119,4 +120,111 @@ public class GenCodeTest {
                 "testObject.users = users;\n" +
                 "testObject.setGroups(groups);\n", genCodeMessage.code);
     }
+
+    @Test
+    public void testVarName() {
+        class TestObject {
+        }
+
+        TestObject testObject = new TestObject();
+        Settings settings = new Settings();
+        settings.skipNulls = true;
+        settings.useBaseClasses = true;
+        GenCodeRequest genCodeRequest = new GenCodeRequest();
+        genCodeRequest.setSettings(settings);
+        genCodeRequest.setVariableType("Object");
+        genCodeRequest.setVariableName("hello");
+        GenCodeMessage genCodeMessage = SaveLoader.genCodeInternal(testObject, genCodeRequest);
+        Assert.assertEquals("Object hello = new TestObject();\n", genCodeMessage.code);
+    }
+
+    @Test
+    public void testComplexArray() {
+        class TestObject {
+            Integer[] some = new Integer[]{1, 2, 3};
+        }
+
+        TestObject testObject = new TestObject();
+        GenCodeMessage genCodeMessage = SaveLoader.genCode(testObject);
+        Assert.assertEquals("Integer[] some = new Integer[3];\n" +
+                "some[0] = 1;\n" +
+                "some[1] = 2;\n" +
+                "some[2] = 3;\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.some = some;\n", genCodeMessage.code);
+    }
+
+
+    @Test
+    public void testComplexArrayInside() {
+        class TestObject {
+            Integer[] some = new Integer[]{1, 2, 3};
+        }
+
+        TestObject[] testObject = new TestObject[]{new TestObject(), new TestObject()};
+        GenCodeMessage genCodeMessage = SaveLoader.genCode(testObject);
+        Assert.assertEquals("Integer[] some = new Integer[3];\n" +
+                "some[0] = 1;\n" +
+                "some[1] = 2;\n" +
+                "some[2] = 3;\n" +
+                "Integer[] some2 = new Integer[3];\n" +
+                "some2[0] = 1;\n" +
+                "some2[1] = 2;\n" +
+                "some2[2] = 3;\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.some = some;\n" +
+                "TestObject testObject2 = new TestObject();\n" +
+                "testObject2.some = some2;\n" +
+                "TestObject[] testObjectArr = new TestObject[2];\n" +
+                "testObjectArr[0] = testObject;\n" +
+                "testObjectArr[1] = testObject2;\n", genCodeMessage.code);
+    }
+
+
+    @Test
+    public void testInner() {
+        class TestObject {
+            class Inner {
+                int x = 1;
+            }
+
+            Inner inner = new Inner();
+        }
+
+        TestObject testObject = new TestObject();
+        GenCodeMessage genCodeMessage = SaveLoader.genCode(testObject);
+        Assert.assertEquals("TestObject.Inner inner = new TestObject.Inner();\n" +
+                "inner.x = 1;\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.inner = inner;\n", genCodeMessage.code);
+    }
+
+
+    @Test
+    public void testInnerArray() {
+        class Filter {
+            String name = "name";
+            String value = "value";
+        }
+
+        class TestObject {
+            Filter[] filters = new Filter[]{new Filter(), new Filter()};
+        }
+
+        TestObject testObject = new TestObject();
+        GenCodeMessage genCodeMessage = SaveLoader.genCode(testObject);
+        Assert.assertEquals("Filter filter = new Filter();\n" +
+                "filter.name = \"name\";\n" +
+                "filter.value = \"value\";\n" +
+                "Filter filter2 = new Filter();\n" +
+                "filter2.name = \"name\";\n" +
+                "filter2.value = \"value\";\n" +
+                "Filter[] filters = new Filter[2];\n" +
+                "filters[0] = filter;\n" +
+                "filters[1] = filter2;\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.filters = filters;\n", genCodeMessage.code);
+    }
+
+
 }
