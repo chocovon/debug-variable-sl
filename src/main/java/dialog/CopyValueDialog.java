@@ -27,7 +27,7 @@ public class CopyValueDialog extends DialogWrapper {
         super(project, true);
         this.settings = settings;
 
-        textArea = new TextEditorComponent(settings, codeProvider);
+        textArea = new TextEditorComponent(project, settings, codeProvider);
 
         setTitle("Copy Value to Clipboard as Java Code");
 

@@ -110,14 +110,20 @@ public class NodeComponents {
     }
 
     private VariableInfo genVarInfo() throws StackFrameThreadException, EvaluateException, ClassNotLoadedException {
-        AsyncTask<String> t = new AsyncTask<String>() {
+        AsyncTask<VariableInfo> t = new AsyncTask<VariableInfo>() {
             @Override
             protected void asyncCodeRun() {
                 evalContext.getDebugProcess().getManagerThread().invoke(new DebuggerCommandImpl() {
                     @Override
                     protected void action() {
                         try {
-                            finishRet(frameProxy.location().sourceName());
+                            VariableInfo vi = new VariableInfo();
+                            vi.setName(varName());
+                            vi.setType(leftTypeName());
+                            vi.setSource(frameProxy.location().sourceName());
+                            vi.setProject(project.getName());
+                            vi.setId(String.valueOf(System.currentTimeMillis()));
+                            finishRet(vi);
                         } catch (Exception e) {
                             finishError(e);
                         }
@@ -126,14 +132,7 @@ public class NodeComponents {
             }
         };
         if (t.run()) {
-            VariableInfo vi = new VariableInfo();
-            vi.setName(varName());
-            vi.setType(leftTypeName());
-            vi.setSource(t.getRet());
-            vi.setProject(project.getName());
-            vi.setId(String.valueOf(System.currentTimeMillis()));
-
-            return vi;
+            return t.getRet();
         } else {
             throw new StackFrameThreadException(t.getError());
         }
@@ -163,6 +162,15 @@ public class NodeComponents {
     }
 
     private String varName() {
+        // avoid returning index as name
+        if (this.desType == DesType.ARRAY_ELE) {
+            Object parent = node.getParent();
+            if (parent instanceof XValueNodeImpl) {
+                XValueNodeImpl parentNode = (XValueNodeImpl) parent;
+                return parentNode.getName();
+            }
+        }
+
         return this.valueDescriptor.getName();
     }
 

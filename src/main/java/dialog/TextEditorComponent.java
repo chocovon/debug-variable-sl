@@ -22,11 +22,13 @@ public class TextEditorComponent extends JComponent {
     private final Function<Settings, String> codeProvider;
     private EditorEx editor;
 
-    public TextEditorComponent(Settings settings, Function<Settings, String> codeProvider) {
+    public TextEditorComponent(Project project, Settings settings, Function<Settings, String> codeProvider) {
         this.codeProvider = codeProvider;
-        Project project = ProjectManager.getInstance().getDefaultProject();
+
+        String code = codeProvider.apply(settings);
+
         EditorFactory editorFactory = EditorFactory.getInstance();
-        Document document = editorFactory.createDocument("");
+        Document document = editorFactory.createDocument(code);
 
         // Get the Java file type
         FileTypeManager fileTypeManager = FileTypeManager.getInstance();
@@ -42,8 +44,6 @@ public class TextEditorComponent extends JComponent {
         editor.setColorsScheme(colorsScheme);
         setLayout(new BorderLayout());
         add(editor.getComponent(), BorderLayout.CENTER);
-
-        reload(settings);
     }
 
     public EditorEx getEditor() {
