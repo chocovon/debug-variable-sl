@@ -208,7 +208,7 @@ public class GenCodeTest {
         }
 
         class TestObject {
-            Filter[] filters = new Filter[]{new Filter(), new Filter()};
+            private Filter[] _filters = new Filter[]{new Filter(), new Filter()};
         }
 
         TestObject testObject = new TestObject();
@@ -227,4 +227,33 @@ public class GenCodeTest {
     }
 
 
+    @Test
+    public void testInnerArrayUnderscore() {
+        class Filter {
+            String name = "name";
+            String value = "value";
+        }
+
+        class TestObject {
+            private Filter[] _filters = new Filter[]{new Filter(), new Filter()};
+
+            public void setFilters(Filter[] _filters) {
+                this._filters = _filters;
+            }
+        }
+
+        TestObject testObject = new TestObject();
+        GenCodeMessage genCodeMessage = SaveLoader.genCode(testObject);
+        Assert.assertEquals("Filter filter = new Filter();\n" +
+                "filter.name = \"name\";\n" +
+                "filter.value = \"value\";\n" +
+                "Filter filter2 = new Filter();\n" +
+                "filter2.name = \"name\";\n" +
+                "filter2.value = \"value\";\n" +
+                "Filter[] filters = new Filter[2];\n" +
+                "filters[0] = filter;\n" +
+                "filters[1] = filter2;\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.setFilters(filters);\n", genCodeMessage.code);
+    }
 }

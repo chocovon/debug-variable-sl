@@ -3,6 +3,7 @@ package util;
 public class Settings {
     public boolean skipNulls = false;
     public boolean skipDefaults = false;
+    public boolean supportUnderscore = true;
     public boolean useBaseClasses = false;
     public boolean addEmptyLines = false;
 

@@ -6,6 +6,7 @@ package data;
 public class Settings {
     public boolean skipNulls = true;
     public boolean skipDefaults = true;
+    public boolean supportUnderscore = true;
     public boolean useBaseClasses = true;
     public boolean addEmptyLines = true;
     public int maxLevel = 10;
@@ -28,6 +29,14 @@ public class Settings {
 
     public boolean isUseBaseClasses() {
         return useBaseClasses;
+    }
+
+    public boolean isSupportUnderscore() {
+        return supportUnderscore;
+    }
+
+    public void setSupportUnderscore(boolean supportUnderscore) {
+        this.supportUnderscore = supportUnderscore;
     }
 
     public void setUseBaseClasses(boolean useBaseClasses) {

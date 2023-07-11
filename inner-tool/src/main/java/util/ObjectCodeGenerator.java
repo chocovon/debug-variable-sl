@@ -242,12 +242,22 @@ public class ObjectCodeGenerator {
                 }
 
                 Class<?> type = field.getType();
+                String fieldName = field.getName();
 
                 Method setter = null;
                 try {
-                    String setterName = firstUpper(field.getName());
+                    String setterName = firstUpper(fieldName);
                     setter = clz.getMethod("set" + setterName, type);
                 } catch (NoSuchMethodException ignored) {
+                }
+
+                if (this.settings.supportUnderscore && setter == null && field.getName().startsWith("_")) {
+                    try {
+                        fieldName = fieldName.substring(1);
+                        String setterName = firstUpper(fieldName);
+                        setter = clz.getMethod("set" + setterName, type);
+                    } catch (NoSuchMethodException ignored) {
+                    }
                 }
 
                 if (setter == null && Modifier.isPrivate(modifiers)) {
@@ -279,7 +289,6 @@ public class ObjectCodeGenerator {
 
 
                 str.append(referenceName).append(".");
-                String fieldName = field.getName();
                 if (setter != null) {
                     Class<?>[] parameterTypes = setter.getParameterTypes();
                     String fieldClassName = parameterTypes.length == 1 ? parameterTypes[0].getSimpleName() : null;
