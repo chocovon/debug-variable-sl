@@ -1,4 +1,4 @@
-package dialog;
+package ui.dialog;
 
 import com.intellij.ui.JBIntSpinner;
 import com.intellij.util.ui.JBUI;

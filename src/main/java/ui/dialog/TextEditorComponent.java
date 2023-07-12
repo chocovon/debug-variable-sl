@@ -1,4 +1,4 @@
-package dialog;
+package ui.dialog;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;

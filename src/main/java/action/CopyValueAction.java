@@ -8,7 +8,7 @@ import com.intellij.xdebugger.impl.ui.tree.actions.XDebuggerTreeActionBase;
 import com.intellij.xdebugger.impl.ui.tree.nodes.XValueNodeImpl;
 import data.Settings;
 import org.jetbrains.annotations.NotNull;
-import dialog.CopyValueDialog;
+import ui.dialog.CopyValueDialog;
 import ui.common.SimplePopupHint;
 import util.debugger.PluginSaveLoader;
 import util.file.FileUtil;

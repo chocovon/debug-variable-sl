@@ -1,5 +1,5 @@
 import data.Settings;
-import dialog.RightPanel;
+import ui.dialog.RightPanel;
 
 import javax.swing.*;
 

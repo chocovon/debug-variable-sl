@@ -1,4 +1,4 @@
-package dialog;
+package ui.dialog;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.project.Project;
