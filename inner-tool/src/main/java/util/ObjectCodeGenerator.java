@@ -4,44 +4,86 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.regex.Pattern;
 
 public class ObjectCodeGenerator {
-    private static class ObjectCode {
+    private class ObjectCode {
         int level;
         int constructorLevel;
+        String variableType;
         String referenceName;
-        String className;
+        Object object;
+
         String assignmentCode;
 
-        ObjectCode(int level, String referenceName, String className) {
+        ObjectCode(int level, String referenceName, Object object, String variableType) {
             this.level = level;
             this.referenceName = referenceName;
-            this.className = className;
+            this.object = object;
             this.constructorLevel = level;
+            this.variableType = variableType;
         }
 
         String getConstructCode() {
-            return className + " " + referenceName + " = new " + className + "();\n";
+            String className0;
+            Class<?> clazz = object.getClass();
+            String simpleName = clazz.getName()
+                    .replaceAll(".*\\.", "")
+                    .replaceAll(".*\\$\\d+", "")
+                    .replaceAll("\\$", ".")
+                    ;
+            String constructorClass = simpleName.replace(";", "[]");
+            if (variableType == null) {
+                className0 = constructorClass;
+            } else {
+                className0 = settings.useBaseClasses ? variableType : constructorClass;
+            }
+
+            String constructorCall;
+            if (clazz.isArray()) {
+                int length = Array.getLength(object);
+                constructorCall = simpleName.replace(";",  "[" + length + "]");
+            } else {
+                constructorCall = simpleName + "()";
+            }
+
+            return className0 + " " + referenceName + " = new " + constructorCall + ";\n";
         }
     }
 
     private final Object rootObj;
-    private final int maxLevel;
+    private final Settings settings;
 
-    private final Set<String> referenceNames = new HashSet<>();
+    private String variableName;
+    private String variableType;
+
+    private final UniqueNameGenerator uniqueNameGenerator = new UniqueNameGenerator();
     private final Map<Object, ObjectCode> existingObjectCode = new IdentityHashMap<>();
 
     private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
-    public ObjectCodeGenerator(Object rootObj, int maxLevel) {
+    public ObjectCodeGenerator(Object rootObj, Settings settings) {
         this.rootObj = rootObj;
-        this.maxLevel = maxLevel;
+        this.settings = settings;
+    }
+
+    public ObjectCodeGenerator(Object rootObj, GenCodeRequest genCodeRequest) {
+        this.rootObj = rootObj;
+        this.settings = genCodeRequest.getSettings();
+        this.variableName = genCodeRequest.getVariableName();
+        String variableType = genCodeRequest.getVariableType();
+        if (variableType != null) {
+            this.variableType = variableType
+                    .replaceAll(".*\\.", "")
+                    .replace("$", ".");
+        }
     }
 
     public String genCode() {
-        String root = createObjectCode(this.rootObj, 0);
+        String root = createObjectCode(this.rootObj, 0, this.variableType, this.variableName);
 
         List<ObjectCode> outputCodes = new ArrayList<>(existingObjectCode.values());
         Collections.sort(outputCodes, new Comparator<ObjectCode>() {
@@ -75,6 +117,11 @@ public class ObjectCodeGenerator {
                 curLevel = objectCode.constructorLevel;
             }
 
+            // add empty line before new
+            if (ret.length() != 0 && settings.addEmptyLines) {
+                ret.append("\n");
+            }
+
             ret.append(objectCode.getConstructCode());
             if (objectCode.constructorLevel == objectCode.level) {
                 ret.append(objectCode.assignmentCode);
@@ -88,12 +135,16 @@ public class ObjectCodeGenerator {
             }
         }
 
-        ret.append(root);
+        if (ret.length() == 0) {
+            String simpleName = rootObj.getClass().getSimpleName();
+            ret.append(String.format("%s %s = %s;", simpleName, firstLower(simpleName), root));
+        }
+
         return ret.toString();
     }
 
-    private String createObjectCode(Object object, int level) {
-        if (object == null || level > this.maxLevel) {
+    private String createObjectCode(Object object, int level, String variableType, String variableName) {
+        if (object == null || level > this.settings.maxLevel) {
             return "null";
         } else if (isWrapperType(object.getClass())) {
             if (object instanceof Float) {
@@ -105,10 +156,14 @@ public class ObjectCodeGenerator {
             } else {
                 return object.toString();
             }
+        } else if (object instanceof BigDecimal) {
+            return "new BigDecimal(" + object + ")";
+        } else if (object instanceof BigInteger) {
+            return "new BigInteger(\"" + object + "\")";
         } else if (object instanceof String) {
             return "\"" + object + "\"";
         } else if (object instanceof Enum) {
-            return object.getClass().getSimpleName() + "." + object.toString();
+            return object.getClass().getSimpleName() + "." + object;
         } else if (object instanceof Date) {
             return "new " + object.getClass().getSimpleName() + "(" + ((Date) object).getTime() + ")";
         } else {
@@ -120,8 +175,10 @@ public class ObjectCodeGenerator {
                 return existed.referenceName;
             } else {
                 Class<?> clz = object.getClass();
-                String referenceName = genReferenceName(clz);
-                ObjectCode objectCode = new ObjectCode(level, referenceName, clz.getSimpleName());
+                String referenceName = variableName != null
+                        ? uniqueNameGenerator.createUniqueName(variableName)
+                        : genReferenceName(clz);
+                ObjectCode objectCode = new ObjectCode(level, referenceName, object, variableType);
                 existingObjectCode.put(object, objectCode);
 
                 String code;
@@ -145,8 +202,8 @@ public class ObjectCodeGenerator {
     private String getMapCode(Map<?, ?> object, int level, String referenceName) {
         StringBuilder str = new StringBuilder();
         for (Object key : object.keySet()) {
-            String keyStr = createObjectCode(key, level + 1);
-            String valStr = createObjectCode(object.get(key), level + 1);
+            String keyStr = createObjectCode(key, level + 1, null, null);
+            String valStr = createObjectCode(object.get(key), level + 1, null, null);
             str.append(referenceName).append(".put(").append(keyStr).append(", ").append(valStr).append(");\n");
         }
         return str.toString();
@@ -155,7 +212,7 @@ public class ObjectCodeGenerator {
     private String getCollectionCode(Collection<?> object, int level, String referenceName) {
         StringBuilder str = new StringBuilder();
         for (Object ele : object) {
-            String eleVal = createObjectCode(ele, level + 1);
+            String eleVal = createObjectCode(ele, level + 1, null, null);
             str.append(referenceName).append(".add(").append(eleVal).append(");\n");
         }
         return str.toString();
@@ -164,8 +221,8 @@ public class ObjectCodeGenerator {
     private String getArrayCode(Object object, int level, String referenceName) {
         StringBuilder str = new StringBuilder();
         int length = Array.getLength(object);
-        for (int i = 0; i < length; i ++) {
-            String eleVal = createObjectCode(Array.get(object, i), level + 1);
+        for (int i = 0; i < length; i++) {
+            String eleVal = createObjectCode(Array.get(object, i), level + 1, null, null);
             str.append(referenceName).append("[").append(i).append("] = ").append(eleVal).append(";\n");
         }
         return str.toString();
@@ -179,21 +236,67 @@ public class ObjectCodeGenerator {
             try {
                 field.setAccessible(true);
 
+                int modifiers = field.getModifiers();
+                if (Modifier.isFinal(modifiers) || Modifier.isStatic(modifiers)) {
+                    continue; // ignore final and static fields
+                }
+
+                Class<?> type = field.getType();
+                String fieldName = field.getName();
+
                 Method setter = null;
                 try {
-                    setter = clz.getMethod("set" + firstUpper(field.getName()), field.getType());
+                    String setterName = firstUpper(fieldName);
+                    setter = clz.getMethod("set" + setterName, type);
                 } catch (NoSuchMethodException ignored) {
                 }
-                if (setter == null && Modifier.isPrivate(field.getModifiers())) {
+
+                if (this.settings.supportUnderscore && setter == null && field.getName().startsWith("_")) {
+                    try {
+                        fieldName = fieldName.substring(1);
+                        String setterName = firstUpper(fieldName);
+                        setter = clz.getMethod("set" + setterName, type);
+                    } catch (NoSuchMethodException ignored) {
+                    }
+                }
+
+                if (setter == null && Modifier.isPrivate(modifiers)) {
                     continue;
                 }
 
-                String fieldVal = createObjectCode(field.get(object), level + 1);
+                Object value = field.get(object);
+                if (value == null && this.settings.skipNulls) {
+                    continue;
+                }
+
+                if (this.settings.skipDefaults && type.isPrimitive()) {
+                    if (Objects.equals(value, false)) {
+                        continue;
+                    }
+                    if (Objects.equals(value, 0)) {
+                        continue;
+                    }
+                    if (Objects.equals(value, 0L)) {
+                        continue;
+                    }
+                    if (Objects.equals(value, 0D)) {
+                        continue;
+                    }
+                    if (Objects.equals(value, 0F)) {
+                        continue;
+                    }
+                }
+
 
                 str.append(referenceName).append(".");
                 if (setter != null) {
+                    Class<?>[] parameterTypes = setter.getParameterTypes();
+                    String fieldClassName = parameterTypes.length == 1 ? parameterTypes[0].getSimpleName() : null;
+                    String fieldVal = createObjectCode(value, level + 1, fieldClassName, fieldName);
                     str.append(setter.getName()).append("(").append(fieldVal).append(")");
                 } else {
+                    String fieldClassName = field.getType().getSimpleName();
+                    String fieldVal = createObjectCode(value, level + 1, fieldClassName, fieldName);
                     str.append(field.getName()).append(" = ").append(fieldVal);
                 }
                 str.append(";\n");
@@ -220,17 +323,8 @@ public class ObjectCodeGenerator {
             name = name.replace("[]", "");
             name = name + "Arr";
         }
-        if (!referenceNames.contains(name)) {
-            referenceNames.add(name);
-            return name;
-        }
-        int i = 2;
-        while (referenceNames.contains(name + i)) {
-            i++;
-        }
-        name = name + i;
-        referenceNames.add(name);
-        return name;
+
+        return uniqueNameGenerator.createUniqueName(name);
     }
 
     private static List<Field> getAllFields(Class<?> type) {
@@ -246,9 +340,11 @@ public class ObjectCodeGenerator {
 
         return fields;
     }
+
     private static boolean isWrapperType(Class<?> clazz) {
         return WRAPPER_TYPES.contains(clazz);
     }
+
     private static Set<Class<?>> getWrapperTypes() {
         Set<Class<?>> ret = new HashSet<>();
         ret.add(Boolean.class);
@@ -271,7 +367,7 @@ public class ObjectCodeGenerator {
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
-    private static <K,V> void putToList(Map<K, List<V>> map, K key, V value) {
+    private static <K, V> void putToList(Map<K, List<V>> map, K key, V value) {
         List<V> list = map.get(key);
         if (list == null) {
             list = new ArrayList<>();

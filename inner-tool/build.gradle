@@ -17,7 +17,8 @@ dependencies {
 
 task buildInnerTool(dependsOn: ['buildInnerJar']) {
     def dxPath = "D:\\dev\\Android\\Sdk\\build-tools\\29.0.3\\dx.bat"
-    if (dxPath != null) {
+
+    if (exist(dxPath)) {
         exec {
             commandLine dxPath \
             , "--dex" \
@@ -25,6 +26,16 @@ task buildInnerTool(dependsOn: ['buildInnerJar']) {
             , "--output=../src/main/resources/lib/android-inner-tool.dex" \
             , "../src/main/resources/lib/inner-tool.jar"
         }
+    } else {
+        println "[warn] Cannot find Android SDK. Android support will be unavailable."
+    }
+}
+
+def exist(String dxPath) {
+    try {
+        return file(dxPath).exists()
+    } catch (Exception ignored) {
+        return false
     }
 }
 

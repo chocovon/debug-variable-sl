@@ -1,1 +1,8 @@
 /src/main/resources/lib/
+/lib/tools.jar
+/.idea
+/.gradle
+gradle*
+*.iml
+build
+out

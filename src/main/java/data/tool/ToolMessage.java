@@ -2,11 +2,16 @@ package data.tool;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * @see message.SaveMessage
+ */
 public class ToolMessage {
-    private String errStackTrace;
-    private String errMsg;
+    private final Status status;
     private byte[] kryo;
     private String json;
+
+    private String errStackTrace;
+    private String errMsg;
 
     public byte[] getKryo() {
         return this.kryo;
@@ -23,14 +28,6 @@ public class ToolMessage {
     public String getErrMsg() {
         return this.errMsg;
     }
-
-    public enum Status {
-        OK,
-        JSON_ERROR,
-        KRYO_ERROR
-    }
-
-    private Status status;
 
     public ToolMessage(String status, String kryo, String json) {
         switch (status) {

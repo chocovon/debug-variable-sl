@@ -5,25 +5,36 @@
 
     <description>
         <![CDATA[
-            Save and load objects in debugger variable tree.
-            In addition, copying JSON or Java code from saved objects are available too.
-            <br>
+            <p>Save and load objects in debugger variable tree.
+            In addition, copying JSON or Java code from debug variables is available too.
+            </p>
+
             <h3>Usage</h3>
+            <p>In a debugger breakpoint stack frame, right click on a variable, you will see
+            "Save Value", "Load Value..." and "Copy value as Java code" on the menu.</p>
             <ul>
-                <li>In a debugger breakpoint stack frame, right click on a variable, you will see
-                "Save Value" and "Load Value..." on the menu.</li>
                 <li>"Save Value" will directly save the selected value.</li>
                 <li>"Load Value..." will popup a list of previously saved values, you can select one
                 and load it to the variable. It works just like "Set Value".</li>
+                <li>"Copy value as Java code" will copy value as java code to the clipboard.</li>
             </ul>
+
             <br>
-            <h3>NOTES</h3>
+            <h3>Notes</h3>
             <ul>
                 <li>The plugin applies Kryo to serialize and persist the objects.
                 It is basically designed to save/load pure data objects.
                 If the type of the object is not supported by Kryo's default serializer, it cannot be saved. </li>
                 <li>All data are saved in USER_HOME/.IntelliJPlugin/DebuggerVariableSaveLoader/</li>
             </ul>
+
+            <br>
+            <h3>Authors</h3>
+            <ul>
+                <li>chocovon</li>
+                <li>Henady Zakalusky</li>
+            </ul>
+            <br>
         ]]>
     </description>
 
@@ -43,6 +54,11 @@
         <action class="action.SaveValueAction" id="SaveValueAction"
                 text="Save Value" description="Save selected value.">
             <add-to-group group-id="XDebugger.ValueGroup" anchor="after" relative-to-action="XDebugger.CopyName"/>
+        </action>
+        <action class="action.CopyValueAction" id="CopyValueAction"
+                        text="Copy Value as Java Code" description="Copy value as Java code.">
+            <add-to-group group-id="XDebugger.ValueGroup" anchor="after" relative-to-action="XDebugger.CopyValue"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="meta alt C"/>
         </action>
 
     </actions>

@@ -16,6 +16,6 @@ public class TestSaveLoader {
         list.add(methods[0]);
         list.add(null);
         list.add(methods[1]);
-        assert methods.length == 2;
+        assert methods.length == 4;
     }
 }

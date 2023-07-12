@@ -18,6 +18,7 @@ import util.file.FileUtil;
 import util.thread.AsyncTask;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,10 @@ public class VmMethodService {
         return getMethods(comp)[2];
     }
 
+    public static ObjectReference getGenCodeMethod(NodeComponents comp) throws IOException {
+        return getMethods(comp)[3];
+    }
+
     private static ObjectReference[] getMethods(NodeComponents comp) throws IOException {
         ObjectReference[] methods = cache.get(comp.vm);
         if (methods == null) {
@@ -53,7 +58,8 @@ public class VmMethodService {
         methods = new ObjectReference[]{
                 (ObjectReference)methodArr.getValue(0),
                 (ObjectReference)methodArr.getValue(1),
-                (ObjectReference)methodArr.getValue(2)
+                (ObjectReference)methodArr.getValue(2),
+                (ObjectReference)methodArr.getValue(3)
         };
         cache.put(comp.vm, methods);
         return methods;
@@ -71,8 +77,10 @@ public class VmMethodService {
         Value retObj = null;
         try {
             if (checkAndroid(comp)) {
+                InputStream resourceAsStream = VmMethodService.class.getResourceAsStream("/lib/" + DEX_NAME);
+
                 String androidExprText =
-                        "        String str = \"" + escape(FileUtil.readBytesAsISOString(VmMethodService.class.getResourceAsStream("/lib/" + DEX_NAME))) + "\";" +
+                        "        String str = \"" + escape(FileUtil.readBytesAsISOString(resourceAsStream)) + "\";" +
                                 "        byte[] bytes = str.getBytes(StandardCharsets.ISO_8859_1);\n" +
                                 "        ByteBuffer bb = ByteBuffer.wrap(bytes);\n" +
                                 "        ClassLoader parentClassLoader = ClassLoader.getSystemClassLoader().getParent();\n" +
@@ -98,14 +106,17 @@ public class VmMethodService {
             ex.printStackTrace();
             SimplePopupHint.error("Fail to inject DVM: " + ex.getMessage());
         }
+
         if (retObj instanceof ArrayReference) {
             return (ArrayReference) retObj;
         } else if (retObj != null){
-            SimplePopupHint.error("Fail to inject DVM: " + retObj.toString());
+            SimplePopupHint.error("Fail to inject DVM: " + retObj);
         }
 
+        InputStream resourceAsStream = VmMethodService.class.getResourceAsStream("/lib/" + JAR_NAME);
+
         String exprText =
-                "        String str = \"" + escape(FileUtil.readBytesAsISOString(VmMethodService.class.getResourceAsStream("/lib/" + JAR_NAME))) + "\";" +
+                "        String str = \"" + escape(FileUtil.readBytesAsISOString(resourceAsStream)) + "\";" +
                 "        byte[] bytes = str.getBytes(StandardCharsets.ISO_8859_1);\n" +
                 "        File f = File.createTempFile(\"inner-tool\", \".jar\");" +
                 "        f.deleteOnExit();" +
