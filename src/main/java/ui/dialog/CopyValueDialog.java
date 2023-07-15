@@ -28,10 +28,9 @@ public class CopyValueDialog extends DialogWrapper {
         this.settings = settings;
 
         textArea = new TextEditorComponent(project, settings, codeProvider);
+        textArea.setPreferredSize(new Dimension(400, 300));
 
         setTitle("Extract Value as Java or Json code");
-
-        setSize(800, 600);
 
         init();
     }
