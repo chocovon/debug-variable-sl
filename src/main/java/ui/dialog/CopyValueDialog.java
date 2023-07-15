@@ -5,6 +5,7 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.LabeledComponent;
+import com.intellij.ui.components.JBScrollPane;
 import common.Settings;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,19 +75,21 @@ public class CopyValueDialog extends DialogWrapper {
         // Add the text area
         LabeledComponent<JScrollPane> textAreaComponent = new LabeledComponent<>();
         textAreaComponent.setText("Generated code");
-        JScrollPane component = new JScrollPane(textArea);
+        JScrollPane component = new JBScrollPane(textArea, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         component.setBorder(null);
         textAreaComponent.setComponent(component);
         panel.add(textAreaComponent, BorderLayout.CENTER);
 
-        panel.add(new RightPanel().getRightPanel(settings, settings1 -> {
-            textArea.reload(settings1);
-            needToSaveSettings = true;
-        }), BorderLayout.EAST);
+        panel.add(new RightPanel().createRightPanel(settings, this::handleUpdate), BorderLayout.EAST);
 
         textArea.getEditor().getComponent().requestFocus();
 
         return panel;
+    }
+
+    private void handleUpdate(Settings settings) {
+        textArea.reload(settings);
+        needToSaveSettings = true;
     }
 }
 

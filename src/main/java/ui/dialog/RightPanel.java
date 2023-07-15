@@ -13,7 +13,7 @@ public class RightPanel {
     private Settings settings;
     private Consumer<Settings> onSettingsChange;
 
-    public JPanel getRightPanel(Settings settings, Consumer<Settings> onSettingsChange) {
+    public JPanel createRightPanel(Settings settings, Consumer<Settings> onSettingsChange) {
         this.settings = settings;
         this.onSettingsChange = onSettingsChange;
 
