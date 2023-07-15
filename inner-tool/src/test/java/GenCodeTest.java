@@ -1,25 +1,25 @@
-import message.GenCodeMessage;
 import org.junit.Assert;
 import org.junit.Test;
 import util.GenCodeRequest;
-import util.Settings;
+import data.Settings;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class GenCodeTest {
+
     @Test
     public void testString() {
         String simple = "hello";
-        GenCodeMessage genCodeMessage = SaveLoader.genCode(simple);
-        Assert.assertEquals("String string = \"hello\";", genCodeMessage.code);
+        String genCode = GenCodeHelper.genCode(simple);
+        Assert.assertEquals("String string = \"hello\";", genCode);
     }
 
     @Test
     public void testInt() {
         int simple = 5;
-        GenCodeMessage genCodeMessage = SaveLoader.genCode(simple);
-        Assert.assertEquals("Integer integer = 5;", genCodeMessage.code);
+        String genCode = GenCodeHelper.genCode(simple);
+        Assert.assertEquals("Integer integer = 5;", genCode);
     }
 
     @Test
@@ -32,8 +32,8 @@ public class GenCodeTest {
         TestObject testObject = new TestObject();
         Settings settings = new Settings();
         settings.skipNulls = true;
-        GenCodeMessage genCodeMessage = SaveLoader.genCodeInternal(testObject, settings);
-        Assert.assertEquals("TestObject testObject = new TestObject();\n", genCodeMessage.code);
+        String genCode = GenCodeHelper.genCode(testObject, settings);
+        Assert.assertEquals("TestObject testObject = new TestObject();\n", genCode);
     }
 
     @Test
@@ -53,8 +53,8 @@ public class GenCodeTest {
         Settings settings = new Settings();
         settings.skipNulls = true;
         settings.skipDefaults = true;
-        GenCodeMessage genCodeMessage = SaveLoader.genCodeInternal(testObject, settings);
-        Assert.assertEquals("TestObject testObject = new TestObject();\n", genCodeMessage.code);
+        String genCode = GenCodeHelper.genCode(testObject, settings);
+        Assert.assertEquals("TestObject testObject = new TestObject();\n", genCode);
     }
 
     @Test
@@ -68,10 +68,10 @@ public class GenCodeTest {
         Settings settings = new Settings();
         settings.skipNulls = true;
         settings.skipDefaults = true;
-        GenCodeMessage genCodeMessage = SaveLoader.genCodeInternal(testObject, settings);
+        String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n" +
                 "testObject.bool = false;\n" +
-                "testObject.integer = 0;\n", genCodeMessage.code);
+                "testObject.integer = 0;\n", genCode);
     }
 
     @Test
@@ -81,14 +81,14 @@ public class GenCodeTest {
         }
 
         TestObject[] testObject = new TestObject[]{new TestObject(), new TestObject()};
-        GenCodeMessage genCodeMessage = SaveLoader.genCode(testObject);
+        String genCode = GenCodeHelper.genCode(testObject);
         Assert.assertEquals("TestObject testObject = new TestObject();\n" +
                 "testObject.some = 1;\n" +
                 "TestObject testObject2 = new TestObject();\n" +
                 "testObject2.some = 1;\n" +
                 "TestObject[] testObjectArr = new TestObject[2];\n" +
                 "testObjectArr[0] = testObject;\n" +
-                "testObjectArr[1] = testObject2;\n", genCodeMessage.code);
+                "testObjectArr[1] = testObject2;\n", genCode);
     }
 
     @Test
@@ -111,14 +111,16 @@ public class GenCodeTest {
         Settings settings = new Settings();
         settings.useBaseClasses = true;
 
-        GenCodeMessage genCodeMessage = SaveLoader.genCodeInternal(testObject, settings);
+        String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("Map groups = new HashMap();\n" +
                 "groups.put(1, \"admins\");\n" +
+                "\n" +
                 "Map users = new HashMap();\n" +
                 "users.put(1, \"henady\");\n" +
+                "\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.users = users;\n" +
-                "testObject.setGroups(groups);\n", genCodeMessage.code);
+                "testObject.setGroups(groups);\n", genCode);
     }
 
     @Test
@@ -134,8 +136,8 @@ public class GenCodeTest {
         genCodeRequest.setSettings(settings);
         genCodeRequest.setVariableType("Object");
         genCodeRequest.setVariableName("hello");
-        GenCodeMessage genCodeMessage = SaveLoader.genCodeInternal(testObject, genCodeRequest);
-        Assert.assertEquals("Object hello = new TestObject();\n", genCodeMessage.code);
+        String genCode = GenCodeHelper.genCode(testObject, genCodeRequest);
+        Assert.assertEquals("Object hello = new TestObject();\n", genCode);
     }
 
     @Test
@@ -145,13 +147,13 @@ public class GenCodeTest {
         }
 
         TestObject testObject = new TestObject();
-        GenCodeMessage genCodeMessage = SaveLoader.genCode(testObject);
+        String genCode = GenCodeHelper.genCode(testObject);
         Assert.assertEquals("Integer[] some = new Integer[3];\n" +
                 "some[0] = 1;\n" +
                 "some[1] = 2;\n" +
                 "some[2] = 3;\n" +
                 "TestObject testObject = new TestObject();\n" +
-                "testObject.some = some;\n", genCodeMessage.code);
+                "testObject.some = some;\n", genCode);
     }
 
 
@@ -162,7 +164,7 @@ public class GenCodeTest {
         }
 
         TestObject[] testObject = new TestObject[]{new TestObject(), new TestObject()};
-        GenCodeMessage genCodeMessage = SaveLoader.genCode(testObject);
+        String genCode = GenCodeHelper.genCode(testObject);
         Assert.assertEquals("Integer[] some = new Integer[3];\n" +
                 "some[0] = 1;\n" +
                 "some[1] = 2;\n" +
@@ -177,7 +179,7 @@ public class GenCodeTest {
                 "testObject2.some = some2;\n" +
                 "TestObject[] testObjectArr = new TestObject[2];\n" +
                 "testObjectArr[0] = testObject;\n" +
-                "testObjectArr[1] = testObject2;\n", genCodeMessage.code);
+                "testObjectArr[1] = testObject2;\n", genCode);
     }
 
 
@@ -192,11 +194,11 @@ public class GenCodeTest {
         }
 
         TestObject testObject = new TestObject();
-        GenCodeMessage genCodeMessage = SaveLoader.genCode(testObject);
+        String genCode = GenCodeHelper.genCode(testObject);
         Assert.assertEquals("TestObject.Inner inner = new TestObject.Inner();\n" +
                 "inner.x = 1;\n" +
                 "TestObject testObject = new TestObject();\n" +
-                "testObject.inner = inner;\n", genCodeMessage.code);
+                "testObject.inner = inner;\n", genCode);
     }
 
 
@@ -208,22 +210,22 @@ public class GenCodeTest {
         }
 
         class TestObject {
-            private Filter[] _filters = new Filter[]{new Filter(), new Filter()};
+            Filter[] _filters = new Filter[]{new Filter(), new Filter()};
         }
 
         TestObject testObject = new TestObject();
-        GenCodeMessage genCodeMessage = SaveLoader.genCode(testObject);
+        String genCode = GenCodeHelper.genCode(testObject);
         Assert.assertEquals("Filter filter = new Filter();\n" +
                 "filter.name = \"name\";\n" +
                 "filter.value = \"value\";\n" +
                 "Filter filter2 = new Filter();\n" +
                 "filter2.name = \"name\";\n" +
                 "filter2.value = \"value\";\n" +
-                "Filter[] filters = new Filter[2];\n" +
-                "filters[0] = filter;\n" +
-                "filters[1] = filter2;\n" +
+                "Filter[] _filters = new Filter[2];\n" +
+                "_filters[0] = filter;\n" +
+                "_filters[1] = filter2;\n" +
                 "TestObject testObject = new TestObject();\n" +
-                "testObject.filters = filters;\n", genCodeMessage.code);
+                "testObject._filters = _filters;\n", genCode);
     }
 
 
@@ -243,17 +245,23 @@ public class GenCodeTest {
         }
 
         TestObject testObject = new TestObject();
-        GenCodeMessage genCodeMessage = SaveLoader.genCode(testObject);
+        Settings settings = new Settings();
+        settings.supportUnderscore = true;
+
+        String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("Filter filter = new Filter();\n" +
                 "filter.name = \"name\";\n" +
                 "filter.value = \"value\";\n" +
+                "\n" +
                 "Filter filter2 = new Filter();\n" +
                 "filter2.name = \"name\";\n" +
                 "filter2.value = \"value\";\n" +
+                "\n" +
                 "Filter[] filters = new Filter[2];\n" +
                 "filters[0] = filter;\n" +
                 "filters[1] = filter2;\n" +
+                "\n" +
                 "TestObject testObject = new TestObject();\n" +
-                "testObject.setFilters(filters);\n", genCodeMessage.code);
+                "testObject.setFilters(filters);\n", genCode);
     }
 }

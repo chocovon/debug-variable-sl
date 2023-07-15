@@ -1,5 +1,7 @@
 package util;
 
+import data.Settings;
+
 /**
  * @see message.GenCodeMessage
  */

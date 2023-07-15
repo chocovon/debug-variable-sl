@@ -5,7 +5,7 @@ import message.SaveMessage;
 import util.GenCodeRequest;
 import util.KryoUtil;
 import util.ObjectCodeGenerator;
-import util.Settings;
+import data.Settings;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -88,29 +88,23 @@ public class SaveLoader {
         return codeMessage;
     }
 
-    public static GenCodeMessage genCode(Object object) {
-        return genCodeInternal(object, new GenCodeRequest());
-    }
-
     public static GenCodeMessage genCodeExternal(Object object, String genCodeRequestAsJson) {
         return genCodeInternal(object, JSON.parseObject(genCodeRequestAsJson, GenCodeRequest.class));
-    }
-
-    public static GenCodeMessage genCodeInternal(Object object, Settings settings) {
-        GenCodeRequest genCodeRequest = new GenCodeRequest();
-        genCodeRequest.setSettings(settings);
-        return genCodeInternal(object, genCodeRequest);
     }
 
     public static GenCodeMessage genCodeInternal(Object object, GenCodeRequest genCodeRequest) {
         GenCodeMessage genCodeMessage = new GenCodeMessage();
 
         try {
-            genCodeMessage.code = new ObjectCodeGenerator(object, genCodeRequest).genCode();
+            if ("JSON".equals(genCodeRequest.getSettings().format)) {
+                genCodeMessage.code = JSON.toJSONString(object, true);
+            } else {
+                genCodeMessage.code = new ObjectCodeGenerator(object, genCodeRequest).genCode();
+            }
             genCodeMessage.status = "ok";
         } catch (Throwable e) {
             genCodeMessage.err = getStackTrace(e);
-            genCodeMessage.status = "kryo";
+            genCodeMessage.status = "err";
             return genCodeMessage;
         }
 
