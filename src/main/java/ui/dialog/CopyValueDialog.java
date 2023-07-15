@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.LabeledComponent;
-import data.Settings;
+import common.Settings;
 import org.jetbrains.annotations.Nullable;
 import util.file.FileUtil;
 

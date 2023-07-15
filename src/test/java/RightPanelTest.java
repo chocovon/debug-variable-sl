@@ -1,4 +1,4 @@
-import data.Settings;
+import common.Settings;
 import ui.dialog.RightPanel;
 
 import javax.swing.*;

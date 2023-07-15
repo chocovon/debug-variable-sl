@@ -1,7 +1,7 @@
 import org.junit.Assert;
 import org.junit.Test;
-import util.GenCodeRequest;
-import data.Settings;
+import common.GenCodeRequest;
+import common.Settings;
 
 import java.util.HashMap;
 import java.util.Map;

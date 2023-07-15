@@ -1,6 +1,7 @@
 package util;
 
-import data.Settings;
+import common.GenCodeRequest;
+import common.Settings;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -35,8 +36,7 @@ public class ObjectCodeGenerator {
             String simpleName = clazz.getName()
                     .replaceAll(".*\\.", "")
                     .replaceAll(".*\\$\\d+", "")
-                    .replaceAll("\\$", ".")
-                    ;
+                    .replaceAll("\\$", ".");
             String constructorClass = simpleName.replace(";", "[]");
             if (variableType == null) {
                 className0 = constructorClass;
@@ -47,7 +47,7 @@ public class ObjectCodeGenerator {
             String constructorCall;
             if (clazz.isArray()) {
                 int length = Array.getLength(object);
-                constructorCall = simpleName.replace(";",  "[" + length + "]");
+                constructorCall = simpleName.replace(";", "[" + length + "]");
             } else {
                 constructorCall = simpleName + "()";
             }
@@ -158,16 +158,16 @@ public class ObjectCodeGenerator {
             } else {
                 return object.toString();
             }
-        } else if (object instanceof BigDecimal) {
-            return "new BigDecimal(" + object + ")";
-        } else if (object instanceof BigInteger) {
-            return "new BigInteger(\"" + object + "\")";
         } else if (object instanceof String) {
             return "\"" + object + "\"";
         } else if (object instanceof Enum) {
             return object.getClass().getSimpleName() + "." + object;
         } else if (object instanceof Date) {
             return "new " + object.getClass().getSimpleName() + "(" + ((Date) object).getTime() + ")";
+        } else if (object instanceof BigDecimal) {
+            return "new " + object.getClass().getSimpleName() + "(" + object + ")";
+        } else if (object instanceof BigInteger) {
+            return "new " + object.getClass().getSimpleName() + "(\"" + object + "\")";
         } else {
             ObjectCode existed = existingObjectCode.get(object);
             if (existed != null) {

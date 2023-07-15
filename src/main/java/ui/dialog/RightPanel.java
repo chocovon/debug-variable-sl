@@ -2,7 +2,7 @@ package ui.dialog;
 
 import com.intellij.ui.JBIntSpinner;
 import com.intellij.util.ui.JBUI;
-import data.Settings;
+import common.Settings;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;

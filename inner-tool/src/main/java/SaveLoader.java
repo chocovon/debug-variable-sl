@@ -2,10 +2,10 @@ import com.alibaba.fastjson.JSON;
 import message.GenCodeMessage;
 import message.LoadMessage;
 import message.SaveMessage;
-import util.GenCodeRequest;
+import common.GenCodeRequest;
 import util.KryoUtil;
 import util.ObjectCodeGenerator;
-import data.Settings;
+import common.Settings;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

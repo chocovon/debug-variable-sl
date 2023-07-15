@@ -1,11 +1,5 @@
-import data.Settings;
-import message.GenCodeMessage;
-import org.junit.Assert;
-import org.junit.Test;
-import util.GenCodeRequest;
-
-import java.util.HashMap;
-import java.util.Map;
+import common.Settings;
+import common.GenCodeRequest;
 
 public class GenCodeHelper {
 

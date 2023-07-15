@@ -6,7 +6,7 @@ import com.intellij.debugger.ui.impl.watch.ThisDescriptorImpl;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.xdebugger.impl.ui.tree.actions.XDebuggerTreeActionBase;
 import com.intellij.xdebugger.impl.ui.tree.nodes.XValueNodeImpl;
-import data.Settings;
+import common.Settings;
 import org.jetbrains.annotations.NotNull;
 import ui.dialog.CopyValueDialog;
 import ui.common.SimplePopupHint;
