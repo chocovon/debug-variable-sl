@@ -1,20 +1,19 @@
 package ui.dialog;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.LabeledComponent;
 import common.Settings;
 import org.jetbrains.annotations.Nullable;
-import util.file.FileUtil;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.util.function.Function;
 
-import static config.Config.DEFAULT_PATH_ABSOLUTE;
-import static config.Config.PLUGIN_SETTINGS_JSON;
+import static config.Config.GEN_CODE_SETTINGS_KEY;
 
 public class CopyValueDialog extends DialogWrapper {
 
@@ -57,7 +56,7 @@ public class CopyValueDialog extends DialogWrapper {
         if (needToSaveSettings) {
             try {
                 String json = new ObjectMapper().writeValueAsString(settings);
-                FileUtil.saveFile(json, DEFAULT_PATH_ABSOLUTE + PLUGIN_SETTINGS_JSON);
+                PropertiesComponent.getInstance().setValue(GEN_CODE_SETTINGS_KEY, json);
             } catch (Exception e) {
                 e.printStackTrace();
             }

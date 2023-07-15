@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 public class Config {
     public static String DEFAULT_PATH_SUFFIX = "/.IntelliJPlugin/DebuggerVariableSaveLoader/";
     public static String DEFAULT_PATH_ABSOLUTE = new File(System.getProperty("user.home")).getAbsolutePath() + DEFAULT_PATH_SUFFIX;
-    public static String PLUGIN_SETTINGS_JSON = "plugin-settings.json";
+
     public static String JAR_NAME = "inner-tool.jar";
     public static String DEX_NAME = "android-inner-tool.dex";
     public static String META_NAME = "meta";
@@ -21,6 +21,7 @@ public class Config {
     public static Dimension tableDimension;
 
     public static String DIMENSION_KEY = "debug-variable-sl.defaultTableDimension";
+    public static String GEN_CODE_SETTINGS_KEY = "debug-variable-sl.genCodeSettings";
 
     static {
         String[] values = PropertiesComponent.getInstance().getValues(DIMENSION_KEY);
