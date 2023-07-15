@@ -34,8 +34,8 @@ intellij {
     plugins = ['java', 'android']
 }
 patchPluginXml {
-    sinceBuild(173)
-    untilBuild()
+    sinceBuild = "223"
+
     changeNotes """
       2.0.0 
         added 'Copy Value as Java Code' dialog with options support
