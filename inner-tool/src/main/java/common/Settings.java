@@ -1,7 +1,7 @@
 package common;
 
 public class Settings {
-    public String format = "Java";
+    public String format = "java";
     public boolean skipNulls = true;
     public boolean skipDefaults = true;
     public boolean supportUnderscore = true;

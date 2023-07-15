@@ -34,7 +34,7 @@ intellij {
     plugins = ['java', 'android']
 }
 patchPluginXml {
-    sinceBuild = "223"
+    sinceBuild = "173"
 
     changeNotes """
       2.0.0 

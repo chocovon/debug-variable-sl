@@ -95,11 +95,17 @@ public class SaveLoader {
     public static GenCodeMessage genCodeInternal(Object object, GenCodeRequest genCodeRequest) {
         GenCodeMessage genCodeMessage = new GenCodeMessage();
 
+        String format = genCodeRequest.getSettings().format;
         try {
-            if ("JSON".equals(genCodeRequest.getSettings().format)) {
-                genCodeMessage.code = JSON.toJSONString(object, true);
-            } else {
-                genCodeMessage.code = new ObjectCodeGenerator(object, genCodeRequest).genCode();
+            switch (format) {
+                case "json":
+                    genCodeMessage.code = JSON.toJSONString(object, true);
+                    break;
+                case "java":
+                    genCodeMessage.code = new ObjectCodeGenerator(object, genCodeRequest).genCode();
+                    break;
+                default:
+                    genCodeMessage.code = "Unknown format: " + format;
             }
             genCodeMessage.status = "ok";
         } catch (Throwable e) {

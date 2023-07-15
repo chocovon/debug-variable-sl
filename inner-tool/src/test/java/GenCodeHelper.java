@@ -6,7 +6,7 @@ public class GenCodeHelper {
     public static String genCode(Object object) {
         GenCodeRequest genCodeRequest = new GenCodeRequest();
         Settings settings = new Settings();
-        settings.setFormat("Java");
+        settings.setFormat("java");
         settings.setSkipNulls(false);
         settings.setSkipDefaults(false);
         settings.setSupportUnderscore(false);

@@ -21,7 +21,7 @@ public class CopyValueDialog extends DialogWrapper {
     private final TextEditorComponent textArea;
     private final Settings settings;
 
-    private boolean needToSaveSettings = false;
+    private boolean settingsChanged = false;
 
     public CopyValueDialog(@Nullable Project project, Settings settings, Function<Settings, String> codeProvider) {
         super(project, true);
@@ -29,7 +29,7 @@ public class CopyValueDialog extends DialogWrapper {
 
         textArea = new TextEditorComponent(project, settings, codeProvider);
 
-        setTitle("Copy Value to Clipboard as Java Code");
+        setTitle("Extract Value as Java or Json code");
 
         setSize(800, 600);
 
@@ -49,12 +49,12 @@ public class CopyValueDialog extends DialogWrapper {
         // This method is called when the user clicks the OK button
         // You can perform any desired logic or processing
 
-        String code = textArea.getEditor().getDocument().getText();
+        String code = textArea.getText();
 
         Toolkit.getDefaultToolkit().getSystemClipboard()
                 .setContents(new StringSelection(code), null);
 
-        if (needToSaveSettings) {
+        if (settingsChanged) {
             try {
                 String json = new ObjectMapper().writeValueAsString(settings);
                 PropertiesComponent.getInstance().setValue(GEN_CODE_SETTINGS_KEY, json);
@@ -82,14 +82,12 @@ public class CopyValueDialog extends DialogWrapper {
 
         panel.add(new RightPanel().createRightPanel(settings, this::handleUpdate), BorderLayout.EAST);
 
-        textArea.getEditor().getComponent().requestFocus();
-
         return panel;
     }
 
     private void handleUpdate(Settings settings) {
         textArea.reload(settings);
-        needToSaveSettings = true;
+        settingsChanged = true;
     }
 }
 
