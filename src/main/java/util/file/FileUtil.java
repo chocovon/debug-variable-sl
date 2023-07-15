@@ -1,15 +1,29 @@
 package util.file;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import static config.Config.DEFAULT_PATH_ABSOLUTE;
-import static config.Config.META_NAME;
 
 public class FileUtil {
+    static {
+        try {
+            Files.createDirectories(Paths.get(DEFAULT_PATH_ABSOLUTE));
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot create working directory", e);
+        }
+    }
+
     public static void saveFile(String str, String path) throws IOException {
         try (FileWriter fw = new FileWriter(path);
              BufferedWriter bw = new BufferedWriter(fw)){
@@ -46,16 +60,6 @@ public class FileUtil {
 
     public static String readBytesFileAsISOString(String path) throws IOException {
         return new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.ISO_8859_1);
-    }
-
-    public static String readBytesAsISOString(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        byte[] buffer = new byte[0xFFFF];
-        for (int len = inputStream.read(buffer); len != -1; len = inputStream.read(buffer)) {
-            os.write(buffer, 0, len);
-        }
-        byte[] bytes = os.toByteArray();
-        return new String(bytes, StandardCharsets.ISO_8859_1);
     }
 
     public static void removeLine(String path, String matcher) throws IOException {
