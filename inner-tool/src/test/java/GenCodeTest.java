@@ -3,7 +3,10 @@ import org.junit.Test;
 import common.GenCodeRequest;
 import common.Settings;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +60,38 @@ public class GenCodeTest {
         settings.skipDefaults = true;
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n", genCode);
+    }
+
+    enum E {VAL}
+
+    @Test
+    public void testSimple() {
+        class TestObject {
+            long aLong = 1;
+            float flt = 1;
+            double dlb = 1;
+            char c = '1';
+            Date date  = new Date(112312312);
+            E e = E.VAL;
+
+            BigDecimal db = new BigDecimal(1);
+            BigInteger bi = new BigInteger("1");
+        }
+
+        TestObject testObject = new TestObject();
+        Settings settings = new Settings();
+        settings.skipNulls = true;
+        settings.skipDefaults = true;
+        String genCode = GenCodeHelper.genCode(testObject, settings);
+        Assert.assertEquals("TestObject testObject = new TestObject();\n" +
+                "testObject.aLong = 1L;\n" +
+                "testObject.flt = 1.0f;\n" +
+                "testObject.dlb = 1.0;\n" +
+                "testObject.c = '1';\n" +
+                "testObject.date = new Date(112312312);\n" +
+                "testObject.e = E.VAL;\n" +
+                "testObject.db = new BigDecimal(1);\n" +
+                "testObject.bi = new BigInteger(\"1\");\n", genCode);
     }
 
     @Test
@@ -170,29 +205,87 @@ public class GenCodeTest {
         }
         class U2 extends U {
         }
+        class U3 extends U2 {
+        }
+        class U4 extends U2 {
+        }
 
         class TestObject {
-            List users = new ArrayList<>();
+            List users1 = new ArrayList<>();
+            List users2 = new ArrayList<>();
+            List users3 = new ArrayList<>();
+            List users4 = new ArrayList<>();
+            List users5 = new ArrayList<>();
         }
 
         TestObject testObject = new TestObject();
-        testObject.users.add(new U1());
-        testObject.users.add(new U2());
+        testObject.users1.add(null);
+        testObject.users1.add(new U1());
+        testObject.users1.add(new U1());
+        testObject.users1.add(new U2());
+
+        testObject.users2.add(new U1());
+        testObject.users2.add(new U());
+
+        testObject.users3.add(new U());
+        testObject.users3.add(new U1());
+
+        testObject.users4.add(new U1());
+        testObject.users4.add(new U2());
+
+        testObject.users5.add(1);
+        testObject.users5.add("x");
 
         Settings settings = new Settings();
         settings.useBaseClasses = true;
 
         String genCode = GenCodeHelper.genCode(testObject, settings);
-        Assert.assertEquals("U1 u1 = new U1();\n" +
+        Assert.assertEquals("U u = new U();\n" +
+                "\n" +
+                "U1 u1 = new U1();\n" +
+                "\n" +
+                "U1 u12 = new U1();\n" +
+                "\n" +
+                "U1 u13 = new U1();\n" +
+                "\n" +
+                "U1 u14 = new U1();\n" +
+                "\n" +
+                "U1 u15 = new U1();\n" +
                 "\n" +
                 "U2 u2 = new U2();\n" +
                 "\n" +
-                "List<U> users = new ArrayList<>();\n" +
-                "users.add(u1);\n" +
-                "users.add(u2);\n" +
+                "U2 u22 = new U2();\n" +
+                "\n" +
+                "U u3 = new U();\n" +
+                "\n" +
+                "List<U> users1 = new ArrayList<>();\n" +
+                "users1.add(null);\n" +
+                "users1.add(u1);\n" +
+                "users1.add(u12);\n" +
+                "users1.add(u2);\n" +
+                "\n" +
+                "List<U> users2 = new ArrayList<>();\n" +
+                "users2.add(u13);\n" +
+                "users2.add(u);\n" +
+                "\n" +
+                "List<U> users3 = new ArrayList<>();\n" +
+                "users3.add(u3);\n" +
+                "users3.add(u14);\n" +
+                "\n" +
+                "List<U> users4 = new ArrayList<>();\n" +
+                "users4.add(u15);\n" +
+                "users4.add(u22);\n" +
+                "\n" +
+                "List<Object> users5 = new ArrayList<>();\n" +
+                "users5.add(1);\n" +
+                "users5.add(\"x\");\n" +
                 "\n" +
                 "TestObject testObject = new TestObject();\n" +
-                "testObject.users = users;\n", genCode);
+                "testObject.users1 = users1;\n" +
+                "testObject.users2 = users2;\n" +
+                "testObject.users3 = users3;\n" +
+                "testObject.users4 = users4;\n" +
+                "testObject.users5 = users5;\n", genCode);
     }
 
     @Test
@@ -345,4 +438,29 @@ public class GenCodeTest {
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.setFilters(filters);\n", genCode);
     }
+
+
+    // TODO: produces wrong code !
+    @Test
+    public void testRecursive() {
+        class Inner {
+            Object parent;
+        }
+
+        class TestObject {
+            Inner inner = new Inner();
+        }
+
+        TestObject testObject = new TestObject();
+        testObject.inner.parent = testObject;
+
+        String genCode = GenCodeHelper.genCode(testObject);
+        Assert.assertEquals("Inner inner = new Inner();\n" +
+                "inner.parent = parent;\n" +
+                "\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.inner = inner;\n", genCode);
+    }
+
+
 }

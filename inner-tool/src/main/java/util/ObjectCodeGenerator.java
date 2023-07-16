@@ -437,6 +437,9 @@ public class ObjectCodeGenerator {
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
+    /**
+     * find common generic class for collections.
+     */
     private static Class<?> narrow(Class<?> clazz, Object object) {
         if (object == null) {
             return clazz;
@@ -458,22 +461,18 @@ public class ObjectCodeGenerator {
             return newClazz;
         }
 
+        Class<?> finder;
+
         // find common root.
         Set<Class<?>> classes = new HashSet<>();
-        for (Class<?> finder = newClazz; finder != Object.class; finder = finder.getSuperclass()) {
-            if (finder.equals(clazz)) {
-                return finder;
-            } else {
-                classes.add(finder);
-            }
+        for (finder = newClazz; finder != null; finder = finder.getSuperclass()) {
+            classes.add(finder);
         }
 
-        for (Class<?> finder = clazz; finder != Object.class; finder = finder.getSuperclass()) {
-            if (classes.contains(finder)) {
-                return finder;
-            }
+        for (finder = clazz; !classes.contains(finder); ) {
+            finder = finder.getSuperclass();
         }
 
-        return Object.class;
+        return finder;
     }
 }
