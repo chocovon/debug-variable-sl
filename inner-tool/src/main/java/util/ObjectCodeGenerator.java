@@ -48,22 +48,18 @@ public class ObjectCodeGenerator {
 
         String getConstructCode() {
             Class<?> clazz = object.getClass();
-            String simpleName = clazz.getName()
-                    .replaceAll(".*\\.", "")
-                    .replaceAll(".*\\$\\d+", "")
-                    .replaceAll("\\$", ".");
-            String constructorClass = simpleName.replace(";", "[]");
+            String simpleName = getSimpleName(clazz.getName());
             String className0;
             if (variableType == null) {
-                className0 = constructorClass;
+                className0 = simpleName;
             } else {
-                className0 = settings.useBaseClasses ? variableType : constructorClass;
+                className0 = settings.useBaseClasses ? variableType : simpleName;
             }
 
             String constructorCall;
             if (clazz.isArray()) {
                 int length = Array.getLength(object);
-                constructorCall = simpleName.replace(";", "[" + length + "]");
+                constructorCall = simpleName.replace("[]", "[" + length + "]");
             } else {
                 constructorCall = simpleName + generateCtorGenerics() + "()";
             }
@@ -140,6 +136,14 @@ public class ObjectCodeGenerator {
         }
     }
 
+    private String getSimpleName(String name) {
+        return name
+                .replaceAll(".*\\.", "")
+                .replaceAll(".*\\$\\d+", "")
+                .replaceAll("\\$", ".")
+                .replace(";", "[]");
+    }
+
     // do not use generics for maps and collections descendants: children may be plain classes.
     private static final Set<Class<?>> knownGenerics = new HashSet<>(Arrays.asList(
             ArrayList.class, LinkedList.class, Vector.class,
@@ -188,9 +192,7 @@ public class ObjectCodeGenerator {
         this.variableName = genCodeRequest.getVariableName();
         String variableType = genCodeRequest.getVariableType();
         if (variableType != null) {
-            this.variableType = variableType
-                    .replaceAll(".*\\.", "")
-                    .replace("$", ".");
+            this.variableType = getSimpleName(variableType);
         }
     }
 
