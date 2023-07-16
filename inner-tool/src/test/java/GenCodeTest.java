@@ -3,7 +3,9 @@ import org.junit.Test;
 import common.GenCodeRequest;
 import common.Settings;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GenCodeTest {
@@ -105,22 +107,90 @@ public class GenCodeTest {
         TestObject testObject = new TestObject();
         testObject.users.put(1, "henady");
         HashMap groups = new HashMap();
-        groups.put(1, "admins");
+        groups.put(1, 1);
+        groups.put(2, "admins");
         testObject.setGroups(groups);
 
         Settings settings = new Settings();
         settings.useBaseClasses = true;
 
         String genCode = GenCodeHelper.genCode(testObject, settings);
-        Assert.assertEquals("Map groups = new HashMap();\n" +
-                "groups.put(1, \"admins\");\n" +
+        Assert.assertEquals("Map<Integer, Object> groups = new HashMap<>();\n" +
+                "groups.put(1, 1);\n" +
+                "groups.put(2, \"admins\");\n" +
                 "\n" +
-                "Map users = new HashMap();\n" +
+                "Map<Integer, String> users = new HashMap<>();\n" +
                 "users.put(1, \"henady\");\n" +
                 "\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.users = users;\n" +
                 "testObject.setGroups(groups);\n", genCode);
+    }
+
+    @Test
+    public void testReplaceWithBaseAndGenerics() {
+        class U {
+        }
+        class U1 extends U {
+        }
+        class U2 extends U {
+        }
+
+        class TestObject {
+            Map<Object, Object> users = new HashMap<>();
+        }
+
+        TestObject testObject = new TestObject();
+        testObject.users.put(1, new U1());
+        testObject.users.put(2, new U2());
+
+        Settings settings = new Settings();
+        settings.useBaseClasses = true;
+
+        String genCode = GenCodeHelper.genCode(testObject, settings);
+        Assert.assertEquals("U1 u1 = new U1();\n" +
+                "\n" +
+                "U2 u2 = new U2();\n" +
+                "\n" +
+                "Map<Integer, U> users = new HashMap<>();\n" +
+                "users.put(1, u1);\n" +
+                "users.put(2, u2);\n" +
+                "\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.users = users;\n", genCode);
+    }
+
+    @Test
+    public void testArrayReplaceWithBaseAndGenerics() {
+        class U {
+        }
+        class U1 extends U {
+        }
+        class U2 extends U {
+        }
+
+        class TestObject {
+            List users = new ArrayList<>();
+        }
+
+        TestObject testObject = new TestObject();
+        testObject.users.add(new U1());
+        testObject.users.add(new U2());
+
+        Settings settings = new Settings();
+        settings.useBaseClasses = true;
+
+        String genCode = GenCodeHelper.genCode(testObject, settings);
+        Assert.assertEquals("U1 u1 = new U1();\n" +
+                "\n" +
+                "U2 u2 = new U2();\n" +
+                "\n" +
+                "List<U> users = new ArrayList<>();\n" +
+                "users.add(u1);\n" +
+                "users.add(u2);\n" +
+                "\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.users = users;\n", genCode);
     }
 
     @Test

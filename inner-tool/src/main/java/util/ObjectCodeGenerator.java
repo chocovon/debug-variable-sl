@@ -20,6 +20,9 @@ public class ObjectCodeGenerator {
         String referenceName;
         Object object;
 
+        String keyType;
+        String valueType;
+
         String assignmentCode;
 
         ObjectCode(int level, String referenceName, Object object, String variableType) {
@@ -28,16 +31,28 @@ public class ObjectCodeGenerator {
             this.object = object;
             this.constructorLevel = level;
             this.variableType = variableType;
+
+            Class<?> clazz = object.getClass();
+
+            if (clazz.isArray()) {
+                assignmentCode = getArrayCode(object, level, referenceName);
+            } else if (object instanceof Collection) {
+                assignmentCode = getCollectionCode((Collection<?>) object, level, referenceName);
+            } else if (object instanceof Map) {
+                assignmentCode = getMapCode((Map<?, ?>) object, level, referenceName);
+            } else {
+                assignmentCode = getPojoCode(object, level, referenceName);
+            }
         }
 
         String getConstructCode() {
-            String className0;
             Class<?> clazz = object.getClass();
             String simpleName = clazz.getName()
                     .replaceAll(".*\\.", "")
                     .replaceAll(".*\\$\\d+", "")
                     .replaceAll("\\$", ".");
             String constructorClass = simpleName.replace(";", "[]");
+            String className0;
             if (variableType == null) {
                 className0 = constructorClass;
             } else {
@@ -49,10 +64,72 @@ public class ObjectCodeGenerator {
                 int length = Array.getLength(object);
                 constructorCall = simpleName.replace(";", "[" + length + "]");
             } else {
-                constructorCall = simpleName + "()";
+                constructorCall = simpleName + generateCtorGenerics() + "()";
             }
 
-            return className0 + " " + referenceName + " = new " + constructorCall + ";\n";
+            return className0 + generateVarGenerics() + " " + referenceName + " = new " + constructorCall + ";\n";
+        }
+
+        private String generateVarGenerics() {
+            if (keyType != null && valueType != null) {
+                return String.format("<%s, %s>", keyType, valueType);
+            } else if (keyType != null) {
+                return String.format("<%s>", keyType);
+            }
+            return "";
+        }
+
+        private String generateCtorGenerics() {
+            if (keyType != null || valueType != null) {
+                return "<>";
+            }
+            return "";
+        }
+
+        private String getMapCode(Map<?, ?> object, int level, String referenceName) {
+            StringBuilder str = new StringBuilder();
+            Class<?> keyClass = null;
+            Class<?> valueClass = null;
+            for (Map.Entry<?, ?> entry : object.entrySet()) {
+                Object key = entry.getKey();
+                Object value = entry.getValue();
+                keyClass = narrow(keyClass, key);
+                valueClass = narrow(valueClass, value);
+                String keyStr = createObjectCode(key, level + 1, null, null);
+                String valStr = createObjectCode(value, level + 1, null, null);
+                str.append(referenceName).append(".put(").append(keyStr).append(", ").append(valStr).append(");\n");
+            }
+            if (keyClass != null) {
+                keyType = keyClass.getSimpleName();
+            }
+            if (valueClass != null) {
+                valueType = valueClass.getSimpleName();
+            }
+            return str.toString();
+        }
+
+        private String getCollectionCode(Collection<?> object, int level, String referenceName) {
+            StringBuilder str = new StringBuilder();
+            Class<?> keyClass = null;
+            for (Object ele : object) {
+                keyClass = narrow(keyClass, ele);
+                String eleVal = createObjectCode(ele, level + 1, null, null);
+                str.append(referenceName).append(".add(").append(eleVal).append(");\n");
+            }
+            if (keyClass != null) {
+                keyType = keyClass.getSimpleName();
+            }
+            return str.toString();
+        }
+
+        private String getArrayCode(Object object, int level, String referenceName) {
+            StringBuilder str = new StringBuilder();
+            int length = Array.getLength(object);
+            for (int i = 0; i < length; i++) {
+                String eleVal = createObjectCode(Array.get(object, i), level + 1, null, null);
+                str.append(referenceName).append("[").append(i).append("] = ").append(eleVal).append(";\n");
+            }
+            return str.toString();
         }
     }
 
@@ -176,59 +253,16 @@ public class ObjectCodeGenerator {
                 }
                 return existed.referenceName;
             } else {
-                Class<?> clz = object.getClass();
                 String referenceName = variableName != null
                         ? uniqueNameGenerator.createUniqueName(variableName)
-                        : genReferenceName(clz);
+                        : genReferenceName(object.getClass());
                 ObjectCode objectCode = new ObjectCode(level, referenceName, object, variableType);
                 existingObjectCode.put(object, objectCode);
-
-                String code;
-                if (clz.isArray()) {
-                    code = getArrayCode(object, level, referenceName);
-                } else if (object instanceof Collection) {
-                    code = getCollectionCode((Collection<?>) object, level, referenceName);
-                } else if (object instanceof Map) {
-                    code = getMapCode((Map<?, ?>) object, level, referenceName);
-                } else {
-                    code = getPojoCode(object, level, referenceName);
-                }
-
-                objectCode.assignmentCode = code;
-
                 return referenceName;
             }
         }
     }
 
-    private String getMapCode(Map<?, ?> object, int level, String referenceName) {
-        StringBuilder str = new StringBuilder();
-        for (Object key : object.keySet()) {
-            String keyStr = createObjectCode(key, level + 1, null, null);
-            String valStr = createObjectCode(object.get(key), level + 1, null, null);
-            str.append(referenceName).append(".put(").append(keyStr).append(", ").append(valStr).append(");\n");
-        }
-        return str.toString();
-    }
-
-    private String getCollectionCode(Collection<?> object, int level, String referenceName) {
-        StringBuilder str = new StringBuilder();
-        for (Object ele : object) {
-            String eleVal = createObjectCode(ele, level + 1, null, null);
-            str.append(referenceName).append(".add(").append(eleVal).append(");\n");
-        }
-        return str.toString();
-    }
-
-    private String getArrayCode(Object object, int level, String referenceName) {
-        StringBuilder str = new StringBuilder();
-        int length = Array.getLength(object);
-        for (int i = 0; i < length; i++) {
-            String eleVal = createObjectCode(Array.get(object, i), level + 1, null, null);
-            str.append(referenceName).append("[").append(i).append("] = ").append(eleVal).append(";\n");
-        }
-        return str.toString();
-    }
 
     private String getPojoCode(Object object, int level, String referenceName) {
         Class<?> clz = object.getClass();
@@ -288,7 +322,6 @@ public class ObjectCodeGenerator {
                         continue;
                     }
                 }
-
 
                 str.append(referenceName).append(".");
                 if (setter != null) {
@@ -376,5 +409,45 @@ public class ObjectCodeGenerator {
             map.put(key, list);
         }
         list.add(value);
+    }
+
+    private static Class<?> narrow(Class<?> clazz, Object object) {
+        if (object == null) {
+            return clazz;
+        }
+
+        Class<?> newClazz = object.getClass();
+
+        if (clazz == null) {
+            return newClazz;
+        }
+
+        if (clazz.equals(Object.class) || clazz.equals(newClazz)) {
+            return clazz;
+        }
+
+        if (clazz.isAssignableFrom(newClazz)) {
+            return clazz;
+        } else if (newClazz.isAssignableFrom(clazz)) {
+            return newClazz;
+        }
+
+        // find common root.
+        Set<Class<?>> classes = new HashSet<>();
+        for (Class<?> finder = newClazz; finder != Object.class; finder = finder.getSuperclass()) {
+            if (finder.equals(clazz)) {
+                return finder;
+            } else {
+                classes.add(finder);
+            }
+        }
+
+        for (Class<?> finder = clazz; finder != Object.class; finder = finder.getSuperclass()) {
+            if (classes.contains(finder)) {
+                return finder;
+            }
+        }
+
+        return Object.class;
     }
 }
