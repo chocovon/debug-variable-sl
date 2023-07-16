@@ -1,5 +1,6 @@
+package ui.dialog;
+
 import common.Settings;
-import ui.dialog.RightPanel;
 
 import javax.swing.*;
 
@@ -15,6 +16,8 @@ public class RightPanelTest {
 
         // pack the frame and make it visible
         frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        frame.requestFocus();
     }
 }
