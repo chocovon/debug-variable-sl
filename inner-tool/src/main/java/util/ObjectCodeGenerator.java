@@ -205,7 +205,9 @@ public class ObjectCodeGenerator {
             if (objectCode.constructorLevel == objectCode.level) {
                 ret.append(objectCode.assignmentCode);
             } else {
-                putToList(remainingFieldsCode, objectCode.level, objectCode);
+                remainingFieldsCode
+                        .computeIfAbsent(objectCode.level, k -> new ArrayList<>())
+                        .add(objectCode);
             }
         }
         for (List<ObjectCode> remains : remainingFieldsCode.values()) {
@@ -400,15 +402,6 @@ public class ObjectCodeGenerator {
 
     private static String firstUpper(String str) {
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
-    }
-
-    private static <K, V> void putToList(Map<K, List<V>> map, K key, V value) {
-        List<V> list = map.get(key);
-        if (list == null) {
-            list = new ArrayList<>();
-            map.put(key, list);
-        }
-        list.add(value);
     }
 
     private static Class<?> narrow(Class<?> clazz, Object object) {
