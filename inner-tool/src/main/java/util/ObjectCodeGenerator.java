@@ -253,7 +253,7 @@ public class ObjectCodeGenerator {
                 } catch (NoSuchMethodException ignored) {
                 }
 
-                if (this.settings.supportUnderscore && setter == null && field.getName().startsWith("_")) {
+                if (this.settings.supportUnderscores && setter == null && field.getName().startsWith("_")) {
                     try {
                         fieldName = fieldName.substring(1);
                         String setterName = firstUpper(fieldName);

@@ -73,7 +73,7 @@ public class CopyValueDialog extends DialogWrapper {
 
         // Add the text area
         LabeledComponent<JScrollPane> textAreaComponent = new LabeledComponent<>();
-        textAreaComponent.setText("Generated code");
+        textAreaComponent.setText("Extracted code");
         JScrollPane component = new JBScrollPane(textArea, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         component.setBorder(null);
         textAreaComponent.setComponent(component);

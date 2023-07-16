@@ -9,7 +9,7 @@ public class GenCodeHelper {
         settings.setFormat("java");
         settings.setSkipNulls(false);
         settings.setSkipDefaults(false);
-        settings.setSupportUnderscore(false);
+        settings.setSupportUnderscores(false);
         settings.setUseBaseClasses(false);
         settings.setAddEmptyLines(false);
         settings.setMaxLevel(10);

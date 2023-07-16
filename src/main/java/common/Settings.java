@@ -4,12 +4,12 @@ public class Settings {
     public String format = "java";
     public boolean skipNulls = true;
     public boolean skipDefaults = true;
-    public boolean supportUnderscore = true;
+    public boolean supportUnderscores = true;
     public boolean useBaseClasses = true;
     public boolean addEmptyLines = true;
     public int maxLevel = 10;
 
-    public boolean prettyFormat; // json
+    public boolean prettyFormat = true; // json
 
     public String getFormat() {
         return format;
@@ -39,12 +39,12 @@ public class Settings {
         return useBaseClasses;
     }
 
-    public boolean isSupportUnderscore() {
-        return supportUnderscore;
+    public boolean isSupportUnderscores() {
+        return supportUnderscores;
     }
 
-    public void setSupportUnderscore(boolean supportUnderscore) {
-        this.supportUnderscore = supportUnderscore;
+    public void setSupportUnderscores(boolean supportUnderscores) {
+        this.supportUnderscores = supportUnderscores;
     }
 
     public void setUseBaseClasses(boolean useBaseClasses) {

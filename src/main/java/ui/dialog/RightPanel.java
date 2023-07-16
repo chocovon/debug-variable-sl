@@ -97,7 +97,7 @@ public class RightPanel {
 
         checkboxPanel.add(createCheckBox("Remove null values", settings.isSkipNulls(), settings::setSkipNulls));
         checkboxPanel.add(createCheckBox("Remove default values", settings.isSkipDefaults(), settings::setSkipDefaults));
-        checkboxPanel.add(createCheckBox("Support underscore", settings.isSupportUnderscore(), settings::setSupportUnderscore));
+        checkboxPanel.add(createCheckBox("Support underscores", settings.isSupportUnderscores(), settings::setSupportUnderscores));
         checkboxPanel.add(createCheckBox("Use base classes", settings.isUseBaseClasses(), settings::setUseBaseClasses));
         checkboxPanel.add(createCheckBox("Add empty lines", settings.isAddEmptyLines(), settings::setAddEmptyLines));
 

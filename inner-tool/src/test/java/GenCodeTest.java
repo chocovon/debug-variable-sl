@@ -246,7 +246,7 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         Settings settings = new Settings();
-        settings.supportUnderscore = true;
+        settings.supportUnderscores = true;
 
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("Filter filter = new Filter();\n" +
