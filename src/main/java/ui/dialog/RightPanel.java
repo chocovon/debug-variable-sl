@@ -105,7 +105,12 @@ public class RightPanel {
         checkboxPanel.add(createCheckBox("Remove default values", settings.isSkipDefaults(), settings::setSkipDefaults));
         checkboxPanel.add(createCheckBox("Support underscores", settings.isSupportUnderscores(), settings::setSupportUnderscores));
         checkboxPanel.add(createCheckBox("Use base classes", settings.isUseBaseClasses(), settings::setUseBaseClasses));
-        checkboxPanel.add(createCheckBox("Add empty lines", settings.isAddEmptyLines(), settings::setAddEmptyLines));
+        Component useOnlyKnowGenerics = createCheckBox("Use only known generics", settings.isUseKnownGenerics(), settings::setUseKnownGenerics);
+        checkboxPanel.add(createCheckBox("Use generics", settings.isUseGenerics(), useGenerics -> {
+            settings.setUseGenerics(useGenerics);
+            useOnlyKnowGenerics.setEnabled(useGenerics);
+        }));
+        checkboxPanel.add(useOnlyKnowGenerics);
 
         return checkboxPanel;
     }

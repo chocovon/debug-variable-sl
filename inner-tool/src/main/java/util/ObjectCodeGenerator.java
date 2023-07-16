@@ -10,6 +10,7 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.regex.Pattern;
 
 public class ObjectCodeGenerator {
@@ -90,11 +91,14 @@ public class ObjectCodeGenerator {
             StringBuilder str = new StringBuilder();
             Class<?> keyClass = null;
             Class<?> valueClass = null;
+            boolean useGenerics = isUseGenerics(settings, object.getClass());
             for (Map.Entry<?, ?> entry : object.entrySet()) {
                 Object key = entry.getKey();
                 Object value = entry.getValue();
-                keyClass = narrow(keyClass, key);
-                valueClass = narrow(valueClass, value);
+                if (useGenerics) {
+                    keyClass = narrow(keyClass, key);
+                    valueClass = narrow(valueClass, value);
+                }
                 String keyStr = createObjectCode(key, level + 1, null, null);
                 String valStr = createObjectCode(value, level + 1, null, null);
                 str.append(referenceName).append(".put(").append(keyStr).append(", ").append(valStr).append(");\n");
@@ -111,8 +115,11 @@ public class ObjectCodeGenerator {
         private String getCollectionCode(Collection<?> object, int level, String referenceName) {
             StringBuilder str = new StringBuilder();
             Class<?> keyClass = null;
+            boolean useGenerics = isUseGenerics(settings, object.getClass());
             for (Object ele : object) {
-                keyClass = narrow(keyClass, ele);
+                if (useGenerics) {
+                    keyClass = narrow(keyClass, ele);
+                }
                 String eleVal = createObjectCode(ele, level + 1, null, null);
                 str.append(referenceName).append(".add(").append(eleVal).append(");\n");
             }
@@ -131,6 +138,32 @@ public class ObjectCodeGenerator {
             }
             return str.toString();
         }
+    }
+
+    // do not use generics for maps and collections descendants: children may be plain classes.
+    private static final Set<Class<?>> knownGenerics = new HashSet<>(Arrays.asList(
+            ArrayList.class, LinkedList.class, Vector.class,
+            HashSet.class, LinkedHashSet.class, TreeSet.class, EnumSet.class,
+            ArrayDeque.class, PriorityQueue.class,
+            HashMap.class, LinkedHashMap.class, TreeMap.class, EnumMap.class,
+            WeakHashMap.class, IdentityHashMap.class, Hashtable.class,
+
+            ArrayBlockingQueue.class, ConcurrentHashMap.class, ConcurrentLinkedQueue.class,
+            ConcurrentLinkedDeque.class, CopyOnWriteArrayList.class, CopyOnWriteArraySet.class,
+            ConcurrentSkipListMap.class, LinkedBlockingDeque.class, LinkedBlockingQueue.class,
+            LinkedTransferQueue.class, PriorityBlockingQueue.class, SynchronousQueue.class
+    ));
+
+    private boolean isUseGenerics(Settings settings, Class<?> clazz) {
+        if (!settings.useGenerics) {
+            return false;
+        }
+
+        if (settings.useKnownGenerics) {
+            return knownGenerics.contains(clazz);
+        }
+
+        return true;
     }
 
     private final Object rootObj;
@@ -197,7 +230,7 @@ public class ObjectCodeGenerator {
             }
 
             // add empty line before new
-            if (ret.length() != 0 && settings.addEmptyLines) {
+            if (ret.length() != 0) {
                 ret.append("\n");
             }
 

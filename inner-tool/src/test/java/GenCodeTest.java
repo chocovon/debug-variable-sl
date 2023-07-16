@@ -86,8 +86,10 @@ public class GenCodeTest {
         String genCode = GenCodeHelper.genCode(testObject);
         Assert.assertEquals("TestObject testObject = new TestObject();\n" +
                 "testObject.some = 1;\n" +
+                "\n" +
                 "TestObject testObject2 = new TestObject();\n" +
                 "testObject2.some = 1;\n" +
+                "\n" +
                 "TestObject[] testObjectArr = new TestObject[2];\n" +
                 "testObjectArr[0] = testObject;\n" +
                 "testObjectArr[1] = testObject2;\n", genCode);
@@ -222,6 +224,7 @@ public class GenCodeTest {
                 "some[0] = 1;\n" +
                 "some[1] = 2;\n" +
                 "some[2] = 3;\n" +
+                "\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.some = some;\n", genCode);
     }
@@ -239,14 +242,18 @@ public class GenCodeTest {
                 "some[0] = 1;\n" +
                 "some[1] = 2;\n" +
                 "some[2] = 3;\n" +
+                "\n" +
                 "Integer[] some2 = new Integer[3];\n" +
                 "some2[0] = 1;\n" +
                 "some2[1] = 2;\n" +
                 "some2[2] = 3;\n" +
+                "\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.some = some;\n" +
+                "\n" +
                 "TestObject testObject2 = new TestObject();\n" +
                 "testObject2.some = some2;\n" +
+                "\n" +
                 "TestObject[] testObjectArr = new TestObject[2];\n" +
                 "testObjectArr[0] = testObject;\n" +
                 "testObjectArr[1] = testObject2;\n", genCode);
@@ -267,6 +274,7 @@ public class GenCodeTest {
         String genCode = GenCodeHelper.genCode(testObject);
         Assert.assertEquals("TestObject.Inner inner = new TestObject.Inner();\n" +
                 "inner.x = 1;\n" +
+                "\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.inner = inner;\n", genCode);
     }
@@ -288,12 +296,15 @@ public class GenCodeTest {
         Assert.assertEquals("Filter filter = new Filter();\n" +
                 "filter.name = \"name\";\n" +
                 "filter.value = \"value\";\n" +
+                "\n" +
                 "Filter filter2 = new Filter();\n" +
                 "filter2.name = \"name\";\n" +
                 "filter2.value = \"value\";\n" +
+                "\n" +
                 "Filter[] _filters = new Filter[2];\n" +
                 "_filters[0] = filter;\n" +
                 "_filters[1] = filter2;\n" +
+                "\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject._filters = _filters;\n", genCode);
     }

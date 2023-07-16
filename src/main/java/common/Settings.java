@@ -6,7 +6,8 @@ public class Settings {
     public boolean skipDefaults = true;
     public boolean supportUnderscores = true;
     public boolean useBaseClasses = true;
-    public boolean addEmptyLines = true;
+    public boolean useGenerics = true;
+    public boolean useKnownGenerics = true;
     public int maxLevel = 10;
 
     public boolean prettyFormat = true; // json
@@ -51,12 +52,20 @@ public class Settings {
         this.useBaseClasses = useBaseClasses;
     }
 
-    public boolean isAddEmptyLines() {
-        return addEmptyLines;
+    public boolean isUseGenerics() {
+        return useGenerics;
     }
 
-    public void setAddEmptyLines(boolean addEmptyLines) {
-        this.addEmptyLines = addEmptyLines;
+    public void setUseGenerics(boolean useGenerics) {
+        this.useGenerics = useGenerics;
+    }
+
+    public boolean isUseKnownGenerics() {
+        return useKnownGenerics;
+    }
+
+    public void setUseKnownGenerics(boolean useKnownGenerics) {
+        this.useKnownGenerics = useKnownGenerics;
     }
 
     public int getMaxLevel() {

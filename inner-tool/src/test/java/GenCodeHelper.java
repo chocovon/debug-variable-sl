@@ -11,7 +11,6 @@ public class GenCodeHelper {
         settings.setSkipDefaults(false);
         settings.setSupportUnderscores(false);
         settings.setUseBaseClasses(false);
-        settings.setAddEmptyLines(false);
         settings.setMaxLevel(10);
         genCodeRequest.setSettings(settings);
         return SaveLoader.genCodeInternal(object, genCodeRequest).code;
