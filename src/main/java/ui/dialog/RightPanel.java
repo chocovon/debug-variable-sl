@@ -1,6 +1,7 @@
 package ui.dialog;
 
 import com.intellij.ui.JBIntSpinner;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import common.Settings;
 import org.jetbrains.annotations.NotNull;
@@ -19,16 +20,19 @@ public class RightPanel {
 
         JPanel main = new JPanel();
         main.setLayout(new BoxLayout(main, BoxLayout.Y_AXIS));
+        main.add(stickLeft(new JBLabel("Output format:")));
+        String[] values = {"Java", "JSON"};
+        main.add(new JComboBox<>(values));
 
         main.add(stickLeft(createCheckBoxes()));
-        main.add(spinner());
+        main.add(stickLeft(spinner()));
 
         main.setBorder(JBUI.Borders.emptyTop(5));
 
         return stickLeft(main);
     }
 
-    public static JPanel stickLeft(JPanel panel) {
+    public static JPanel stickLeft(JComponent panel) {
         JPanel main = new JPanel();
         main.setLayout(new FlowLayout(FlowLayout.LEFT));
         main.add(panel);
@@ -63,8 +67,8 @@ public class RightPanel {
         checkboxPanel.add(createCheckBox("Support underscore", settings.isSupportUnderscore(), settings::setSupportUnderscore));
         checkboxPanel.add(createCheckBox("Use base classes", settings.isUseBaseClasses(), settings::setUseBaseClasses));
         checkboxPanel.add(createCheckBox("Add empty lines", settings.isAddEmptyLines(), settings::setAddEmptyLines));
-        checkboxPanel.add(createCheckBox("View as JSON", settings.format.equals("json"), value ->
-                settings.format = value ? "json" : "java"));
+//        checkboxPanel.add(createCheckBox("View as JSON", settings.format.equals("json"), value ->
+//                settings.format = value ? "json" : "java"));
 
         return checkboxPanel;
     }
