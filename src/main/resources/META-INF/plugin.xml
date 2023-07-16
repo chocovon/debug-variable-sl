@@ -6,17 +6,18 @@
     <description>
         <![CDATA[
             <p>Save and load objects in debugger variable tree.
-            In addition, copying JSON or Java code from debug variables is available too.
+            Extract debug variable as a Java code or a JSON object.
             </p>
 
             <h3>Usage</h3>
-            <p>In a debugger breakpoint stack frame, right click on a variable, you will see
-            "Save Value", "Load Value..." and "Copy value as Java code" on the menu.</p>
+            <p>In a debugger breakpoint stack frame, right click on a variable, pick
+                "Save Value", "Load Value..." or "Extract Value..."  menu item.</p>
             <ul>
                 <li>"Save Value" will directly save the selected value.</li>
                 <li>"Load Value..." will popup a list of previously saved values, you can select one
                 and load it to the variable. It works just like "Set Value".</li>
-                <li>"Copy value as Java code" will copy value as java code to the clipboard.</li>
+                <li>"Extract Value..." will extract value as a Java or JSON code
+                with possibility to copy the result to the clipboard.</li>
             </ul>
 
             <br>
@@ -25,7 +26,7 @@
                 <li>The plugin applies Kryo to serialize and persist the objects.
                 It is basically designed to save/load pure data objects.
                 If the type of the object is not supported by Kryo's default serializer, it cannot be saved. </li>
-                <li>All data are saved in USER_HOME/.IntelliJPlugin/DebuggerVariableSaveLoader/</li>
+                <li>All Kryo data are saved in USER_HOME/.IntelliJPlugin/DebuggerVariableSaveLoader/</li>
             </ul>
 
             <br>
