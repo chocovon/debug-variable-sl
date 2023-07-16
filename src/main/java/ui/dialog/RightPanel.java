@@ -101,12 +101,24 @@ public class RightPanel {
         JPanel checkboxPanel = new JPanel();
         checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
 
-        checkboxPanel.add(createCheckBox("Remove null values", settings.isSkipNulls(), settings::setSkipNulls));
-        checkboxPanel.add(createCheckBox("Remove default values", settings.isSkipDefaults(), settings::setSkipDefaults));
-        checkboxPanel.add(createCheckBox("Support underscores", settings.isSupportUnderscores(), settings::setSupportUnderscores));
-        checkboxPanel.add(createCheckBox("Use base classes", settings.isUseBaseClasses(), settings::setUseBaseClasses));
-        Component useOnlyKnowGenerics = createCheckBox("Use only known generics", settings.isUseKnownGenerics(), settings::setUseKnownGenerics);
-        checkboxPanel.add(createCheckBox("Use generics", settings.isUseGenerics(), useGenerics -> {
+        checkboxPanel.add(createCheckBox("Hide null values",
+                "Do not use null values in setters",
+                settings.isSkipNulls(), settings::setSkipNulls));
+        checkboxPanel.add(createCheckBox("Hide default values",
+                "Do not use defaults values like false or zeros in setters",
+                settings.isSkipDefaults(), settings::setSkipDefaults));
+        checkboxPanel.add(createCheckBox("Support underscores",
+                "Recognize underscores in field names and use corresponding setters",
+                settings.isSupportUnderscores(), settings::setSupportUnderscores));
+        checkboxPanel.add(createCheckBox("Use base classes",
+                "Use base classes from setter or field",
+                settings.isUseBaseClasses(), settings::setUseBaseClasses));
+        JCheckBox useOnlyKnowGenerics = createCheckBox("Use only known generics",
+                "Use generics only for known JDK maps and collections",
+                settings.isUseKnownGenerics(), settings::setUseKnownGenerics);
+        checkboxPanel.add(createCheckBox("Use generics",
+                "Use generics for Collection and Map instances",
+                settings.isUseGenerics(), useGenerics -> {
             settings.setUseGenerics(useGenerics);
             useOnlyKnowGenerics.setEnabled(useGenerics);
         }));
@@ -120,13 +132,16 @@ public class RightPanel {
         JPanel checkboxPanel = new JPanel();
         checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
 
-        checkboxPanel.add(createCheckBox("Pretty format", settings.isPrettyFormat(), settings::setPrettyFormat));
+        checkboxPanel.add(createCheckBox("Pretty format",
+                "Format JSON to human readable text",
+                settings.isPrettyFormat(), settings::setPrettyFormat));
 
         return checkboxPanel;
     }
 
-    private Component createCheckBox(String label, boolean initValue, Consumer<Boolean> fieldRef) {
+    private JCheckBox createCheckBox(String label, String tooltip, boolean initValue, Consumer<Boolean> fieldRef) {
         JCheckBox checkBox = new JCheckBox(label);
+        checkBox.setToolTipText(tooltip);
         checkBox.getModel().setSelected(initValue);
         checkBox.getModel().addActionListener(e -> {
             fieldRef.accept(checkBox.getModel().isSelected());
