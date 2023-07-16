@@ -95,11 +95,12 @@ public class SaveLoader {
     public static GenCodeMessage genCodeInternal(Object object, GenCodeRequest genCodeRequest) {
         GenCodeMessage genCodeMessage = new GenCodeMessage();
 
-        String format = genCodeRequest.getSettings().format;
+        Settings settings = genCodeRequest.getSettings();
+        String format = settings.format;
         try {
             switch (format) {
                 case "json":
-                    genCodeMessage.code = JSON.toJSONString(object, true);
+                    genCodeMessage.code = JSON.toJSONString(object, settings.prettyFormat);
                     break;
                 case "java":
                     genCodeMessage.code = new ObjectCodeGenerator(object, genCodeRequest).genCode();

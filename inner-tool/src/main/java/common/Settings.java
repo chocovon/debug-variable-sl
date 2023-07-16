@@ -9,6 +9,8 @@ public class Settings {
     public boolean addEmptyLines = true;
     public int maxLevel = 10;
 
+    public boolean prettyFormat; // json
+
     public String getFormat() {
         return format;
     }
@@ -63,5 +65,13 @@ public class Settings {
 
     public void setMaxLevel(int maxLevel) {
         this.maxLevel = maxLevel;
+    }
+
+    public boolean isPrettyFormat() {
+        return prettyFormat;
+    }
+
+    public void setPrettyFormat(boolean prettyFormat) {
+        this.prettyFormat = prettyFormat;
     }
 }
