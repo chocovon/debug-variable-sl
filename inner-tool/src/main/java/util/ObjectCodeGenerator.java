@@ -32,7 +32,9 @@ public class ObjectCodeGenerator {
             this.object = object;
             this.constructorLevel = level;
             this.variableType = variableType;
+        }
 
+        public void generateAssignmentCode() {
             Class<?> clazz = object.getClass();
 
             if (clazz.isArray()) {
@@ -295,6 +297,7 @@ public class ObjectCodeGenerator {
                         : genReferenceName(object.getClass());
                 ObjectCode objectCode = new ObjectCode(level, referenceName, object, variableType);
                 existingObjectCode.put(object, objectCode);
+                objectCode.generateAssignmentCode();
                 return referenceName;
             }
         }

@@ -440,7 +440,6 @@ public class GenCodeTest {
     }
 
 
-    // TODO: produces wrong code !
     @Test
     public void testRecursive() {
         class Inner {
@@ -455,10 +454,10 @@ public class GenCodeTest {
         testObject.inner.parent = testObject;
 
         String genCode = GenCodeHelper.genCode(testObject);
-        Assert.assertEquals("Inner inner = new Inner();\n" +
-                "inner.parent = parent;\n" +
+        Assert.assertEquals("TestObject testObject = new TestObject();\n" +
                 "\n" +
-                "TestObject testObject = new TestObject();\n" +
+                "Inner inner = new Inner();\n" +
+                "inner.parent = testObject;\n" +
                 "testObject.inner = inner;\n", genCode);
     }
 
