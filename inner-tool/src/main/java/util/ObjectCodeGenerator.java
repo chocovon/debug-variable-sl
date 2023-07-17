@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.regex.Pattern;
 
 public class ObjectCodeGenerator {
     private class ObjectCode {
@@ -58,12 +57,25 @@ public class ObjectCodeGenerator {
                 className0 = settings.useBaseClasses ? variableType : simpleName;
             }
 
+            if (className0.isEmpty() && variableType != null) {
+                className0 = variableType;
+            }
+
+            if (className0.isEmpty()) {
+                // it is anonymous, find base class
+                className0 = getSimpleNameFromSuperClass(clazz);
+            }
+
             String constructorCall;
             if (clazz.isArray()) {
                 int length = Array.getLength(object);
                 constructorCall = simpleName.replace("[]", "[" + length + "]");
             } else {
                 constructorCall = simpleName + generateCtorGenerics() + "()";
+                if (simpleName.isEmpty()) {
+                    simpleName = getSimpleNameFromSuperClass(clazz);
+                    constructorCall = simpleName + generateCtorGenerics() + "() {/* anonymous class */}";
+                }
             }
 
             return className0 + generateVarGenerics() + " " + referenceName + " = new " + constructorCall + ";\n";
@@ -138,6 +150,14 @@ public class ObjectCodeGenerator {
         }
     }
 
+    private String getSimpleNameFromSuperClass(Class<?> clazz) {
+        String simpleName = "";
+        while (simpleName.isEmpty() && clazz.getSuperclass() != null) {
+            simpleName = getSimpleName(clazz.getSuperclass().getName());
+        }
+        return simpleName;
+    }
+
     private String getSimpleName(String name) {
         return name
                 .replaceAll(".*\\.", "")
@@ -175,27 +195,20 @@ public class ObjectCodeGenerator {
     private final Object rootObj;
     private final Settings settings;
 
-    private String variableName;
-    private String variableType;
+    private final String variableName;
+    private final String variableType;
 
     private final UniqueNameGenerator uniqueNameGenerator = new UniqueNameGenerator();
     private final Map<Object, ObjectCode> existingObjectCode = new IdentityHashMap<>();
 
     private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
-    public ObjectCodeGenerator(Object rootObj, Settings settings) {
-        this.rootObj = rootObj;
-        this.settings = settings;
-    }
-
     public ObjectCodeGenerator(Object rootObj, GenCodeRequest genCodeRequest) {
         this.rootObj = rootObj;
         this.settings = genCodeRequest.getSettings();
         this.variableName = genCodeRequest.getVariableName();
         String variableType = genCodeRequest.getVariableType();
-        if (variableType != null) {
-            this.variableType = getSimpleName(variableType);
-        }
+        this.variableType = variableType != null ? getSimpleName(variableType) : null;
     }
 
     public String genCode() {
@@ -384,13 +397,8 @@ public class ObjectCodeGenerator {
 
     private String genReferenceName(Class<?> clz) {
         String name = clz.getSimpleName();
-        if (name.length() == 0) {
-            String[] parts = clz.getName().split(Pattern.quote("."));
-            name = parts[parts.length - 1];
-        }
-
-        if (name.length() == 0) {
-            name = "unknownType";
+        if (name.length() == 0) { // anonymous
+            name = getSimpleNameFromSuperClass(clz);
         }
 
         name = firstLower(name);

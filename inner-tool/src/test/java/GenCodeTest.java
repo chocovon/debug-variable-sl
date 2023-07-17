@@ -71,7 +71,7 @@ public class GenCodeTest {
             float flt = 1;
             double dlb = 1;
             char c = '1';
-            Date date  = new Date(112312312);
+            Date date = new Date(112312312);
             E e = E.VAL;
 
             BigDecimal db = new BigDecimal(1);
@@ -358,6 +358,7 @@ public class GenCodeTest {
         class TestObject {
             class Inner {
                 int x = 1;
+                private int y = 2;
             }
 
             Inner inner = new Inner();
@@ -461,5 +462,88 @@ public class GenCodeTest {
                 "testObject.inner = inner;\n", genCode);
     }
 
+    @Test
+    public void testDontUseGenerics() {
+        Map map = new HashMap();
+        map.put(1, "1");
+        map.put(2, "2");
 
+        Settings settings = new Settings();
+        settings.useGenerics = false;
+        String genCode = GenCodeHelper.genCode(map, settings);
+        Assert.assertEquals("HashMap hashMap = new HashMap();\n" +
+                "hashMap.put(1, \"1\");\n" +
+                "hashMap.put(2, \"2\");\n", genCode);
+    }
+
+    @Test
+    public void testDoesNotMatterKnownGenerics() {
+        Map map = new HashMap();
+        map.put(1, "1");
+        map.put(2, "2");
+
+        Settings settings = new Settings();
+        settings.useKnownGenerics = false;
+        String genCode = GenCodeHelper.genCode(map, settings);
+        Assert.assertEquals("HashMap<Integer, String> hashMap = new HashMap<>();\n" +
+                "hashMap.put(1, \"1\");\n" +
+                "hashMap.put(2, \"2\");\n", genCode);
+    }
+
+    @Test
+    public void testAnonMap() {
+        Map map = new HashMap() {{
+            put(1, "1");
+            put(2, "2");
+        }};
+
+        String genCode = GenCodeHelper.genCode(map);
+        Assert.assertEquals("HashMap hashMap = new HashMap() {/* anonymous class */};\n" +
+                "hashMap.put(1, \"1\");\n" +
+                "hashMap.put(2, \"2\");\n", genCode);
+    }
+
+    @Test
+    public void testAnonMapInClass() {
+        class TestObject {
+            Map map = new HashMap() {{
+                put(1, "1");
+                put(2, "2");
+            }};
+        }
+
+        TestObject testObject = new TestObject();
+
+        String genCode = GenCodeHelper.genCode(testObject);
+        Assert.assertEquals("Map map = new HashMap() {/* anonymous class */};\n" +
+                "map.put(1, \"1\");\n" +
+                "map.put(2, \"2\");\n" +
+                "\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.map = map;\n", genCode);
+    }
+
+    @Test
+    public void testTester() {
+        Map<Tester, Tester> map = new HashMap<>();
+        Tester t1 = new Tester("t1", "tt");
+        Tester t2 = new Tester("t2", "pp");
+        map.put(t1, t2);
+        map.put(t2, t1);
+        Tester t3 = new Tester("t3", "hh", t1);
+        map.put(t3, t3);
+        t2.obj = t2;
+
+        String genCode = GenCodeHelper.genCode(t3);
+        Assert.assertEquals("Tester obj = new Tester();\n" +
+                "obj.setName(\"t1\");\n" +
+                "obj.setType(\"tt\");\n" +
+                "obj.obj = null;\n" +
+                "\n" +
+                "Tester tester = new Tester();\n" +
+                "tester.setName(\"t3\");\n" +
+                "tester.setType(\"hh\");\n" +
+                "tester.obj = obj;\n", genCode);
+
+    }
 }

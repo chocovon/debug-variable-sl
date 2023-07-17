@@ -80,7 +80,9 @@ public class SaveLoader {
             codeMessage.status = "ok";
             Settings settings = new Settings();
             settings.skipNulls = false;
-            codeMessage.code = new ObjectCodeGenerator(object, settings).genCode();
+            GenCodeRequest genCodeRequest = new GenCodeRequest();
+            genCodeRequest.setSettings(settings);
+            codeMessage.code = new ObjectCodeGenerator(object, genCodeRequest).genCode();
         } catch (Throwable e) {
             codeMessage.status = "err";
             codeMessage.err = getStackTrace(e);
