@@ -21,7 +21,10 @@ public class Config {
     public static String GEN_CODE_SETTINGS_KEY = "debug-variable-sl.genCodeSettings";
 
     static {
-        String[] values = PropertiesComponent.getInstance().getValues(DIMENSION_KEY);
+        // PropertiesComponent.getValues deprecated
+        String value = PropertiesComponent.getInstance().getValue(DIMENSION_KEY);
+        String[] values = value != null ? value.split("\n") : null;
+
         if (values != null) {
             tableDimension = new Dimension(Integer.parseInt(values[0]), Integer.parseInt(values[1]));
         }

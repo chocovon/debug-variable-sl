@@ -43,10 +43,6 @@
     <depends>com.intellij.modules.xdebugger</depends>
     <depends>com.intellij.modules.java</depends>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <preloadingActivity implementation="extension.InitPluginActivity"/>
-    </extensions>
-
     <actions>
         <action class="action.LoadValueAction" id="LoadValueAction"
                 text="Load Value..." description="Load previously saved value.">

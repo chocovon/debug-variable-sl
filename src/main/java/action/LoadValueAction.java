@@ -7,6 +7,7 @@ import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.JBPopupListener;
 import com.intellij.openapi.ui.popup.LightweightWindowEvent;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.xdebugger.impl.ui.tree.actions.XDebuggerTreeActionBase;
 import com.intellij.xdebugger.impl.ui.tree.nodes.WatchNode;
 import com.intellij.xdebugger.impl.ui.tree.nodes.XValueNodeImpl;
@@ -76,10 +77,14 @@ public class LoadValueAction extends XDebuggerTreeActionBase {
                     @Override
                     public void onClosed(@NotNull LightweightWindowEvent event) {
                         Config.tableDimension = event.asPopup().getContent().getSize();
-                        PropertiesComponent.getInstance().setValues(Config.DIMENSION_KEY, new String[]{
+
+                        // PropertiesComponent.setValues deprecated
+                        String[] values = new String[]{
                                 String.valueOf(Config.tableDimension.width),
                                 String.valueOf(Config.tableDimension.height)
-                        });
+                        };
+                        String value = StringUtil.join(values, "\n");
+                        PropertiesComponent.getInstance().setValue(Config.DIMENSION_KEY, value);
                     }
                 })
                 .createPopup();
