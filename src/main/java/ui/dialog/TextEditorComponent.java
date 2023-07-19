@@ -34,9 +34,9 @@ public class TextEditorComponent extends JComponent {
 
         // Get the file type
         FileTypeManager fileTypeManager = FileTypeManager.getInstance();
-        FileType fileType = fileTypeManager.getFileTypeByExtension(settings.format);
+        FileType fileType = fileTypeManager.getFileTypeByExtension(settings.getFormat());
 
-        // Create the editor with Java syntax support
+        // Create the editor with syntax support
         editor = (EditorEx)editorFactory.createEditor(document, project, fileType, false);
         EditorSettings editorSettings = editor.getSettings();
         editorSettings.setLineNumbersShown(true);
@@ -59,7 +59,7 @@ public class TextEditorComponent extends JComponent {
     }
 
     public void reload(Settings settings) {
-        setFileType(settings.format);
+        setFileType(settings.getFormat());
         String code = codeProvider.apply(settings);
         ApplicationManager.getApplication().runWriteAction(() -> {
             editor.getDocument().setText(code);

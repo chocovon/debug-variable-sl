@@ -13,16 +13,16 @@ public class GenCodeHelper {
         settings.setUseBaseClasses(false);
         settings.setMaxLevel(10);
         genCodeRequest.setSettings(settings);
-        return SaveLoader.genCodeInternal(object, genCodeRequest).code;
+        return SaveLoader.genCodeInternal(object, genCodeRequest);
     }
 
     public static String genCode(Object object, Settings settings) {
         GenCodeRequest genCodeRequest = new GenCodeRequest();
         genCodeRequest.setSettings(settings);
-        return SaveLoader.genCodeInternal(object, genCodeRequest).code;
+        return SaveLoader.genCodeInternal(object, genCodeRequest);
     }
 
     public static String genCode(Object object, GenCodeRequest genCodeRequest) {
-        return SaveLoader.genCodeInternal(object, genCodeRequest).code;
+        return SaveLoader.genCodeInternal(object, genCodeRequest);
     }
 }

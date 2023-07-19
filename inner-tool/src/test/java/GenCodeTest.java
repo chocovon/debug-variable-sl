@@ -36,7 +36,7 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         Settings settings = new Settings();
-        settings.skipNulls = true;
+        settings.setSkipNulls(true);
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n", genCode);
     }
@@ -56,8 +56,8 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         Settings settings = new Settings();
-        settings.skipNulls = true;
-        settings.skipDefaults = true;
+        settings.setSkipNulls(true);
+        settings.setSkipDefaults(true);
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n", genCode);
     }
@@ -80,8 +80,8 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         Settings settings = new Settings();
-        settings.skipNulls = true;
-        settings.skipDefaults = true;
+        settings.setSkipNulls(true);
+        settings.setSkipDefaults(true);
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n" +
                 "testObject.aLong = 1L;\n" +
@@ -103,8 +103,8 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         Settings settings = new Settings();
-        settings.skipNulls = true;
-        settings.skipDefaults = true;
+        settings.setSkipNulls(true);
+        settings.setSkipDefaults(true);
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n" +
                 "testObject.bool = false;\n" +
@@ -149,7 +149,7 @@ public class GenCodeTest {
         testObject.setGroups(groups);
 
         Settings settings = new Settings();
-        settings.useBaseClasses = true;
+        settings.setUseBaseClasses(true);
 
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("Map<Integer, Object> groups = new HashMap<>();\n" +
@@ -182,7 +182,7 @@ public class GenCodeTest {
         testObject.users.put(2, new U2());
 
         Settings settings = new Settings();
-        settings.useBaseClasses = true;
+        settings.setUseBaseClasses(true);
 
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("U1 u1 = new U1();\n" +
@@ -237,7 +237,7 @@ public class GenCodeTest {
         testObject.users5.add("x");
 
         Settings settings = new Settings();
-        settings.useBaseClasses = true;
+        settings.setUseBaseClasses(true);
 
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("U u = new U();\n" +
@@ -295,8 +295,8 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         Settings settings = new Settings();
-        settings.skipNulls = true;
-        settings.useBaseClasses = true;
+        settings.setSkipNulls(true);
+        settings.setUseBaseClasses(true);
         GenCodeRequest genCodeRequest = new GenCodeRequest();
         genCodeRequest.setSettings(settings);
         genCodeRequest.setVariableType("Object");
@@ -421,7 +421,7 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         Settings settings = new Settings();
-        settings.supportUnderscores = true;
+        settings.setSupportUnderscores(true);
 
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("Filter filter = new Filter();\n" +
@@ -469,7 +469,7 @@ public class GenCodeTest {
         map.put(2, "2");
 
         Settings settings = new Settings();
-        settings.useGenerics = false;
+        settings.setUseGenerics(false);
         String genCode = GenCodeHelper.genCode(map, settings);
         Assert.assertEquals("HashMap hashMap = new HashMap();\n" +
                 "hashMap.put(1, \"1\");\n" +
@@ -483,7 +483,7 @@ public class GenCodeTest {
         map.put(2, "2");
 
         Settings settings = new Settings();
-        settings.useKnownGenerics = false;
+        settings.setUseKnownGenerics(false);
         String genCode = GenCodeHelper.genCode(map, settings);
         Assert.assertEquals("HashMap<Integer, String> hashMap = new HashMap<>();\n" +
                 "hashMap.put(1, \"1\");\n" +

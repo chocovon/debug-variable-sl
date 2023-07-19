@@ -21,6 +21,7 @@ import util.exception.JsonSerializeException;
 import util.exception.SaveValueInnerException;
 import util.exception.StackFrameThreadException;
 import util.file.FileUtil;
+import util.SerUtil;
 
 import java.io.IOException;
 
@@ -119,7 +120,7 @@ public class PluginSaveLoader {
     }
 
     private static GenCodeMessage genCodeObject(NodeComponents comp, ObjectReference genCodeMethod, GenCodeRequest genCodeRequest) throws Exception {
-        StringReference genCodeRequestValue = comp.vm.mirrorOf(OBJECT_MAPPER.writeValueAsString(genCodeRequest));
+        StringReference genCodeRequestValue = comp.vm.mirrorOf(SerUtil.writeValueAsString(genCodeRequest));
 
         ObjectReference msg = (ObjectReference) ValueUtil.invokeMethod(genCodeMethod, "invoke",
                 comp.thread, null, comp.value, genCodeRequestValue);
