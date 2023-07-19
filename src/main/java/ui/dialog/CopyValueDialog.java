@@ -1,27 +1,27 @@
 package ui.dialog;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.LabeledComponent;
-import data.Settings;
+import com.intellij.ui.components.JBScrollPane;
+import common.Settings;
 import org.jetbrains.annotations.Nullable;
-import util.file.FileUtil;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.util.function.Function;
 
-import static config.Config.DEFAULT_PATH_ABSOLUTE;
-import static config.Config.PLUGIN_SETTINGS_JSON;
+import static config.Config.GEN_CODE_SETTINGS_KEY;
 
 public class CopyValueDialog extends DialogWrapper {
 
     private final TextEditorComponent textArea;
     private final Settings settings;
 
-    private boolean needToSaveSettings = false;
+    private boolean settingsChanged = false;
 
     public CopyValueDialog(@Nullable Project project, Settings settings, Function<Settings, String> codeProvider) {
         super(project, true);
@@ -29,9 +29,7 @@ public class CopyValueDialog extends DialogWrapper {
 
         textArea = new TextEditorComponent(project, settings, codeProvider);
 
-        setTitle("Copy Value to Clipboard as Java Code");
-
-        setSize(800, 600);
+        setTitle("Extract Value as Java or Json code");
 
         init();
     }
@@ -49,15 +47,15 @@ public class CopyValueDialog extends DialogWrapper {
         // This method is called when the user clicks the OK button
         // You can perform any desired logic or processing
 
-        String code = textArea.getEditor().getDocument().getText();
+        String code = textArea.getText();
 
         Toolkit.getDefaultToolkit().getSystemClipboard()
                 .setContents(new StringSelection(code), null);
 
-        if (needToSaveSettings) {
+        if (settingsChanged) {
             try {
                 String json = new ObjectMapper().writeValueAsString(settings);
-                FileUtil.saveFile(json, DEFAULT_PATH_ABSOLUTE + PLUGIN_SETTINGS_JSON);
+                PropertiesComponent.getInstance().setValue(GEN_CODE_SETTINGS_KEY, json);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -74,20 +72,22 @@ public class CopyValueDialog extends DialogWrapper {
 
         // Add the text area
         LabeledComponent<JScrollPane> textAreaComponent = new LabeledComponent<>();
-        textAreaComponent.setText("Generated code");
-        JScrollPane component = new JScrollPane(textArea);
+        textAreaComponent.setText("Extracted code");
+        JScrollPane component = new JBScrollPane(textArea, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         component.setBorder(null);
         textAreaComponent.setComponent(component);
         panel.add(textAreaComponent, BorderLayout.CENTER);
 
-        panel.add(new RightPanel().getRightPanel(settings, settings1 -> {
-            textArea.reload(settings1);
-            needToSaveSettings = true;
-        }), BorderLayout.EAST);
+        panel.add(new RightPanel().createRightPanel(settings, this::handleUpdate), BorderLayout.EAST);
 
-        textArea.getEditor().getComponent().requestFocus();
+        panel.setMinimumSize(new Dimension(600, 400));
 
         return panel;
+    }
+
+    private void handleUpdate(Settings settings) {
+        textArea.reload(settings);
+        settingsChanged = true;
     }
 }
 

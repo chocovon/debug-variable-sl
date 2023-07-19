@@ -14,7 +14,7 @@ import com.intellij.xdebugger.impl.ui.tree.nodes.XEvaluationCallbackBase;
 import com.sun.jdi.*;
 import org.jetbrains.annotations.NotNull;
 import ui.common.SimplePopupHint;
-import util.file.FileUtil;
+import util.file.StreamUtil;
 import util.thread.AsyncTask;
 
 import java.io.IOException;
@@ -79,8 +79,9 @@ public class VmMethodService {
             if (checkAndroid(comp)) {
                 InputStream resourceAsStream = VmMethodService.class.getResourceAsStream("/lib/" + DEX_NAME);
 
+                String bytes = StreamUtil.readBytesAsISOString(resourceAsStream);
                 String androidExprText =
-                        "        String str = \"" + escape(FileUtil.readBytesAsISOString(resourceAsStream)) + "\";" +
+                        "        String str = \"" + escape(bytes) + "\";" +
                                 "        byte[] bytes = str.getBytes(StandardCharsets.ISO_8859_1);\n" +
                                 "        ByteBuffer bb = ByteBuffer.wrap(bytes);\n" +
                                 "        ClassLoader parentClassLoader = ClassLoader.getSystemClassLoader().getParent();\n" +
@@ -115,8 +116,10 @@ public class VmMethodService {
 
         InputStream resourceAsStream = VmMethodService.class.getResourceAsStream("/lib/" + JAR_NAME);
 
+        String bytes = StreamUtil.readBytesAsISOString(resourceAsStream);
+
         String exprText =
-                "        String str = \"" + escape(FileUtil.readBytesAsISOString(resourceAsStream)) + "\";" +
+                "        String str = \"" + escape(bytes) + "\";" +
                 "        byte[] bytes = str.getBytes(StandardCharsets.ISO_8859_1);\n" +
                 "        File f = File.createTempFile(\"inner-tool\", \".jar\");" +
                 "        f.deleteOnExit();" +

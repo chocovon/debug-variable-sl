@@ -1,10 +1,5 @@
-package data.tool;
+package common;
 
-import data.Settings;
-
-/**
- * @see message.GenCodeMessage
- */
 public class GenCodeRequest {
     private Settings settings = new Settings();
 

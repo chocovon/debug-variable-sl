@@ -1,8 +1,5 @@
-package util;
+package common;
 
-/**
- * @see message.GenCodeMessage
- */
 public class GenCodeRequest {
     private Settings settings = new Settings();
 
