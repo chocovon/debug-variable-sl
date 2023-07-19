@@ -1,6 +1,5 @@
 package util.debugger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.debugger.engine.evaluation.EvaluateException;
 import com.intellij.xdebugger.impl.ui.tree.nodes.XValueNodeImpl;
 import com.sun.jdi.ClassNotLoadedException;
@@ -11,17 +10,17 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
+import common.GenCodeRequest;
 import common.Settings;
 import data.VariableInfo;
 import data.model.SavedValue;
 import data.tool.GenCodeMessage;
-import common.GenCodeRequest;
 import data.tool.ToolMessage;
+import util.SerUtil;
 import util.exception.JsonSerializeException;
 import util.exception.SaveValueInnerException;
 import util.exception.StackFrameThreadException;
 import util.file.FileUtil;
-import util.SerUtil;
 
 import java.io.IOException;
 
@@ -34,8 +33,6 @@ import static data.tool.Status.KRYO_ERROR;
 import static data.tool.Status.OK;
 
 public class PluginSaveLoader {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
     public static String genJavaCode(XValueNodeImpl node, Settings settings) throws Exception {
         NodeComponents comp = new NodeComponents(node);
 
