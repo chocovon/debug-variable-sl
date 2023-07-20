@@ -46,3 +46,11 @@ task buildInnerJar(type: Jar) {
     destinationDir(file('../src/main/resources/lib'))
     with jar
 }
+
+task buildMinimalInnerJar(type: Jar) {
+    from {
+       // configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    destinationDir(file('../src/main/resources/lib'))
+    with jar
+}

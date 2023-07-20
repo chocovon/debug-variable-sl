@@ -1,0 +1,46 @@
+<idea-plugin>
+    <id>com.github.chocovon.debug-variable-extractor</id>
+    <name>Debug Variable Extractor</name>
+    <vendor url="https://github.com/chocovon">chocovon</vendor>
+
+    <description>
+        <![CDATA[
+            <p>
+            Extract JSON or Java code from variables in debugger. If you are looking for a more comprehensive tool, see also
+            <a href="https://plugins.jetbrains.com/plugin/16513-debug-variable-save-load">Debug Variable Save Load</a>.
+            </p>
+            <br>
+
+            <h3>Usage</h3>
+            <p>
+            When stopped at breakpoint while debugging,
+            you can right click on a variable and select "Extract Value...".
+            The selected variable will be serialized to JSON or Java code
+            with possibility to get copied to your clipboard.
+            </p>
+            <br>
+            <h3>NOTES</h3>
+            <ul>
+                <li>
+                    This plugin utilizes debugger API, which collects all values available in debugger and thus will
+                    generate a more complete JSON string than
+                    <a href="https://plugins.jetbrains.com/plugin/16513-debug-variable-save-load">Debug Variable Save Load</a>.
+                </li>
+            </ul>
+        ]]>
+    </description>
+
+    <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.xdebugger</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <actions>
+        <action class="action.CopyValueAction" id="CopyValueAction"
+                text="Extract Value..." description="Extract value as Java or JSON code.">
+            <add-to-group group-id="XDebugger.ValueGroup" anchor="after" relative-to-action="XDebugger.CopyValue"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="meta alt C"/>
+        </action>
+    </actions>
+</idea-plugin>
