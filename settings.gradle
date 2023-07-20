@@ -1,4 +1,3 @@
 rootProject.name = 'debug-variable-sl'
-rootProject.name = 'debug-variable-extractor'
+//rootProject.name = 'debug-variable-extractor'
 include 'inner-tool'
-
