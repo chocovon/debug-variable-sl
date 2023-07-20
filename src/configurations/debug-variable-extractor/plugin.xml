@@ -1,4 +1,4 @@
-<idea-plugin>
+<idea-plugin require-restart="true">
     <id>com.github.chocovon.debug-variable-extractor</id>
     <name>Debug Variable Extractor</name>
     <vendor url="https://github.com/chocovon">chocovon</vendor>
@@ -26,6 +26,11 @@
                     generate a more complete JSON string than
                     <a href="https://plugins.jetbrains.com/plugin/16513-debug-variable-save-load">Debug Variable Save Load</a>.
                 </li>
+            </ul>
+            <h3>Authors</h3>
+            <ul>
+                <li>chocovon</li>
+                <li>Henady Zakalusky</li>
             </ul>
         ]]>
     </description>
