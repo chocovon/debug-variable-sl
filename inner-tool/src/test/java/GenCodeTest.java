@@ -463,6 +463,47 @@ public class GenCodeTest {
     }
 
     @Test
+    public void testRemainingFieldsCode() {
+        class Level3 {
+            Object level2;
+        }
+
+        class Level2 {
+            Object level1;
+            Level3 level3;
+        }
+
+        class Level1 {
+            Map<Integer, Level1> map1 = new HashMap<>();
+        }
+
+        Level1 level1 = new Level1();
+        Level2 level2 = new Level2();
+        Level3 level3 = new Level3();
+
+        level1.map1.put(1, level1);
+        level2.level1 = level1;
+
+        level2.level3 = level3;
+        level3.level2 = level2;
+
+
+        String genCode = GenCodeHelper.genCode(level3);
+        Assert.assertEquals("Level1 level1 = new Level1();\n" +
+                "\n" +
+                "HashMap<Integer, Level1> map1 = new HashMap<>();\n" +
+                "map1.put(1, level1);\n" +
+                "\n" +
+                "Level3 level3 = new Level3();\n" +
+                "level1.map1 = map1;\n" +
+                "\n" +
+                "Level2 level2 = new Level2();\n" +
+                "level2.level1 = level1;\n" +
+                "level2.level3 = level3;\n" +
+                "level3.level2 = level2;\n", genCode);
+    }
+
+    @Test
     public void testDontUseGenerics() {
         Map map = new HashMap();
         map.put(1, "1");
