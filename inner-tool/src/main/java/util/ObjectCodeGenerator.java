@@ -152,8 +152,9 @@ public class ObjectCodeGenerator {
 
     private String getSimpleNameFromSuperClass(Class<?> clazz) {
         String simpleName = "";
-        while (simpleName.isEmpty() && clazz.getSuperclass() != null) {
-            simpleName = getSimpleName(clazz.getSuperclass().getName());
+        while (simpleName.isEmpty() && clazz != null) {
+            simpleName = getSimpleName(clazz.getName());
+            clazz = clazz.getSuperclass();
         }
         return simpleName;
     }
@@ -288,7 +289,7 @@ public class ObjectCodeGenerator {
                 return object.toString();
             }
         } else if (object instanceof String) {
-            return "\"" + object + "\"";
+            return "\"" + escape((String) object) + "\"";
         } else if (object instanceof Enum) {
             return object.getClass().getSimpleName() + "." + object;
         } else if (object instanceof Date) {
@@ -487,5 +488,15 @@ public class ObjectCodeGenerator {
         }
 
         return finder;
+    }
+
+    private static String escape(String raw) {
+        return raw.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\b", "\\b")
+                .replace("\f", "\\f")
+                .replace("\n", "\\n\"\n  + \"")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }
