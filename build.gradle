@@ -52,7 +52,3 @@ task copyPluginXml (type: Copy) {
 task dvslBuild(type: GradleBuild) {
     tasks = ['copyPluginXml', ':inner-tool:buildInnerTool', 'buildPlugin']
 }
-
-task dveBuild(type: GradleBuild) {
-    tasks = ['copyPluginXml', ':inner-tool:buildMinimalInnerJar', 'buildPlugin']
-}

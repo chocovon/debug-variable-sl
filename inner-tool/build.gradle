@@ -41,15 +41,9 @@ def exist(String dxPath) {
 
 task buildInnerJar(type: Jar) {
     from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    destinationDir(file('../src/main/resources/lib'))
-    with jar
-}
-
-task buildMinimalInnerJar(type: Jar) {
-    from {
-       // configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        if (rootProject.name == 'debug-variable-sl') {
+            configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        }
     }
     destinationDir(file('../src/main/resources/lib'))
     with jar

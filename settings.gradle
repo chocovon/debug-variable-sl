@@ -1,3 +1,13 @@
-rootProject.name = 'debug-variable-sl'
-//rootProject.name = 'debug-variable-extractor'
+def configuration = 'debug-variable-sl'
+
+def propertiesFile = file('settings.properties')
+if (propertiesFile.exists()) {
+    def properties = new Properties()
+    properties.load(propertiesFile.newReader())
+    configuration = properties.getProperty('configuration')
+}
+
+println("Using $configuration configuration. (You can change it using settings.properties file)")
+
+rootProject.name = configuration
 include 'inner-tool'
