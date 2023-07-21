@@ -60,8 +60,8 @@ public class CopyValueAction extends XDebuggerTreeActionBase {
                     } else {
                         return PluginSaveLoader.genJavaCode(node, settings);
                     }
-                } catch (Exception exception) {
-                    return "Error: " + exception.getMessage();
+                } catch (Throwable throwable) {
+                    return "Error: " + throwable.getMessage();
                 }
             });
             popup.show();
