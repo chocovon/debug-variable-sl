@@ -234,37 +234,46 @@ public class ObjectCodeGenerator {
         StringBuilder ret = new StringBuilder();
         int curLevel = Integer.MAX_VALUE;
         Map<Integer, List<ObjectCode>> remainingFieldsCode = new HashMap<>();
+        boolean assignmentJustAdded = false;
         for (ObjectCode objectCode : outputCodes) {
             //meaning highest constructor level end, dump all remained field setters at that level
             if (curLevel > objectCode.constructorLevel) {
                 List<ObjectCode> remained = remainingFieldsCode.get(curLevel);
                 if (remained != null) {
                     for (ObjectCode fieldCode : remained) {
+                        // ret.append("// deep forward " + fieldCode.referenceName);
+                        ret.append("\n");
                         ret.append(fieldCode.assignmentCode);
+                        assignmentJustAdded = true;
                     }
                     remainingFieldsCode.remove(curLevel);
                 }
                 curLevel = objectCode.constructorLevel;
             }
 
-            // add empty line before new block with assigments
-            if (ret.length() != 0 && !objectCode.assignmentCode.isEmpty()) {
+            // add empty line before new block with assignments or after real assignments
+            if (ret.length() != 0 && !objectCode.assignmentCode.isEmpty() || assignmentJustAdded) {
                 ret.append("\n");
             }
 
             ret.append(objectCode.getConstructCode());
+            assignmentJustAdded = false;
 
-            if (objectCode.constructorLevel == objectCode.level) {
-                ret.append(objectCode.assignmentCode);
-            } else {
-                remainingFieldsCode
-                        .computeIfAbsent(objectCode.level, k -> new ArrayList<>())
-                        .add(objectCode);
+            if (!objectCode.assignmentCode.isEmpty()) { // no need to handle empty assignments
+                if (objectCode.constructorLevel == objectCode.level) {
+                    ret.append(objectCode.assignmentCode);
+                    assignmentJustAdded = true;
+                } else {
+                    remainingFieldsCode
+                            .computeIfAbsent(objectCode.level, k -> new ArrayList<>())
+                            .add(objectCode);
+                }
             }
         }
 
         for (List<ObjectCode> remains : remainingFieldsCode.values()) {
             for (ObjectCode r : remains) {
+                ret.append("\n");
                 ret.append(r.assignmentCode);
             }
         }

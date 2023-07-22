@@ -450,6 +450,7 @@ public class GenCodeTest {
                 "\n" +
                 "Inner inner = new Inner();\n" +
                 "inner.parent = testObject;\n" +
+                "\n" +
                 "testObject.inner = inner;\n", genCode);
     }
 
@@ -486,11 +487,13 @@ public class GenCodeTest {
                 "map1.put(1, level1);\n" +
                 "\n" +
                 "Level3 level3 = new Level3();\n" +
+                "\n" +
                 "level1.map1 = map1;\n" +
                 "\n" +
                 "Level2 level2 = new Level2();\n" +
                 "level2.level1 = level1;\n" +
                 "level2.level3 = level3;\n" +
+                "\n" +
                 "level3.level2 = level2;\n", genCode);
     }
 
