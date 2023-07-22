@@ -186,7 +186,6 @@ public class GenCodeTest {
 
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("U1 u1 = new U1();\n" +
-                "\n" +
                 "U2 u2 = new U2();\n" +
                 "\n" +
                 "Map<Integer, U> users = new HashMap<>();\n" +
@@ -241,21 +240,13 @@ public class GenCodeTest {
 
         String genCode = GenCodeHelper.genCode(testObject, settings);
         Assert.assertEquals("U u = new U();\n" +
-                "\n" +
                 "U1 u1 = new U1();\n" +
-                "\n" +
                 "U1 u12 = new U1();\n" +
-                "\n" +
                 "U1 u13 = new U1();\n" +
-                "\n" +
                 "U1 u14 = new U1();\n" +
-                "\n" +
                 "U1 u15 = new U1();\n" +
-                "\n" +
                 "U2 u2 = new U2();\n" +
-                "\n" +
                 "U2 u22 = new U2();\n" +
-                "\n" +
                 "U u3 = new U();\n" +
                 "\n" +
                 "List<U> users1 = new ArrayList<>();\n" +

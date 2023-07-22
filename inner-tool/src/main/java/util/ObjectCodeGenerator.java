@@ -247,12 +247,13 @@ public class ObjectCodeGenerator {
                 curLevel = objectCode.constructorLevel;
             }
 
-            // add empty line before new
-            if (ret.length() != 0) {
+            // add empty line before new block with assigments
+            if (ret.length() != 0 && !objectCode.assignmentCode.isEmpty()) {
                 ret.append("\n");
             }
 
             ret.append(objectCode.getConstructCode());
+
             if (objectCode.constructorLevel == objectCode.level) {
                 ret.append(objectCode.assignmentCode);
             } else {
@@ -261,6 +262,7 @@ public class ObjectCodeGenerator {
                         .add(objectCode);
             }
         }
+
         for (List<ObjectCode> remains : remainingFieldsCode.values()) {
             for (ObjectCode r : remains) {
                 ret.append(r.assignmentCode);
