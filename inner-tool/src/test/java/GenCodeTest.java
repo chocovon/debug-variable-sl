@@ -197,16 +197,64 @@ public class GenCodeTest {
     }
 
     @Test
+    public void testLevelSorting() {
+        class A {
+            Object b = "ok";
+        }
+
+        class B {
+            A a = new A();
+        }
+
+        class TestObject {
+            B b = new B();
+            A xa = new A();
+        }
+
+        TestObject obj = new TestObject();
+        obj.xa.b = obj.b;
+
+        String genCode = GenCodeHelper.genCode(obj);
+
+        // compare with generated code:
+        {
+            B b = new B();
+            A a = new A();
+            a.b = "ok";
+            A xa = new A();
+            xa.b = b;
+            b.a = a;
+            TestObject testObject = new TestObject();
+            testObject.b = b;
+            testObject.xa = xa;
+
+            String genCode2 = GenCodeHelper.genCode(testObject);
+
+            Assert.assertEquals(genCode, genCode2);
+        }
+
+        Assert.assertEquals("B b = new B();\n" +
+                "\n" +
+                "A a = new A();\n" +
+                "a.b = \"ok\";\n" +
+                "\n" +
+                "A xa = new A();\n" +
+                "xa.b = b;\n" +
+                "\n" +
+                "b.a = a;\n" +
+                "\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.b = b;\n" +
+                "testObject.xa = xa;\n", genCode);
+    }
+
+        @Test
     public void testArrayReplaceWithBaseAndGenerics() {
-        class U {
+        class A {
         }
-        class U1 extends U {
+        class B extends A {
         }
-        class U2 extends U {
-        }
-        class U3 extends U2 {
-        }
-        class U4 extends U2 {
+        class C extends A {
         }
 
         class TestObject {
@@ -219,18 +267,18 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         testObject.users1.add(null);
-        testObject.users1.add(new U1());
-        testObject.users1.add(new U1());
-        testObject.users1.add(new U2());
+        testObject.users1.add(new B());
+        testObject.users1.add(new B());
+        testObject.users1.add(new C());
 
-        testObject.users2.add(new U1());
-        testObject.users2.add(new U());
+        testObject.users2.add(new B());
+        testObject.users2.add(new A());
 
-        testObject.users3.add(new U());
-        testObject.users3.add(new U1());
+        testObject.users3.add(new A());
+        testObject.users3.add(new B());
 
-        testObject.users4.add(new U1());
-        testObject.users4.add(new U2());
+        testObject.users4.add(new B());
+        testObject.users4.add(new C());
 
         testObject.users5.add(1);
         testObject.users5.add("x");
@@ -239,33 +287,33 @@ public class GenCodeTest {
         settings.setUseBaseClasses(true);
 
         String genCode = GenCodeHelper.genCode(testObject, settings);
-        Assert.assertEquals("U u = new U();\n" +
-                "U1 u1 = new U1();\n" +
-                "U1 u12 = new U1();\n" +
-                "U1 u13 = new U1();\n" +
-                "U1 u14 = new U1();\n" +
-                "U1 u15 = new U1();\n" +
-                "U2 u2 = new U2();\n" +
-                "U2 u22 = new U2();\n" +
-                "U u3 = new U();\n" +
+        Assert.assertEquals("A a = new A();\n" +
+                "A a2 = new A();\n" +
+                "B b = new B();\n" +
+                "B b2 = new B();\n" +
+                "B b3 = new B();\n" +
+                "B b4 = new B();\n" +
+                "B b5 = new B();\n" +
+                "C c = new C();\n" +
+                "C c2 = new C();\n" +
                 "\n" +
-                "List<U> users1 = new ArrayList<>();\n" +
+                "List<A> users1 = new ArrayList<>();\n" +
                 "users1.add(null);\n" +
-                "users1.add(u1);\n" +
-                "users1.add(u12);\n" +
-                "users1.add(u2);\n" +
+                "users1.add(b);\n" +
+                "users1.add(b2);\n" +
+                "users1.add(c);\n" +
                 "\n" +
-                "List<U> users2 = new ArrayList<>();\n" +
-                "users2.add(u13);\n" +
-                "users2.add(u);\n" +
+                "List<A> users2 = new ArrayList<>();\n" +
+                "users2.add(b3);\n" +
+                "users2.add(a);\n" +
                 "\n" +
-                "List<U> users3 = new ArrayList<>();\n" +
-                "users3.add(u3);\n" +
-                "users3.add(u14);\n" +
+                "List<A> users3 = new ArrayList<>();\n" +
+                "users3.add(a2);\n" +
+                "users3.add(b4);\n" +
                 "\n" +
-                "List<U> users4 = new ArrayList<>();\n" +
-                "users4.add(u15);\n" +
-                "users4.add(u22);\n" +
+                "List<A> users4 = new ArrayList<>();\n" +
+                "users4.add(b5);\n" +
+                "users4.add(c2);\n" +
                 "\n" +
                 "List<Object> users5 = new ArrayList<>();\n" +
                 "users5.add(1);\n" +
@@ -404,6 +452,7 @@ public class GenCodeTest {
 
         class TestObject {
             private Filter[] _filters = new Filter[]{new Filter(), new Filter()};
+            private Object _object = new Object();
 
             public void setFilters(Filter[] _filters) {
                 this._filters = _filters;

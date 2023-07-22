@@ -401,7 +401,7 @@ public class ObjectCodeGenerator {
                 }
                 str.append(";\n");
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                throw new RuntimeException("Cannot access field", e);
             }
         }
         return str.toString();
