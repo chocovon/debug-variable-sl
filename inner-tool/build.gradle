@@ -2,6 +2,9 @@ plugins {
     id 'java'
 }
 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 //version rootProject.ext.toolVersion
 
 repositories {

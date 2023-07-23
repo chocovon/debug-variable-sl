@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class KryoUtil {
+    // TODO: kryo 5.1.0 depends on objenesis 3.2 which is build in 52.0 (java8), save/load still not usable in java7
     static Kryo kryo = new Kryo();
     static Set<ClassLoader> classLoaders = new LinkedHashSet<>();
 

@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
+import static util.CompatibilityUtil.putToList;
 import static util.code.ObjectCodeHelper.*;
 
 public class ObjectCodeGenerator {
@@ -220,9 +221,7 @@ public class ObjectCodeGenerator {
                     ret.append(objectCode.assignmentCode);
                     assignmentJustAdded = true;
                 } else {
-                    remainingFieldsCode
-                            .computeIfAbsent(objectCode.level, k -> new ArrayList<>())
-                            .add(objectCode);
+                    putToList(remainingFieldsCode, objectCode.level, objectCode);
                 }
             }
         }
