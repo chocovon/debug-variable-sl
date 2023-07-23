@@ -1,6 +1,6 @@
 /settings.properties
 /src/main/resources/lib/
-/src/main/resources/META-INF/plugin.xml
+/src/main/resources/META-INF/
 /lib/tools.jar
 /.idea
 /.gradle
