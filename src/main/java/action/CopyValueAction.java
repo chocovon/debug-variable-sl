@@ -22,24 +22,32 @@ import java.util.stream.Collectors;
 import static config.Config.GEN_CODE_SETTINGS_KEY;
 
 public class CopyValueAction extends XDebuggerTreeActionBase {
-    private static final Settings initialSettings = loadSettings();
     private static final boolean isExtractorPlugin = determineIsExtractorPlugin();
+    private static final Settings initialSettings = loadSettings();
 
     private static boolean determineIsExtractorPlugin() {
         try {
             URL resource = CopyValueAction.class.getResource("/META-INF/plugin.xml");
-            String content = new BufferedReader(new InputStreamReader(resource.openStream()))
-                    .lines().collect(Collectors.joining("\n"));
-            return content.contains("com.github.chocovon.debug-variable-extractor");
+            if (resource != null) {
+                String content = new BufferedReader(new InputStreamReader(resource.openStream()))
+                        .lines().collect(Collectors.joining("\n"));
+                return content.contains("com.github.chocovon.debug-variable-extractor");
+            }
         } catch (Exception e) {
-            return false;
+            e.printStackTrace();
         }
+        return false;
     }
 
     private static Settings loadSettings() {
         try {
-            String json = PropertiesComponent.getInstance().getValue(GEN_CODE_SETTINGS_KEY, "{}");
-            return new ObjectMapper().readValue(json, Settings.class);
+            String defaultJson = "{}";
+            String json = PropertiesComponent.getInstance().getValue(GEN_CODE_SETTINGS_KEY, defaultJson);
+            Settings ret = new ObjectMapper().readValue(json, Settings.class);
+            if (defaultJson.equals(json) && isExtractorPlugin) {
+                ret.setFormat("json");
+            }
+            return ret;
         } catch (Exception e) {
             return new Settings();
         }
