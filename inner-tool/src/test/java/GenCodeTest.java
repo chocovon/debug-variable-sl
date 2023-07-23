@@ -16,14 +16,14 @@ public class GenCodeTest {
     @Test
     public void testString() {
         String simple = "hello";
-        String genCode = GenCodeHelper.genCode(simple);
+        String genCode = GenCodeTestHelper.genCode(simple);
         Assert.assertEquals("String string = \"hello\";", genCode);
     }
 
     @Test
     public void testInt() {
         int simple = 5;
-        String genCode = GenCodeHelper.genCode(simple);
+        String genCode = GenCodeTestHelper.genCode(simple);
         Assert.assertEquals("Integer integer = 5;", genCode);
     }
 
@@ -37,7 +37,7 @@ public class GenCodeTest {
         TestObject testObject = new TestObject();
         Settings settings = new Settings();
         settings.setSkipNulls(true);
-        String genCode = GenCodeHelper.genCode(testObject, settings);
+        String genCode = GenCodeTestHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n", genCode);
     }
 
@@ -58,7 +58,7 @@ public class GenCodeTest {
         Settings settings = new Settings();
         settings.setSkipNulls(true);
         settings.setSkipDefaults(true);
-        String genCode = GenCodeHelper.genCode(testObject, settings);
+        String genCode = GenCodeTestHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n", genCode);
     }
 
@@ -82,7 +82,7 @@ public class GenCodeTest {
         Settings settings = new Settings();
         settings.setSkipNulls(true);
         settings.setSkipDefaults(true);
-        String genCode = GenCodeHelper.genCode(testObject, settings);
+        String genCode = GenCodeTestHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n" +
                 "testObject.aLong = 1L;\n" +
                 "testObject.flt = 1.0f;\n" +
@@ -105,7 +105,7 @@ public class GenCodeTest {
         Settings settings = new Settings();
         settings.setSkipNulls(true);
         settings.setSkipDefaults(true);
-        String genCode = GenCodeHelper.genCode(testObject, settings);
+        String genCode = GenCodeTestHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n" +
                 "testObject.bool = false;\n" +
                 "testObject.integer = 0;\n", genCode);
@@ -118,7 +118,7 @@ public class GenCodeTest {
         }
 
         TestObject[] testObject = new TestObject[]{new TestObject(), new TestObject()};
-        String genCode = GenCodeHelper.genCode(testObject);
+        String genCode = GenCodeTestHelper.genCode(testObject);
         Assert.assertEquals("TestObject testObject = new TestObject();\n" +
                 "testObject.some = 1;\n" +
                 "\n" +
@@ -151,7 +151,7 @@ public class GenCodeTest {
         Settings settings = new Settings();
         settings.setUseBaseClasses(true);
 
-        String genCode = GenCodeHelper.genCode(testObject, settings);
+        String genCode = GenCodeTestHelper.genCode(testObject, settings);
         Assert.assertEquals("Map<Integer, Object> groups = new HashMap<>();\n" +
                 "groups.put(1, 1);\n" +
                 "groups.put(2, \"admins\");\n" +
@@ -184,7 +184,7 @@ public class GenCodeTest {
         Settings settings = new Settings();
         settings.setUseBaseClasses(true);
 
-        String genCode = GenCodeHelper.genCode(testObject, settings);
+        String genCode = GenCodeTestHelper.genCode(testObject, settings);
         Assert.assertEquals("U1 u1 = new U1();\n" +
                 "U2 u2 = new U2();\n" +
                 "\n" +
@@ -214,7 +214,7 @@ public class GenCodeTest {
         TestObject obj = new TestObject();
         obj.xa.b = obj.b;
 
-        String genCode = GenCodeHelper.genCode(obj);
+        String genCode = GenCodeTestHelper.genCode(obj);
 
         // compare with generated code:
         {
@@ -228,7 +228,7 @@ public class GenCodeTest {
             testObject.b = b;
             testObject.xa = xa;
 
-            String genCode2 = GenCodeHelper.genCode(testObject);
+            String genCode2 = GenCodeTestHelper.genCode(testObject);
 
             Assert.assertEquals(genCode, genCode2);
         }
@@ -286,7 +286,7 @@ public class GenCodeTest {
         Settings settings = new Settings();
         settings.setUseBaseClasses(true);
 
-        String genCode = GenCodeHelper.genCode(testObject, settings);
+        String genCode = GenCodeTestHelper.genCode(testObject, settings);
         Assert.assertEquals("A a = new A();\n" +
                 "A a2 = new A();\n" +
                 "B b = new B();\n" +
@@ -340,7 +340,7 @@ public class GenCodeTest {
         genCodeRequest.setSettings(settings);
         genCodeRequest.setVariableType("Object");
         genCodeRequest.setVariableName("hello");
-        String genCode = GenCodeHelper.genCode(testObject, genCodeRequest);
+        String genCode = GenCodeTestHelper.genCode(testObject, genCodeRequest);
         Assert.assertEquals("Object hello = new TestObject();\n", genCode);
     }
 
@@ -351,7 +351,7 @@ public class GenCodeTest {
         }
 
         TestObject testObject = new TestObject();
-        String genCode = GenCodeHelper.genCode(testObject);
+        String genCode = GenCodeTestHelper.genCode(testObject);
         Assert.assertEquals("Integer[] some = new Integer[3];\n" +
                 "some[0] = 1;\n" +
                 "some[1] = 2;\n" +
@@ -369,7 +369,7 @@ public class GenCodeTest {
         }
 
         TestObject[] testObject = new TestObject[]{new TestObject(), new TestObject()};
-        String genCode = GenCodeHelper.genCode(testObject);
+        String genCode = GenCodeTestHelper.genCode(testObject);
         Assert.assertEquals("Integer[] some = new Integer[3];\n" +
                 "some[0] = 1;\n" +
                 "some[1] = 2;\n" +
@@ -404,7 +404,7 @@ public class GenCodeTest {
         }
 
         TestObject testObject = new TestObject();
-        String genCode = GenCodeHelper.genCode(testObject);
+        String genCode = GenCodeTestHelper.genCode(testObject);
         Assert.assertEquals("TestObject.Inner inner = new TestObject.Inner();\n" +
                 "inner.x = 1;\n" +
                 "\n" +
@@ -425,7 +425,7 @@ public class GenCodeTest {
         }
 
         TestObject testObject = new TestObject();
-        String genCode = GenCodeHelper.genCode(testObject);
+        String genCode = GenCodeTestHelper.genCode(testObject);
         Assert.assertEquals("Filter filter = new Filter();\n" +
                 "filter.name = \"name\";\n" +
                 "filter.value = \"value\";\n" +
@@ -463,7 +463,7 @@ public class GenCodeTest {
         Settings settings = new Settings();
         settings.setSupportUnderscores(true);
 
-        String genCode = GenCodeHelper.genCode(testObject, settings);
+        String genCode = GenCodeTestHelper.genCode(testObject, settings);
         Assert.assertEquals("Filter filter = new Filter();\n" +
                 "filter.name = \"name\";\n" +
                 "filter.value = \"value\";\n" +
@@ -494,7 +494,7 @@ public class GenCodeTest {
         TestObject testObject = new TestObject();
         testObject.inner.parent = testObject;
 
-        String genCode = GenCodeHelper.genCode(testObject);
+        String genCode = GenCodeTestHelper.genCode(testObject);
         Assert.assertEquals("TestObject testObject = new TestObject();\n" +
                 "\n" +
                 "Inner inner = new Inner();\n" +
@@ -529,7 +529,7 @@ public class GenCodeTest {
         level3.level2 = level2;
 
 
-        String genCode = GenCodeHelper.genCode(level3);
+        String genCode = GenCodeTestHelper.genCode(level3);
         Assert.assertEquals("Level1 level1 = new Level1();\n" +
                 "\n" +
                 "HashMap<Integer, Level1> map1 = new HashMap<>();\n" +
@@ -554,7 +554,7 @@ public class GenCodeTest {
 
         Settings settings = new Settings();
         settings.setUseGenerics(false);
-        String genCode = GenCodeHelper.genCode(map, settings);
+        String genCode = GenCodeTestHelper.genCode(map, settings);
         Assert.assertEquals("HashMap hashMap = new HashMap();\n" +
                 "hashMap.put(1, \"1\");\n" +
                 "hashMap.put(2, \"2\");\n", genCode);
@@ -568,7 +568,7 @@ public class GenCodeTest {
 
         Settings settings = new Settings();
         settings.setUseKnownGenerics(false);
-        String genCode = GenCodeHelper.genCode(map, settings);
+        String genCode = GenCodeTestHelper.genCode(map, settings);
         Assert.assertEquals("HashMap<Integer, String> hashMap = new HashMap<>();\n" +
                 "hashMap.put(1, \"1\");\n" +
                 "hashMap.put(2, \"2\");\n", genCode);
@@ -581,7 +581,7 @@ public class GenCodeTest {
             put(2, "2");
         }};
 
-        String genCode = GenCodeHelper.genCode(map);
+        String genCode = GenCodeTestHelper.genCode(map);
         Assert.assertEquals("HashMap hashMap = new HashMap() {/* anonymous class */};\n" +
                 "hashMap.put(1, \"1\");\n" +
                 "hashMap.put(2, \"2\");\n", genCode);
@@ -598,7 +598,7 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
 
-        String genCode = GenCodeHelper.genCode(testObject);
+        String genCode = GenCodeTestHelper.genCode(testObject);
         Assert.assertEquals("Map map = new HashMap() {/* anonymous class */};\n" +
                 "map.put(1, \"1\");\n" +
                 "map.put(2, \"2\");\n" +
@@ -618,7 +618,7 @@ public class GenCodeTest {
         map.put(t3, t3);
         t2.obj = t2;
 
-        String genCode = GenCodeHelper.genCode(t3);
+        String genCode = GenCodeTestHelper.genCode(t3);
         Assert.assertEquals("Tester obj = new Tester();\n" +
                 "obj.setName(\"t1\");\n" +
                 "obj.setType(\"tt\");\n" +

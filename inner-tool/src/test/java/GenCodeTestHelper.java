@@ -1,7 +1,7 @@
 import common.Settings;
 import common.GenCodeRequest;
 
-public class GenCodeHelper {
+public class GenCodeTestHelper {
 
     public static String genCode(Object object) {
         GenCodeRequest genCodeRequest = new GenCodeRequest();

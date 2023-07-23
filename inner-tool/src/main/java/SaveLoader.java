@@ -5,7 +5,7 @@ import message.LoadMessage;
 import message.SaveMessage;
 import util.JsonUtil;
 import util.KryoUtil;
-import util.ObjectCodeGenerator;
+import util.code.ObjectCodeGenerator;
 import util.SerUtil;
 
 import java.io.PrintWriter;
