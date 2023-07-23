@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import ui.common.SimplePopupHint;
 import ui.dialog.CopyValueDialog;
 import util.debugger.PluginSaveLoader;
+import util.json.JacksonUtil;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -52,9 +53,7 @@ public class CopyValueAction extends XDebuggerTreeActionBase {
                     if (isExtractorPlugin && settings.getFormat().equals("json")) {
                         String jsonString = DebugVarAction.getJsonString(node);
                         if (settings.isPrettyFormat()) {
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            Object object = objectMapper.readValue(jsonString, Object.class);
-                            jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+                            jsonString = JacksonUtil.prettyFormatWithoutSlashR(jsonString);
                         }
                         return jsonString;
                     } else {
