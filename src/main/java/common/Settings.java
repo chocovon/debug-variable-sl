@@ -1,16 +1,18 @@
 package common;
 
 public class Settings {
-    public String format = "java";
-    public boolean skipNulls = true;
-    public boolean skipDefaults = true;
-    public boolean supportUnderscores = true;
-    public boolean useBaseClasses = true;
-    public boolean useGenerics = true;
-    public boolean useKnownGenerics = true;
-    public int maxLevel = 10;
+    private String format = "java";
 
-    public boolean prettyFormat = true; // json
+    private boolean skipNulls = true;
+    private boolean skipDefaults = true;
+    private boolean supportUnderscores = true;
+    private boolean useBaseClasses = true;
+    private boolean useGenerics = true;
+    private boolean useKnownGenerics = true;
+
+    private int maxLevel = 10;
+
+    private boolean prettyFormat = true; // json
 
     public String getFormat() {
         return format;

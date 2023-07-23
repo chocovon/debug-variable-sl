@@ -1,4 +1,6 @@
+/settings.properties
 /src/main/resources/lib/
+/src/main/resources/META-INF/plugin.xml
 /lib/tools.jar
 /.idea
 /.gradle

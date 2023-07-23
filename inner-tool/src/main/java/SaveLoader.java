@@ -1,11 +1,12 @@
-import com.alibaba.fastjson.JSON;
+import common.GenCodeRequest;
+import common.Settings;
 import message.GenCodeMessage;
 import message.LoadMessage;
 import message.SaveMessage;
-import common.GenCodeRequest;
+import util.JsonUtil;
 import util.KryoUtil;
 import util.ObjectCodeGenerator;
-import common.Settings;
+import util.SerUtil;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -23,7 +24,7 @@ public class SaveLoader {
         map.put("save", map.size());
         map.put("load", map.size());
         map.put("getCode", map.size());
-        map.put("genCodeExternal", map.size());
+        map.put("genCode", map.size());
 
         Method[] allMethods = SaveLoader.class.getDeclaredMethods();
         for (Method m : allMethods) {
@@ -50,7 +51,7 @@ public class SaveLoader {
             return message;
         }
         try {
-            message.json = JSON.toJSONString(object, true);
+            message.json = JsonUtil.toJSONString(object, true);
         } catch (Throwable e) {
             message.status = "json";
             message.json = getStackTrace(e);
@@ -79,7 +80,7 @@ public class SaveLoader {
             Object object = KryoUtil.loadObject(isoBytes.getBytes(StandardCharsets.ISO_8859_1));
             codeMessage.status = "ok";
             Settings settings = new Settings();
-            settings.skipNulls = false;
+            settings.setSkipNulls(false);
             GenCodeRequest genCodeRequest = new GenCodeRequest();
             genCodeRequest.setSettings(settings);
             codeMessage.code = new ObjectCodeGenerator(object, genCodeRequest).genCode();
@@ -90,34 +91,31 @@ public class SaveLoader {
         return codeMessage;
     }
 
-    public static GenCodeMessage genCodeExternal(Object object, String genCodeRequestAsJson) {
-        return genCodeInternal(object, JSON.parseObject(genCodeRequestAsJson, GenCodeRequest.class));
-    }
-
-    public static GenCodeMessage genCodeInternal(Object object, GenCodeRequest genCodeRequest) {
+    public static GenCodeMessage genCode(Object object, String genCodeRequestAsString) {
         GenCodeMessage genCodeMessage = new GenCodeMessage();
-
-        Settings settings = genCodeRequest.getSettings();
-        String format = settings.format;
         try {
-            switch (format) {
-                case "json":
-                    genCodeMessage.code = JSON.toJSONString(object, settings.prettyFormat);
-                    break;
-                case "java":
-                    genCodeMessage.code = new ObjectCodeGenerator(object, genCodeRequest).genCode();
-                    break;
-                default:
-                    genCodeMessage.code = "Unknown format: " + format;
-            }
+            GenCodeRequest genCodeRequest = SerUtil.parseObject(genCodeRequestAsString, GenCodeRequest.class);
             genCodeMessage.status = "ok";
+            genCodeMessage.code = genCodeInternal(object, genCodeRequest);
         } catch (Throwable e) {
-            genCodeMessage.err = getStackTrace(e);
             genCodeMessage.status = "err";
-            return genCodeMessage;
+            genCodeMessage.code = getStackTrace(e);
         }
 
         return genCodeMessage;
+    }
+
+    public static String genCodeInternal(Object object, GenCodeRequest genCodeRequest) {
+        Settings settings = genCodeRequest.getSettings();
+        String format = settings.getFormat();
+        switch (format) {
+            case "json":
+                return JsonUtil.toJSONString(object, settings.isPrettyFormat());
+            case "java":
+                return new ObjectCodeGenerator(object, genCodeRequest).genCode();
+            default:
+                return "Unknown format: " + format;
+        }
     }
 
     private static String getStackTrace(Throwable e) {

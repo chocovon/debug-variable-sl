@@ -37,14 +37,14 @@ public class RightPanel {
             onSettingsChange.accept(settings);
         });
         for (String format : formats) {
-            if (settings.format.equalsIgnoreCase(format)) {
+            if (settings.getFormat().equalsIgnoreCase(format)) {
                 comboBox.getModel().setSelectedItem(format);
             }
         }
         main.add(comboBox);
 
-        panels.put("java", createJavaPanel(settings.format));
-        panels.put("json", createJsonPanel(settings.format));
+        panels.put("java", createJavaPanel(settings.getFormat()));
+        panels.put("json", createJsonPanel(settings.getFormat()));
         panels.forEach((name, component) -> main.add(component));
 
         main.setBorder(JBUI.Borders.emptyTop(5));

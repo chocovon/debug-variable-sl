@@ -40,10 +40,15 @@ patchPluginXml {
     changeNotes """
       2.1.0 added extracting variable as JSON to the dialog <br/>
       2.0.0 added 'Copy Value as Java Code' dialog with options support <br/>
-      1.4.0 New: Android support. <br/>
       """
 }
 
+task copyPluginXml (type: Copy) {
+    from "src/configurations/" + rootProject.name
+    into "src/main/resources/META-INF"
+    include "plugin.xml"
+}
+
 task dvslBuild(type: GradleBuild) {
-    tasks = [':inner-tool:buildInnerTool', 'buildPlugin']
+    tasks = ['copyPluginXml', ':inner-tool:buildInnerTool', 'buildPlugin']
 }

@@ -53,7 +53,7 @@
             <add-to-group group-id="XDebugger.ValueGroup" anchor="after" relative-to-action="XDebugger.CopyName"/>
         </action>
         <action class="action.CopyValueAction" id="CopyValueAction"
-                        text="Extract Value..." description="Extract value as Java or JSON code.">
+                        text="Extract Value..." description="Extract and copy debug variable as Java or JSON code from debugger.">
             <add-to-group group-id="XDebugger.ValueGroup" anchor="after" relative-to-action="XDebugger.CopyValue"/>
             <keyboard-shortcut keymap="$default" first-keystroke="meta alt C"/>
         </action>

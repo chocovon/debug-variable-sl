@@ -54,7 +54,7 @@ public class ObjectCodeGenerator {
             if (variableType == null) {
                 className0 = simpleName;
             } else {
-                className0 = settings.useBaseClasses ? variableType : simpleName;
+                className0 = settings.isUseBaseClasses() ? variableType : simpleName;
             }
 
             if (className0.isEmpty() && variableType != null) {
@@ -152,8 +152,9 @@ public class ObjectCodeGenerator {
 
     private String getSimpleNameFromSuperClass(Class<?> clazz) {
         String simpleName = "";
-        while (simpleName.isEmpty() && clazz.getSuperclass() != null) {
-            simpleName = getSimpleName(clazz.getSuperclass().getName());
+        while (simpleName.isEmpty() && clazz != null) {
+            simpleName = getSimpleName(clazz.getName());
+            clazz = clazz.getSuperclass();
         }
         return simpleName;
     }
@@ -181,11 +182,11 @@ public class ObjectCodeGenerator {
     ));
 
     private boolean isUseGenerics(Settings settings, Class<?> clazz) {
-        if (!settings.useGenerics) {
+        if (!settings.isUseGenerics()) {
             return false;
         }
 
-        if (settings.useKnownGenerics) {
+        if (settings.isUseKnownGenerics()) {
             return knownGenerics.contains(clazz);
         }
 
@@ -233,35 +234,46 @@ public class ObjectCodeGenerator {
         StringBuilder ret = new StringBuilder();
         int curLevel = Integer.MAX_VALUE;
         Map<Integer, List<ObjectCode>> remainingFieldsCode = new HashMap<>();
+        boolean assignmentJustAdded = false;
         for (ObjectCode objectCode : outputCodes) {
             //meaning highest constructor level end, dump all remained field setters at that level
             if (curLevel > objectCode.constructorLevel) {
                 List<ObjectCode> remained = remainingFieldsCode.get(curLevel);
                 if (remained != null) {
                     for (ObjectCode fieldCode : remained) {
+                        // ret.append("// deep forward " + fieldCode.referenceName);
+                        ret.append("\n");
                         ret.append(fieldCode.assignmentCode);
+                        assignmentJustAdded = true;
                     }
                     remainingFieldsCode.remove(curLevel);
                 }
                 curLevel = objectCode.constructorLevel;
             }
 
-            // add empty line before new
-            if (ret.length() != 0) {
+            // add empty line before new block with assignments or after real assignments
+            if (ret.length() != 0 && !objectCode.assignmentCode.isEmpty() || assignmentJustAdded) {
                 ret.append("\n");
             }
 
             ret.append(objectCode.getConstructCode());
-            if (objectCode.constructorLevel == objectCode.level) {
-                ret.append(objectCode.assignmentCode);
-            } else {
-                remainingFieldsCode
-                        .computeIfAbsent(objectCode.level, k -> new ArrayList<>())
-                        .add(objectCode);
+            assignmentJustAdded = false;
+
+            if (!objectCode.assignmentCode.isEmpty()) { // no need to handle empty assignments
+                if (objectCode.constructorLevel == objectCode.level) {
+                    ret.append(objectCode.assignmentCode);
+                    assignmentJustAdded = true;
+                } else {
+                    remainingFieldsCode
+                            .computeIfAbsent(objectCode.level, k -> new ArrayList<>())
+                            .add(objectCode);
+                }
             }
         }
+
         for (List<ObjectCode> remains : remainingFieldsCode.values()) {
             for (ObjectCode r : remains) {
+                ret.append("\n");
                 ret.append(r.assignmentCode);
             }
         }
@@ -275,7 +287,7 @@ public class ObjectCodeGenerator {
     }
 
     private String createObjectCode(Object object, int level, String variableType, String variableName) {
-        if (object == null || level > this.settings.maxLevel) {
+        if (object == null || level > this.settings.getMaxLevel()) {
             return "null";
         } else if (isWrapperType(object.getClass())) {
             if (object instanceof Float) {
@@ -288,7 +300,7 @@ public class ObjectCodeGenerator {
                 return object.toString();
             }
         } else if (object instanceof String) {
-            return "\"" + object + "\"";
+            return "\"" + escape((String) object) + "\"";
         } else if (object instanceof Enum) {
             return object.getClass().getSimpleName() + "." + object;
         } else if (object instanceof Date) {
@@ -340,7 +352,7 @@ public class ObjectCodeGenerator {
                 } catch (NoSuchMethodException ignored) {
                 }
 
-                if (this.settings.supportUnderscores && setter == null && field.getName().startsWith("_")) {
+                if (this.settings.isSupportUnderscores() && setter == null && field.getName().startsWith("_")) {
                     try {
                         fieldName = fieldName.substring(1);
                         String setterName = firstUpper(fieldName);
@@ -354,11 +366,11 @@ public class ObjectCodeGenerator {
                 }
 
                 Object value = field.get(object);
-                if (value == null && this.settings.skipNulls) {
+                if (value == null && this.settings.isSkipNulls()) {
                     continue;
                 }
 
-                if (this.settings.skipDefaults && type.isPrimitive()) {
+                if (this.settings.isSkipDefaults() && type.isPrimitive()) {
                     if (Objects.equals(value, false)) {
                         continue;
                     }
@@ -389,7 +401,7 @@ public class ObjectCodeGenerator {
                 }
                 str.append(";\n");
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                throw new RuntimeException("Cannot access field", e);
             }
         }
         return str.toString();
@@ -487,5 +499,15 @@ public class ObjectCodeGenerator {
         }
 
         return finder;
+    }
+
+    private static String escape(String raw) {
+        return raw.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\b", "\\b")
+                .replace("\f", "\\f")
+                .replace("\n", "\\n\"\n  + \"")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 }
