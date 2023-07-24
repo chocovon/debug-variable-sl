@@ -93,13 +93,8 @@ public class ValueJsonSerializer {
                 return toJsonInner(objectValue.getValue(((ClassType)value.type()).fieldByName("value")), thread, refPath, depth + 1);
             } else if (allInheritedTypes.contains("java.util.Map")) {
                 ObjectReference keySet = (ObjectReference) invokeMethod(objectValue, "keySet", thread);
-                if (keySet == null) {
-                    throw new JsonSerializeException("KeySet of Map returns null : " + toValRefString(objectValue));
-                }
                 ArrayReference keyArr = (ArrayReference) invokeMethod(keySet, "toArray", thread);
-                if (keyArr == null) {
-                    throw new JsonSerializeException("KeySet convert failed : " + toValRefString(keySet));
-                }
+
                 StringBuilder str = new StringBuilder();
                 str.append("{");
                 for (Value key : keyArr.getValues()) {
@@ -113,7 +108,7 @@ public class ValueJsonSerializer {
                             keyStr = "\"" + simpleValStr + "\"";
                         }
                     } else {
-                        keyStr = "\"" + toValRefString((ObjectReference) key) + "\"";
+                        keyStr = "\"" + toJsonInner(invokeMethod(objectValue, "toString", thread), thread, refPath, depth + 1) + "\"";
                     }
 
                     str.append(keyStr).append(":").append(toJsonInner(val, thread, refPath, depth + 1));
@@ -128,14 +123,11 @@ public class ValueJsonSerializer {
                 return toJsonInner(invokeMethod(objectValue, "toArray", thread), thread, refPath, depth + 1);
             }
 
-            for (String type : allInheritedTypes) {
-                if (type.startsWith("java.lang")) {
-                    if (!objectValue.referenceType().methodsByName("toString").get(0)
-                            .declaringType().name().equals(JAVA_LANG_OBJECT)) {
-                        return toJsonInner(invokeMethod(objectValue, "toString", thread), thread, refPath, depth + 1);
-                    } else {
-                        return "\"" + toValRefString(objectValue) + "\"";
-                    }
+            // types enabled with toString() method usage
+            String[] toStringTypes = {"java.lang.Enum", "java.util.Date",  "java.util.Calendar", "java.math.BigDecimal", "java.math.BigInteger"};
+            for (String toStringType : toStringTypes) {
+                if (allInheritedTypes.contains(toStringType)) {
+                    return toJsonInner(invokeMethod(objectValue, "toString", thread), thread, refPath, depth + 1);
                 }
             }
 
@@ -186,12 +178,6 @@ public class ValueJsonSerializer {
         } else {
             return false;
         }
-    }
-
-    @NotNull
-    private static String toValRefString(ObjectReference valRef) {
-        long id = valRef.uniqueID();
-        return valRef.type().name() + "(id=" + id + ")";
     }
 
     @NotNull
