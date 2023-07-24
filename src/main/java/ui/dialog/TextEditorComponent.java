@@ -15,19 +15,22 @@ import common.Settings;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.function.Function;
 
 public class TextEditorComponent extends JComponent {
+    @FunctionalInterface
+    public interface CodeProvider<T, R> {
+        R generateCode(T t);
+    }
 
     private final Project project;
-    private final Function<Settings, String> codeProvider;
-    private EditorEx editor;
+    private final EditorEx editor;
+    private final CodeProvider<Settings, String> codeProvider;
 
-    public TextEditorComponent(Project project, Settings settings, Function<Settings, String> codeProvider) {
+    public TextEditorComponent(Project project, Settings settings, CodeProvider<Settings, String> codeProvider) {
         this.project = project;
         this.codeProvider = codeProvider;
 
-        String code = codeProvider.apply(settings);
+        String code = codeProvider.generateCode(settings);
 
         EditorFactory editorFactory = EditorFactory.getInstance();
         Document document = editorFactory.createDocument(code);
@@ -37,7 +40,7 @@ public class TextEditorComponent extends JComponent {
         FileType fileType = fileTypeManager.getFileTypeByExtension(settings.getFormat());
 
         // Create the editor with syntax support
-        editor = (EditorEx)editorFactory.createEditor(document, project, fileType, false);
+        editor = (EditorEx) editorFactory.createEditor(document, project, fileType, false);
         EditorSettings editorSettings = editor.getSettings();
         editorSettings.setLineNumbersShown(true);
 
@@ -60,10 +63,15 @@ public class TextEditorComponent extends JComponent {
 
     public void reload(Settings settings) {
         setFileType(settings.getFormat());
-        String code = codeProvider.apply(settings);
+        String code = codeProvider.generateCode(settings);
         ApplicationManager.getApplication().runWriteAction(() -> {
             editor.getDocument().setText(code);
         });
+    }
+
+    public void dispose() {
+        EditorFactory editorFactory = EditorFactory.getInstance();
+        editorFactory.releaseEditor(editor);
     }
 }
 

@@ -9,8 +9,8 @@ import com.intellij.xdebugger.impl.ui.tree.actions.XDebuggerTreeActionBase;
 import com.intellij.xdebugger.impl.ui.tree.nodes.XValueNodeImpl;
 import common.Settings;
 import org.jetbrains.annotations.NotNull;
-import ui.common.SimplePopupHint;
 import ui.dialog.CopyValueDialog;
+import util.debugger.JsonCodeProvider;
 import util.debugger.PluginSaveLoader;
 import util.json.JacksonUtil;
 
@@ -55,27 +55,23 @@ public class CopyValueAction extends XDebuggerTreeActionBase {
 
     @Override
     protected void perform(XValueNodeImpl node, @NotNull String nodeName, AnActionEvent e) {
-        try {
-            CopyValueDialog popup = new CopyValueDialog(e.getProject(), initialSettings, settings -> {
-                try {
-                    if (isExtractorPlugin && settings.getFormat().equals("json")) {
-                        String jsonString = DebugVarAction.getJsonString(node);
-                        if (settings.isPrettyFormat()) {
-                            jsonString = JacksonUtil.prettyFormatWithoutSlashR(jsonString);
-                        }
-                        return jsonString;
-                    } else {
-                        return PluginSaveLoader.genJavaCode(node, settings);
+        CopyValueDialog popup = new CopyValueDialog(e.getProject(), initialSettings, settings -> {
+            try {
+                if (isExtractorPlugin && settings.getFormat().equals("json")) {
+                    String jsonString = JsonCodeProvider.genJsonString(node);
+                    if (settings.isPrettyFormat()) {
+                        jsonString = JacksonUtil.prettyFormatWithoutSlashR(jsonString);
                     }
-                } catch (Throwable throwable) {
-                    return "Error: " + throwable.getMessage();
+                    return jsonString;
+                } else {
+                    return PluginSaveLoader.genJavaCode(node, settings);
                 }
-            });
-            popup.show();
-        } catch (Exception knownException) {
-            knownException.printStackTrace();
-            SimplePopupHint.error("Copy as code failed: " + knownException.getMessage(), e.getDataContext());
-        }
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+                return "Error: " + throwable.getMessage();
+            }
+        });
+        popup.show();
     }
 
     @Override

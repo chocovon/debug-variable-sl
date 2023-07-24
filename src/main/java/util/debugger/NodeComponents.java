@@ -29,6 +29,8 @@ import util.exception.StackFrameThreadException;
 import util.reflect.ReflectUtil;
 import util.thread.AsyncTask;
 
+import static util.thread.DebuggerThreadUtils.invokeOnDebuggerThread;
+
 public class NodeComponents {
     public boolean isPrimitive() {
         return this.valueDescriptor.getType() instanceof PrimitiveType;
@@ -97,8 +99,8 @@ public class NodeComponents {
         this.debuggerContext = DebuggerManagerEx.getInstanceEx(this.project).getContext();
 
         this.frameProxy = this.evalContext.getFrameProxy();
-        this.thread = (ThreadReference) this.frameProxy
-                .threadProxy().getObjectReference();
+        this.thread = invokeOnDebuggerThread(() -> (ThreadReference) this.frameProxy
+                .threadProxy().getObjectReference(), this.evalContext);
 
         this.evaluator = XDebuggerManager.getInstance(this.project).getCurrentSession()
                 .getDebugProcess().getEvaluator();
@@ -106,36 +108,15 @@ public class NodeComponents {
         this.vm = this.thread.virtualMachine();
         this.value = this.valueDescriptor.getValue();
 
-        this.variableInfo = genVarInfo();
-    }
-
-    private VariableInfo genVarInfo() throws StackFrameThreadException, EvaluateException, ClassNotLoadedException {
-        AsyncTask<VariableInfo> t = new AsyncTask<VariableInfo>() {
-            @Override
-            protected void asyncCodeRun() {
-                evalContext.getDebugProcess().getManagerThread().invoke(new DebuggerCommandImpl() {
-                    @Override
-                    protected void action() {
-                        try {
-                            VariableInfo vi = new VariableInfo();
-                            vi.setName(varName());
-                            vi.setType(leftTypeName());
-                            vi.setSource(frameProxy.location().sourceName());
-                            vi.setProject(project.getName());
-                            vi.setId(String.valueOf(System.currentTimeMillis()));
-                            finishRet(vi);
-                        } catch (Exception e) {
-                            finishError(e);
-                        }
-                    }
-                });
-            }
-        };
-        if (t.run()) {
-            return t.getRet();
-        } else {
-            throw new StackFrameThreadException(t.getError());
-        }
+        this.variableInfo = invokeOnDebuggerThread(() -> {
+            VariableInfo vi = new VariableInfo();
+            vi.setName(varName());
+            vi.setType(leftTypeName());
+            vi.setSource(frameProxy.location().sourceName());
+            vi.setProject(project.getName());
+            vi.setId(String.valueOf(System.currentTimeMillis()));
+            return vi;
+        }, this.evalContext);
     }
 
     public void setValue(Value value) throws StackFrameThreadException {
@@ -202,7 +183,7 @@ public class NodeComponents {
                 } else {
                     ReferenceType refType = field.declaringType();
                     if (refType instanceof ClassType) {
-                        ClassType classType = (ClassType)refType;
+                        ClassType classType = (ClassType) refType;
                         classType.setValue(field, value);
                         break;
                     }

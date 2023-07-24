@@ -8,11 +8,11 @@ import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.ui.components.JBScrollPane;
 import common.Settings;
 import org.jetbrains.annotations.Nullable;
+import ui.dialog.TextEditorComponent.CodeProvider;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.util.function.Function;
 
 import static config.Config.GEN_CODE_SETTINGS_KEY;
 
@@ -23,7 +23,7 @@ public class CopyValueDialog extends DialogWrapper {
 
     private boolean settingsChanged = false;
 
-    public CopyValueDialog(@Nullable Project project, Settings settings, Function<Settings, String> codeProvider) {
+    public CopyValueDialog(@Nullable Project project, Settings settings, CodeProvider<Settings, String> codeProvider) {
         super(project, true);
         this.settings = settings;
 
@@ -88,6 +88,12 @@ public class CopyValueDialog extends DialogWrapper {
     private void handleUpdate(Settings settings) {
         textArea.reload(settings);
         settingsChanged = true;
+    }
+
+    @Override
+    protected void dispose() {
+        super.dispose();
+        textArea.dispose();
     }
 }
 
