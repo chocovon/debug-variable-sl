@@ -30,17 +30,17 @@ public class RightPanel {
         main.add(stickLeft(new JBLabel("Output format:")));
         String[] formats = {"Java", "JSON"};
         ComboBox<String> comboBox = new ComboBox<>(formats);
+        for (String format : formats) {
+            if (settings.getFormat().equalsIgnoreCase(format)) {
+                comboBox.getModel().setSelectedItem(format);
+            }
+        }
         comboBox.addActionListener(e -> {
             String selected = comboBox.getModel().getSelectedItem().toString().toLowerCase(Locale.ROOT);
             panels.forEach((name, component) -> component.setVisible(name.equals(selected)));
             settings.setFormat(selected);
             onSettingsChange.accept(settings);
         });
-        for (String format : formats) {
-            if (settings.getFormat().equalsIgnoreCase(format)) {
-                comboBox.getModel().setSelectedItem(format);
-            }
-        }
         main.add(comboBox);
 
         panels.put("java", createJavaPanel(settings.getFormat()));

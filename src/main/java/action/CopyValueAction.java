@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import ui.dialog.CopyValueDialog;
 import util.debugger.JsonCodeProvider;
 import util.debugger.PluginSaveLoader;
-import util.json.JacksonUtil;
+import util.json.JsonUtil;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -60,7 +60,7 @@ public class CopyValueAction extends XDebuggerTreeActionBase {
                 if (isExtractorPlugin && settings.getFormat().equals("json")) {
                     String jsonString = JsonCodeProvider.genJsonString(node);
                     if (settings.isPrettyFormat()) {
-                        jsonString = JacksonUtil.prettyFormatWithoutSlashR(jsonString);
+                        jsonString = JsonUtil.formatJson(node.getTree().getProject(), jsonString);
                     }
                     return jsonString;
                 } else {
