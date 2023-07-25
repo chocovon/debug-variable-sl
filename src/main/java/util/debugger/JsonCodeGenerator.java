@@ -113,6 +113,7 @@ public class JsonCodeGenerator {
 
                 StringBuilder str = new StringBuilder();
                 str.append("{");
+                boolean hasOne = false;
                 for (Value key : keyArr.getValues()) {
                     Value val = invokeMethod(objectValue, "get", thread, key);
                     String keyStr;
@@ -134,8 +135,9 @@ public class JsonCodeGenerator {
                     }
                     str.append(keyStr).append(":").append(valueString);
                     str.append(",");
+                    hasOne = true;
                 }
-                if (keyArr.length() > 0) {
+                if (hasOne) {
                     str.delete(str.length() - 1, str.length());
                 }
                 str.append("}");
