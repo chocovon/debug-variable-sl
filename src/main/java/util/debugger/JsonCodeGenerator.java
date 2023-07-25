@@ -1,6 +1,7 @@
 package util.debugger;
 
 import com.sun.jdi.*;
+import common.Settings;
 import org.jetbrains.annotations.NotNull;
 import util.exception.JsonSerializeException;
 
@@ -10,18 +11,19 @@ import java.util.Set;
 
 import static util.debugger.ValueUtil.invokeMethod;
 
-public class ValueJsonSerializer {
+public class JsonCodeGenerator {
     private static final String JAVA_LANG_OBJECT = "java.lang.Object";
-    private static final int MAX_DEPTH = 5;
-    private static final long TIME_LIMIT = 7000;
+    private static final long TIME_LIMIT = 70000000;
 
     private long timeStamp;
 
     private final ThreadReference thread;
+    private final Settings settings;
     private Set<Object> refPath;
 
-    public ValueJsonSerializer(ThreadReference thread) {
+    public JsonCodeGenerator(ThreadReference thread, Settings settings) {
         this.thread = thread;
+        this.settings = settings;
     }
 
     public String toJson(Value value) throws ClassNotLoadedException, IncompatibleThreadStateException, InvocationException, JsonSerializeException, InvalidTypeException {
@@ -35,7 +37,7 @@ public class ValueJsonSerializer {
             throw new JsonSerializeException("JSON serializing timed out, probably the object is too big to JSON.");
         }
 
-        if (value == null || depth == MAX_DEPTH) {
+        if (value == null || depth >= settings.getMaxLevel()) {
             return null;
         }
 
@@ -82,11 +84,17 @@ public class ValueJsonSerializer {
             ArrayReference arrayValue = (ArrayReference) value;
             StringBuilder str = new StringBuilder();
             str.append("[");
+            boolean hasOne = false;
             for (Value v : arrayValue.getValues()) {
-                str.append(toJsonInner(v, depth + 1));
+                String toJsonInner = toJsonInner(v, depth + 1);
+                if (toJsonInner == null) {
+                    continue;
+                }
+                str.append(toJsonInner);
                 str.append(",");
+                hasOne = true;
             }
-            if (arrayValue.length() > 0) {
+            if (hasOne) {
                 str.delete(str.length() - 1, str.length());
             }
             str.append("]");
@@ -120,7 +128,11 @@ public class ValueJsonSerializer {
                         keyStr = "\"" + escape(((StringReference) stringValue).value()) + "\"";
                     }
 
-                    str.append(keyStr).append(":").append(toJsonInner(val, depth + 1));
+                    String valueString = toJsonInner(val, depth + 1);
+                    if (valueString == null && settings.isSkipNulls()) {
+                        continue;
+                    }
+                    str.append(keyStr).append(":").append(valueString);
                     str.append(",");
                 }
                 if (keyArr.length() > 0) {
@@ -155,6 +167,10 @@ public class ValueJsonSerializer {
                 }
 
                 String fieldValue = toJsonInner(fieldValueEntry.getValue(), depth + 1);
+                if (fieldValue == null && settings.isSkipNulls()) {
+                    continue;
+                }
+
                 str.append("\"").append(fieldName).append("\"");
                 str.append(":");
                 str.append(fieldValue);

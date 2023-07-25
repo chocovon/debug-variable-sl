@@ -146,6 +146,9 @@ public class ObjectCodeGenerator {
             int length = Array.getLength(object);
             for (int i = 0; i < length; i++) {
                 String eleVal = createObjectCode(Array.get(object, i), level + 1, null, null);
+                if (eleVal == null && settings.isSkipNulls()) {
+                    continue;
+                }
                 str.append(referenceName).append("[").append(i).append("] = ").append(eleVal).append(";\n");
             }
             return str.toString();
