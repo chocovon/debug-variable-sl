@@ -18,7 +18,6 @@ import util.exception.SaveValueInnerException;
 import util.exception.StackFrameThreadException;
 
 import java.io.IOException;
-import java.util.HashSet;
 
 public class SaveValueAction extends XDebuggerTreeActionBase {
     @Override
@@ -35,7 +34,7 @@ public class SaveValueAction extends XDebuggerTreeActionBase {
                 NodeComponents nodeComponents = new NodeComponents(node);
                 Value cause = ValueUtil.invokeMethod(invocationException.exception(), "getCause", nodeComponents.thread);
                 SimplePopupHint.error("Method invocation exception: " + invocationException.getMessage(), e.getDataContext());
-                throw new RuntimeException(ValueJsonSerializer.toJson(cause, nodeComponents.thread, new HashSet<>()));
+                throw new RuntimeException(new ValueJsonSerializer(nodeComponents.thread).toJson(cause));
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }

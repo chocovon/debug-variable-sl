@@ -15,14 +15,22 @@ public class ValueJsonSerializer {
     private static final int MAX_DEPTH = 5;
     private static final long TIME_LIMIT = 7000;
 
-    private static long timeStamp;
+    private long timeStamp;
 
-    public static String toJson(Value value, ThreadReference thread, Set<Long> refPath) throws InvocationException, InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, JsonSerializeException {
-        timeStamp = System.currentTimeMillis();
-        return toJsonInner(value, thread, refPath, 0);
+    private final ThreadReference thread;
+    private Set<Object> refPath;
+
+    public ValueJsonSerializer(ThreadReference thread) {
+        this.thread = thread;
     }
 
-    private static String toJsonInner(Value value, ThreadReference thread, Set<Long> refPath, int depth) throws InvocationException, InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, JsonSerializeException {
+    public String toJson(Value value) throws ClassNotLoadedException, IncompatibleThreadStateException, InvocationException, JsonSerializeException, InvalidTypeException {
+        timeStamp = System.currentTimeMillis();
+        refPath = new HashSet<>();
+        return toJsonInner(value, 0);
+    }
+
+    private String toJsonInner(Value value, int depth) throws InvocationException, InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, JsonSerializeException {
         if (System.currentTimeMillis() - timeStamp > TIME_LIMIT) {
             throw new JsonSerializeException("JSON serializing timed out, probably the object is too big to JSON.");
         }
@@ -75,7 +83,7 @@ public class ValueJsonSerializer {
             StringBuilder str = new StringBuilder();
             str.append("[");
             for (Value v : arrayValue.getValues()) {
-                str.append(toJsonInner(v, thread, refPath, depth + 1));
+                str.append(toJsonInner(v, depth + 1));
                 str.append(",");
             }
             if (arrayValue.length() > 0) {
@@ -90,7 +98,7 @@ public class ValueJsonSerializer {
             ObjectReference objectValue = (ObjectReference) value;
 
             if (isSimpleObject(allInheritedTypes)) {
-                return toJsonInner(objectValue.getValue(((ClassType)value.type()).fieldByName("value")), thread, refPath, depth + 1);
+                return toJsonInner(objectValue.getValue(((ClassType)value.type()).fieldByName("value")), depth + 1);
             } else if (allInheritedTypes.contains("java.util.Map")) {
                 ObjectReference keySet = (ObjectReference) invokeMethod(objectValue, "keySet", thread);
                 ArrayReference keyArr = (ArrayReference) invokeMethod(keySet, "toArray", thread);
@@ -101,17 +109,17 @@ public class ValueJsonSerializer {
                     Value val = invokeMethod(objectValue, "get", thread, key);
                     String keyStr;
                     if (isSimpleValue(key)) {
-                        String simpleValStr = toJsonInner(key, thread, refPath, depth + 1);
+                        String simpleValStr = toJsonInner(key, depth + 1);
                         if (simpleValStr != null && simpleValStr.startsWith("\"")) {
                             keyStr = simpleValStr;
                         } else {
                             keyStr = "\"" + simpleValStr + "\"";
                         }
                     } else {
-                        keyStr = "\"" + toJsonInner(invokeMethod(objectValue, "toString", thread), thread, refPath, depth + 1) + "\"";
+                        keyStr = "\"" + toJsonInner(invokeMethod(objectValue, "toString", thread), depth + 1) + "\"";
                     }
 
-                    str.append(keyStr).append(":").append(toJsonInner(val, thread, refPath, depth + 1));
+                    str.append(keyStr).append(":").append(toJsonInner(val, depth + 1));
                     str.append(",");
                 }
                 if (keyArr.length() > 0) {
@@ -120,14 +128,14 @@ public class ValueJsonSerializer {
                 str.append("}");
                 return str.toString();
             } else if (allInheritedTypes.contains("java.util.Collection")) {
-                return toJsonInner(invokeMethod(objectValue, "toArray", thread), thread, refPath, depth + 1);
+                return toJsonInner(invokeMethod(objectValue, "toArray", thread), depth + 1);
             }
 
             // types enabled with toString() method usage
             String[] toStringTypes = {"java.lang.Enum", "java.util.Date",  "java.util.Calendar", "java.math.BigDecimal", "java.math.BigInteger"};
             for (String toStringType : toStringTypes) {
                 if (allInheritedTypes.contains(toStringType)) {
-                    return toJsonInner(invokeMethod(objectValue, "toString", thread), thread, refPath, depth + 1);
+                    return toJsonInner(invokeMethod(objectValue, "toString", thread), depth + 1);
                 }
             }
 
@@ -141,7 +149,7 @@ public class ValueJsonSerializer {
                 }
 
                 String fieldName = fieldValueEntry.getKey().name();
-                String fieldValue = toJsonInner(fieldValueEntry.getValue(), thread, refPath, depth + 1);
+                String fieldValue = toJsonInner(fieldValueEntry.getValue(), depth + 1);
                 str.append("\"").append(fieldName).append("\"");
                 str.append(":");
                 str.append(fieldValue);

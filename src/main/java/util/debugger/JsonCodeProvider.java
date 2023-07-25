@@ -21,13 +21,13 @@ public class JsonCodeProvider {
         EvaluationContextImpl evalContext = valueDescriptor.getStoredEvaluationContext();
         ThreadReferenceProxyImpl threadProxy = Objects.requireNonNull(evalContext.getFrameProxy()).threadProxy();
 
-        String resultJson = DebuggerThreadUtils.invokeOnDebuggerThread(() -> {
+        String jsonResult = DebuggerThreadUtils.invokeOnDebuggerThread(() -> {
             ThreadReference thread = (ThreadReference) threadProxy.getObjectReference();
-            Value val = valueDescriptor.getValue();
-            String toJson = ValueJsonSerializer.toJson(val, thread, new HashSet<>());
+            Value value = valueDescriptor.getValue();
+            String toJson = new ValueJsonSerializer(thread).toJson(value);
             return toJson;
         }, evalContext);
 
-        return resultJson;
+        return jsonResult;
     }
 }
