@@ -116,7 +116,8 @@ public class ValueJsonSerializer {
                             keyStr = "\"" + simpleValStr + "\"";
                         }
                     } else {
-                        keyStr = "\"" + toJsonInner(invokeMethod(objectValue, "toString", thread), depth + 1) + "\"";
+                        Value stringValue = invokeMethod((ObjectReference) key, "toString", thread);
+                        keyStr = "\"" + escape(((StringReference) stringValue).value()) + "\"";
                     }
 
                     str.append(keyStr).append(":").append(toJsonInner(val, depth + 1));
