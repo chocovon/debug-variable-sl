@@ -259,7 +259,7 @@ public class ObjectCodeGenerator {
         } else if (object instanceof Enum) {
             return object.getClass().getSimpleName() + "." + object;
         } else if (object instanceof Date) {
-            return "new " + object.getClass().getSimpleName() + "(" + ((Date) object).getTime() + ")";
+            return "new " + object.getClass().getSimpleName() + "(" + ((Date) object).getTime() + "L)";
         } else if (object instanceof BigDecimal) {
             return "new " + object.getClass().getSimpleName() + "(" + object + ")";
         } else if (object instanceof BigInteger) {

@@ -71,7 +71,7 @@ public class GenCodeTest {
             float flt = 1;
             double dlb = 1;
             char c = '1';
-            Date date = new Date(112312312);
+            Date date = new Date(1689838505598L);
             E e = E.VAL;
 
             BigDecimal db = new BigDecimal(1);
@@ -88,7 +88,7 @@ public class GenCodeTest {
                 "testObject.flt = 1.0f;\n" +
                 "testObject.dlb = 1.0;\n" +
                 "testObject.c = '1';\n" +
-                "testObject.date = new Date(112312312);\n" +
+                "testObject.date = new Date(1689838505598L);\n" +
                 "testObject.e = E.VAL;\n" +
                 "testObject.db = new BigDecimal(1);\n" +
                 "testObject.bi = new BigInteger(\"1\");\n", genCode);
