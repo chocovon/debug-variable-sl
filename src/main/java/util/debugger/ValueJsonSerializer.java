@@ -150,6 +150,10 @@ public class ValueJsonSerializer {
                 }
 
                 String fieldName = fieldValueEntry.getKey().name();
+                if (fieldName.startsWith("this$")) {
+                    continue;
+                }
+
                 String fieldValue = toJsonInner(fieldValueEntry.getValue(), depth + 1);
                 str.append("\"").append(fieldName).append("\"");
                 str.append(":");
