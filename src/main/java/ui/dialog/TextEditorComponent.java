@@ -121,7 +121,7 @@ public class TextEditorComponent extends JComponent {
                         startString = "";
                         startPosition = position + 1;
                     } else if (i == linesLength - 1) {
-                        if (blockSize > 1) {
+                        if (blockSize > 0) { // 0 instead of adding 1
                             folding.addFoldRegion(startPosition, code.length() - 1, startString + " {...}");
                         }
                     } else {
