@@ -248,7 +248,14 @@ public class ObjectCodeGenerator {
         if (object == null || level > this.settings.getMaxLevel()) {
             return "null";
         } else if (isWrapperType(object.getClass())) {
-            if (object instanceof Float) {
+            if (object instanceof Integer) {
+                if (object.equals(Integer.MAX_VALUE)) {
+                    return "Integer.MAX_VALUE";
+                } else if (object.equals(Integer.MIN_VALUE)) {
+                    return "Integer.MIN_VALUE";
+                }
+                return object.toString();
+            } else if (object instanceof Float) {
                 return object + "f";
             } else if (object instanceof Long) {
                 return object + "L";
