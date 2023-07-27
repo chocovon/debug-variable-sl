@@ -55,6 +55,10 @@ class ObjectCodeHelper {
             Void.class
     ));
 
+    static boolean isWrapperType(Class<?> clazz) {
+        return WRAPPER_TYPES.contains(clazz);
+    }
+
     static String firstLower(String str) {
         return Character.toLowerCase(str.charAt(0)) + str.substring(1);
     }
