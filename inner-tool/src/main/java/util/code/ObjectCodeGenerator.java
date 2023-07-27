@@ -247,7 +247,7 @@ public class ObjectCodeGenerator {
     private String createObjectCode(Object object, int level, String variableType, String variableName) {
         if (object == null || level > this.settings.getMaxLevel()) {
             return "null";
-        } else if (isWrapperType(object.getClass())) {
+        } else if (WRAPPER_TYPES.contains(object.getClass())) {
             if (object instanceof Integer) {
                 if (object.equals(Integer.MAX_VALUE)) {
                     return "Integer.MAX_VALUE";
