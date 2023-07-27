@@ -258,6 +258,11 @@ public class ObjectCodeGenerator {
             } else if (object instanceof Float) {
                 return object + "f";
             } else if (object instanceof Long) {
+                if (object.equals(Long.MAX_VALUE)) {
+                    return "Long.MAX_VALUE";
+                } else if (object.equals(Long.MIN_VALUE)) {
+                    return "Long.MIN_VALUE";
+                }
                 return object + "L";
             } else if (object instanceof Character) {
                 return "'" + object + "'";
