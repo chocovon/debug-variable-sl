@@ -103,11 +103,11 @@ public class ObjectCodeGenerator {
             StringBuilder str = new StringBuilder();
             Class<?> keyClass = null;
             Class<?> valueClass = null;
-            boolean useGenerics = isUseGenerics(settings, object.getClass());
+            boolean shouldUseGenerics = shouldUseGenerics(settings, object.getClass());
             for (Map.Entry<?, ?> entry : object.entrySet()) {
                 Object key = entry.getKey();
                 Object value = entry.getValue();
-                if (useGenerics) {
+                if (shouldUseGenerics) {
                     keyClass = narrow(keyClass, key);
                     valueClass = narrow(valueClass, value);
                 }
@@ -127,9 +127,9 @@ public class ObjectCodeGenerator {
         private String getCollectionCode(Collection<?> object, int level, String referenceName) {
             StringBuilder str = new StringBuilder();
             Class<?> keyClass = null;
-            boolean useGenerics = isUseGenerics(settings, object.getClass());
+            boolean shouldUseGenerics = shouldUseGenerics(settings, object.getClass());
             for (Object ele : object) {
-                if (useGenerics) {
+                if (shouldUseGenerics) {
                     keyClass = narrow(keyClass, ele);
                 }
                 String eleVal = createObjectCode(ele, level + 1, null, null);

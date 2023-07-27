@@ -123,7 +123,7 @@ class ObjectCodeHelper {
             LinkedTransferQueue.class, PriorityBlockingQueue.class, SynchronousQueue.class
     ));
 
-    static boolean isUseGenerics(Settings settings, Class<?> clazz) {
+    static boolean shouldUseGenerics(Settings settings, Class<?> clazz) {
         if (!settings.isUseGenerics()) {
             return false;
         }
