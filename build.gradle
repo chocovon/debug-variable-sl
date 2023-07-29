@@ -28,6 +28,7 @@ patchPluginXml {
     untilBuild(251)
 
     changeNotes """
+      2.2.0 added code folding support in the dialog <br/>
       2.1.0 added extracting variable as JSON to the dialog <br/>
       2.0.0 added 'Copy Value as Java Code' dialog with options support <br/>
       """

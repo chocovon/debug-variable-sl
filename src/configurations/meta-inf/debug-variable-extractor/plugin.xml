@@ -6,27 +6,29 @@
     <description>
         <![CDATA[
             <p>
-            Extract JSON or Java code from variables in debugger. If you are looking for a more comprehensive tool, see also
-            <a href="https://plugins.jetbrains.com/plugin/16513-debug-variable-save-load">Debug Variable Save Load</a>.
+                Extracts JSON or Java code from debugging variable. Allows to
+                preview and copy the code in the modal dialog with formatting,
+                folding support and code generation settings.
             </p>
             <br>
 
             <h3>Usage</h3>
             <p>
-            When stopped at breakpoint while debugging,
-            you can right click on a variable and select "Extract Value...".
-            The selected variable will be serialized to JSON or Java code
-            with possibility to get copied to your clipboard.
+                When stopped at breakpoint while debugging,
+                you can right click on a variable and select "Extract Value...".
+                The selected variable will be serialized to JSON or Java code
+                with preview in the modal dialog.
             </p>
             <br>
-            <h3>NOTES</h3>
-            <ul>
-                <li>
-                    This plugin utilizes debugger API, which collects all values available in debugger and thus will
-                    generate a more complete JSON string than
-                    <a href="https://plugins.jetbrains.com/plugin/16513-debug-variable-save-load">Debug Variable Save Load</a>.
-                </li>
-            </ul>
+
+            <h3>Notes</h3>
+            <p>
+                If you need save and load debug variable functionality try also
+                    <a href="https://plugins.jetbrains.com/plugin/16513-debug-variable-save-load">Debug Variable Save Load</a>
+                    plugin.
+            </p>
+            <br>
+
             <h3>Authors</h3>
             <ul>
                 <li>chocovon</li>
@@ -43,7 +45,7 @@
 
     <actions>
         <action class="action.CopyValueAction" id="CopyValueAction"
-                text="Extract Value..." description="Extract and copy debug variable as Java or JSON code from debugger.">
+                text="Extract Value..." description="Extracts Java or JSON code from debugging variable.">
             <add-to-group group-id="XDebugger.ValueGroup" anchor="after" relative-to-action="XDebugger.CopyValue"/>
             <keyboard-shortcut keymap="$default" first-keystroke="meta alt C"/>
         </action>
