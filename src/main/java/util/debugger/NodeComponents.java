@@ -160,7 +160,11 @@ public class NodeComponents {
             case ARRAY_ELE:
                 return ((ArrayType) this.arrayElementDescriptor.getArray().referenceType()).componentTypeName();
             case EVAL:
-                return this.evaluationDescriptor.getModifier().getExpectedType().name();
+                if (this.evaluationDescriptor.getModifier() != null) {
+                    return this.evaluationDescriptor.getModifier().getExpectedType().name();
+                } else {
+                    return this.evaluationDescriptor.getType().name();
+                }
             default:
                 return this.valueDescriptor.getDeclaredType();
         }

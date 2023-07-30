@@ -103,11 +103,11 @@ public class ObjectCodeGenerator {
             StringBuilder str = new StringBuilder();
             Class<?> keyClass = null;
             Class<?> valueClass = null;
-            boolean useGenerics = isUseGenerics(settings, object.getClass());
+            boolean shouldUseGenerics = shouldUseGenerics(settings, object.getClass());
             for (Map.Entry<?, ?> entry : object.entrySet()) {
                 Object key = entry.getKey();
                 Object value = entry.getValue();
-                if (useGenerics) {
+                if (shouldUseGenerics) {
                     keyClass = narrow(keyClass, key);
                     valueClass = narrow(valueClass, value);
                 }
@@ -127,9 +127,9 @@ public class ObjectCodeGenerator {
         private String getCollectionCode(Collection<?> object, int level, String referenceName) {
             StringBuilder str = new StringBuilder();
             Class<?> keyClass = null;
-            boolean useGenerics = isUseGenerics(settings, object.getClass());
+            boolean shouldUseGenerics = shouldUseGenerics(settings, object.getClass());
             for (Object ele : object) {
-                if (useGenerics) {
+                if (shouldUseGenerics) {
                     keyClass = narrow(keyClass, ele);
                 }
                 String eleVal = createObjectCode(ele, level + 1, null, null);
@@ -146,6 +146,9 @@ public class ObjectCodeGenerator {
             int length = Array.getLength(object);
             for (int i = 0; i < length; i++) {
                 String eleVal = createObjectCode(Array.get(object, i), level + 1, null, null);
+                if (eleVal == null && settings.isSkipNulls()) {
+                    continue;
+                }
                 str.append(referenceName).append("[").append(i).append("] = ").append(eleVal).append(";\n");
             }
             return str.toString();
@@ -245,9 +248,21 @@ public class ObjectCodeGenerator {
         if (object == null || level > this.settings.getMaxLevel()) {
             return "null";
         } else if (isWrapperType(object.getClass())) {
-            if (object instanceof Float) {
+            if (object instanceof Integer) {
+                if (object.equals(Integer.MAX_VALUE)) {
+                    return "Integer.MAX_VALUE";
+                } else if (object.equals(Integer.MIN_VALUE)) {
+                    return "Integer.MIN_VALUE";
+                }
+                return object.toString();
+            } else if (object instanceof Float) {
                 return object + "f";
             } else if (object instanceof Long) {
+                if (object.equals(Long.MAX_VALUE)) {
+                    return "Long.MAX_VALUE";
+                } else if (object.equals(Long.MIN_VALUE)) {
+                    return "Long.MIN_VALUE";
+                }
                 return object + "L";
             } else if (object instanceof Character) {
                 return "'" + object + "'";
@@ -259,7 +274,7 @@ public class ObjectCodeGenerator {
         } else if (object instanceof Enum) {
             return object.getClass().getSimpleName() + "." + object;
         } else if (object instanceof Date) {
-            return "new " + object.getClass().getSimpleName() + "(" + ((Date) object).getTime() + ")";
+            return "new " + object.getClass().getSimpleName() + "(" + ((Date) object).getTime() + "L)";
         } else if (object instanceof BigDecimal) {
             return "new " + object.getClass().getSimpleName() + "(" + object + ")";
         } else if (object instanceof BigInteger) {

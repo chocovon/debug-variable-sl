@@ -5,6 +5,7 @@ import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import common.Settings;
+import config.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -30,17 +31,17 @@ public class RightPanel {
         main.add(stickLeft(new JBLabel("Output format:")));
         String[] formats = {"Java", "JSON"};
         ComboBox<String> comboBox = new ComboBox<>(formats);
+        for (String format : formats) {
+            if (settings.getFormat().equalsIgnoreCase(format)) {
+                comboBox.getModel().setSelectedItem(format);
+            }
+        }
         comboBox.addActionListener(e -> {
             String selected = comboBox.getModel().getSelectedItem().toString().toLowerCase(Locale.ROOT);
             panels.forEach((name, component) -> component.setVisible(name.equals(selected)));
             settings.setFormat(selected);
             onSettingsChange.accept(settings);
         });
-        for (String format : formats) {
-            if (settings.getFormat().equalsIgnoreCase(format)) {
-                comboBox.getModel().setSelectedItem(format);
-            }
-        }
         main.add(comboBox);
 
         panels.put("java", createJavaPanel(settings.getFormat()));
@@ -58,6 +59,9 @@ public class RightPanel {
         jsonPanel.setVisible("json".equals(format));
         jsonPanel.setLayout(new BoxLayout(jsonPanel, BoxLayout.Y_AXIS));
         jsonPanel.add(stickLeft(createJsonCheckBoxes()));
+        if (Plugin.isExtractorPlugin) {
+            jsonPanel.add(stickLeft(createDepthSpinner()));
+        }
         return jsonPanel;
     }
 
@@ -119,9 +123,9 @@ public class RightPanel {
         checkboxPanel.add(createCheckBox("Use generics",
                 "Use generics for Collection and Map instances",
                 settings.isUseGenerics(), useGenerics -> {
-            settings.setUseGenerics(useGenerics);
-            useOnlyKnowGenerics.setEnabled(useGenerics);
-        }));
+                    settings.setUseGenerics(useGenerics);
+                    useOnlyKnowGenerics.setEnabled(useGenerics);
+                }));
         checkboxPanel.add(useOnlyKnowGenerics);
 
         return checkboxPanel;
@@ -131,6 +135,12 @@ public class RightPanel {
     private JPanel createJsonCheckBoxes() {
         JPanel checkboxPanel = new JPanel();
         checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
+
+        if (Plugin.isExtractorPlugin) {
+            checkboxPanel.add(createCheckBox("Hide null values",
+                    "Do not use null values in setters",
+                    settings.isSkipNulls(), settings::setSkipNulls));
+        }
 
         checkboxPanel.add(createCheckBox("Pretty format",
                 "Format JSON to human readable text",

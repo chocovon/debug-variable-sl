@@ -7,18 +7,18 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.xdebugger.impl.ui.tree.actions.XDebuggerTreeActionBase;
 import com.intellij.xdebugger.impl.ui.tree.nodes.XValueNodeImpl;
 import com.sun.jdi.*;
+import common.Settings;
 import org.jetbrains.annotations.NotNull;
 import ui.common.SimplePopupHint;
 import util.debugger.NodeComponents;
 import util.debugger.PluginSaveLoader;
-import util.debugger.ValueJsonSerializer;
+import util.debugger.JsonCodeGenerator;
 import util.debugger.ValueUtil;
 import util.exception.JsonSerializeException;
 import util.exception.SaveValueInnerException;
 import util.exception.StackFrameThreadException;
 
 import java.io.IOException;
-import java.util.HashSet;
 
 public class SaveValueAction extends XDebuggerTreeActionBase {
     @Override
@@ -35,7 +35,7 @@ public class SaveValueAction extends XDebuggerTreeActionBase {
                 NodeComponents nodeComponents = new NodeComponents(node);
                 Value cause = ValueUtil.invokeMethod(invocationException.exception(), "getCause", nodeComponents.thread);
                 SimplePopupHint.error("Method invocation exception: " + invocationException.getMessage(), e.getDataContext());
-                throw new RuntimeException(ValueJsonSerializer.toJson(cause, nodeComponents.thread, new HashSet<>()));
+                throw new RuntimeException(new JsonCodeGenerator(nodeComponents.thread, new Settings()).toJson(cause));
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }

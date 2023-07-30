@@ -86,7 +86,7 @@ public class CopyValueDialog extends DialogWrapper {
     }
 
     private void handleUpdate(Settings settings) {
-        textArea.reload(settings);
+        textArea.handleUpdate(settings);
         settingsChanged = true;
     }
 
