@@ -16,6 +16,9 @@ public class Code {
     }
 
     public String getCode() {
+        if (objectCode != null && objectCode.forceInline) {
+            return objectCode.generateConstructorOnly();
+        }
         return code;
     }
 }

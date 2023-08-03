@@ -31,6 +31,13 @@ public abstract class CodeBlock {
         return variableClassName + generateVarGenerics() + " " + referenceName + " = new " + constructorCall + ";\n";
     }
 
+    public String generateConstructorOnly() {
+        String constructorClassName = getSimpleName(clazz.getName());
+        String constructorCall = generateConstructorCall(constructorClassName);
+
+        return "new " + constructorCall;
+    }
+
     protected String generateConstructorCall(String constructorClassName) {
         String constructorCall = constructorClassName + generateCtorGenerics() + "()";
 

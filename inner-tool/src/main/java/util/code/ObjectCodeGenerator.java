@@ -84,8 +84,12 @@ public class ObjectCodeGenerator implements BaseObjectCodeGenerator {
 
             // case when constructor and assignment are going together will be processed special way
             if (objectCode.hasEmptyAssignment() || objectCode.constructorLevel != objectCode.level) {
-                ret.append(objectCode.generateConstructorCode());
-                assignmentJustAdded = false;
+                if (objectCode.hasEmptyAssignment() && objectCode.referenceCount == 1 && curLevel != 0) {
+                    objectCode.forceInline = true;
+                } else {
+                    ret.append(objectCode.generateConstructorCode());
+                    assignmentJustAdded = false;
+                }
             }
 
             if (!objectCode.hasEmptyAssignment()) { // no need to handle empty assignments

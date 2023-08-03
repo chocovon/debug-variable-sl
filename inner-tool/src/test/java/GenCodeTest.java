@@ -183,12 +183,9 @@ public class GenCodeTest {
         settings.setUseBaseClasses(true);
 
         String genCode = GenCodeTestHelper.genCode(testObject, settings);
-        Assert.assertEquals("U1 u1 = new U1();\n" +
-                "U2 u2 = new U2();\n" +
-                "\n" +
-                "Map<Integer, U> users = new HashMap<>();\n" +
-                "users.put(1, u1);\n" +
-                "users.put(2, u2);\n" +
+        Assert.assertEquals("Map<Integer, U> users = new HashMap<>();\n" +
+                "users.put(1, new U1());\n" +
+                "users.put(2, new U2());\n" +
                 "\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.users = users;\n", genCode);
@@ -285,33 +282,23 @@ public class GenCodeTest {
         settings.setUseBaseClasses(true);
 
         String genCode = GenCodeTestHelper.genCode(testObject, settings);
-        Assert.assertEquals("A a = new A();\n" +
-                "A a2 = new A();\n" +
-                "B b = new B();\n" +
-                "B b2 = new B();\n" +
-                "B b3 = new B();\n" +
-                "B b4 = new B();\n" +
-                "B b5 = new B();\n" +
-                "C c = new C();\n" +
-                "C c2 = new C();\n" +
-                "\n" +
-                "List<A> users1 = new ArrayList<>();\n" +
+        Assert.assertEquals("List<A> users1 = new ArrayList<>();\n" +
                 "users1.add(null);\n" +
-                "users1.add(b);\n" +
-                "users1.add(b2);\n" +
-                "users1.add(c);\n" +
+                "users1.add(new B());\n" +
+                "users1.add(new B());\n" +
+                "users1.add(new C());\n" +
                 "\n" +
                 "List<A> users2 = new ArrayList<>();\n" +
-                "users2.add(b3);\n" +
-                "users2.add(a);\n" +
+                "users2.add(new B());\n" +
+                "users2.add(new A());\n" +
                 "\n" +
                 "List<A> users3 = new ArrayList<>();\n" +
-                "users3.add(a2);\n" +
-                "users3.add(b4);\n" +
+                "users3.add(new A());\n" +
+                "users3.add(new B());\n" +
                 "\n" +
                 "List<A> users4 = new ArrayList<>();\n" +
-                "users4.add(b5);\n" +
-                "users4.add(c2);\n" +
+                "users4.add(new B());\n" +
+                "users4.add(new C());\n" +
                 "\n" +
                 "List<Object> users5 = new ArrayList<>();\n" +
                 "users5.add(1);\n" +

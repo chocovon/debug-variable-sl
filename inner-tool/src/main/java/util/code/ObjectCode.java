@@ -19,6 +19,7 @@ public class ObjectCode {
 
     final String referenceName;
     public int referenceCount;
+    boolean forceInline;
 
     private final String variableType;
 
@@ -58,6 +59,10 @@ public class ObjectCode {
      */
     public String generateConstructorCodeWithAssignment() {
         return codeBlock.generateConstructorCodeWithAssignment(variableType);
+    }
+
+    String generateConstructorOnly() {
+        return codeBlock.generateConstructorOnly();
     }
 
     /**
