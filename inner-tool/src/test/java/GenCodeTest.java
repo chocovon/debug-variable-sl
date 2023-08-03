@@ -125,9 +125,7 @@ public class GenCodeTest {
                 "TestObject testObject2 = new TestObject();\n" +
                 "testObject2.some = 1;\n" +
                 "\n" +
-                "TestObject[] testObjectArr = new TestObject[2];\n" +
-                "testObjectArr[0] = testObject;\n" +
-                "testObjectArr[1] = testObject2;\n", genCode);
+                "TestObject[] testObjectArr = new TestObject[]{testObject, testObject2};", genCode);
     }
 
     @Test
@@ -352,11 +350,7 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         String genCode = GenCodeTestHelper.genCode(testObject);
-        Assert.assertEquals("Integer[] some = new Integer[3];\n" +
-                "some[0] = 1;\n" +
-                "some[1] = 2;\n" +
-                "some[2] = 3;\n" +
-                "\n" +
+        Assert.assertEquals("Integer[] some = new Integer[]{1, 2, 3};\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.some = some;\n", genCode);
     }
@@ -370,25 +364,15 @@ public class GenCodeTest {
 
         TestObject[] testObject = new TestObject[]{new TestObject(), new TestObject()};
         String genCode = GenCodeTestHelper.genCode(testObject);
-        Assert.assertEquals("Integer[] some = new Integer[3];\n" +
-                "some[0] = 1;\n" +
-                "some[1] = 2;\n" +
-                "some[2] = 3;\n" +
-                "\n" +
-                "Integer[] some2 = new Integer[3];\n" +
-                "some2[0] = 1;\n" +
-                "some2[1] = 2;\n" +
-                "some2[2] = 3;\n" +
-                "\n" +
+        Assert.assertEquals("Integer[] some = new Integer[]{1, 2, 3};\n" +
+                "Integer[] some2 = new Integer[]{1, 2, 3};\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.some = some;\n" +
                 "\n" +
                 "TestObject testObject2 = new TestObject();\n" +
                 "testObject2.some = some2;\n" +
                 "\n" +
-                "TestObject[] testObjectArr = new TestObject[2];\n" +
-                "testObjectArr[0] = testObject;\n" +
-                "testObjectArr[1] = testObject2;\n", genCode);
+                "TestObject[] testObjectArr = new TestObject[]{testObject, testObject2};", genCode);
     }
 
 
@@ -434,10 +418,7 @@ public class GenCodeTest {
                 "filter2.name = \"name\";\n" +
                 "filter2.value = \"value\";\n" +
                 "\n" +
-                "Filter[] _filters = new Filter[2];\n" +
-                "_filters[0] = filter;\n" +
-                "_filters[1] = filter2;\n" +
-                "\n" +
+                "Filter[] _filters = new Filter[]{filter, filter2};\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject._filters = _filters;\n", genCode);
     }
@@ -472,10 +453,7 @@ public class GenCodeTest {
                 "filter2.name = \"name\";\n" +
                 "filter2.value = \"value\";\n" +
                 "\n" +
-                "Filter[] filters = new Filter[2];\n" +
-                "filters[0] = filter;\n" +
-                "filters[1] = filter2;\n" +
-                "\n" +
+                "Filter[] filters = new Filter[]{filter, filter2};\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.setFilters(filters);\n", genCode);
     }

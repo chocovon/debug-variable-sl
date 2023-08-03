@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.*;
 
-class ObjectCodeHelper {
+public class ObjectCodeHelper {
     static String escape(String raw) {
         return raw.replace("\\", "\\\\")
                 .replace("\"", "\\\"")
@@ -17,7 +17,7 @@ class ObjectCodeHelper {
                 .replace("\t", "\\t");
     }
 
-    static String getSimpleNameFromSuperClass(Class<?> clazz) {
+    public static String getSimpleNameFromSuperClass(Class<?> clazz) {
         String simpleName = "";
         while (simpleName.isEmpty() && clazz != null) {
             simpleName = getSimpleName(clazz.getName());
@@ -26,7 +26,7 @@ class ObjectCodeHelper {
         return simpleName;
     }
 
-    static String getSimpleName(String name) {
+    public static String getSimpleName(String name) {
         return name
                 .replaceAll(".*\\.", "")
                 .replaceAll(".*\\$\\d+", "")
@@ -34,7 +34,7 @@ class ObjectCodeHelper {
                 .replace(";", "[]");
     }
 
-    static List<Field> getAllFields(Class<?> type) {
+    public static List<Field> getAllFields(Class<?> type) {
         return getAllFields(new ArrayList<Field>(), type);
     }
 
@@ -63,14 +63,14 @@ class ObjectCodeHelper {
         return Character.toLowerCase(str.charAt(0)) + str.substring(1);
     }
 
-    static String firstUpper(String str) {
+    public static String firstUpper(String str) {
         return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
     /**
      * find common generic class for collections.
      */
-    static Class<?> narrow(Class<?> clazz, Object object) {
+    public static Class<?> narrow(Class<?> clazz, Object object) {
         if (object == null) {
             return clazz;
         }
@@ -123,7 +123,7 @@ class ObjectCodeHelper {
             LinkedTransferQueue.class, PriorityBlockingQueue.class, SynchronousQueue.class
     ));
 
-    static boolean shouldUseGenerics(Settings settings, Class<?> clazz) {
+    public static boolean shouldUseGenerics(Settings settings, Class<?> clazz) {
         if (!settings.isUseGenerics()) {
             return false;
         }
@@ -133,5 +133,24 @@ class ObjectCodeHelper {
         }
 
         return true;
+    }
+
+    public static boolean isDefaultValue(Object value) {
+        if (Objects.equals(value, false)) {
+            return true;
+        }
+        if (Objects.equals(value, 0)) {
+            return true;
+        }
+        if (Objects.equals(value, 0L)) {
+            return true;
+        }
+        if (Objects.equals(value, 0D)) {
+            return true;
+        }
+        if (Objects.equals(value, 0F)) {
+            return true;
+        }
+        return false;
     }
 }
