@@ -2,6 +2,7 @@ package util.code.block;
 
 import common.Settings;
 import util.code.BaseObjectCodeGenerator;
+import util.code.Code;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -12,11 +13,11 @@ import static util.code.ObjectCodeHelper.getSimpleName;
 public class ArrayCodeBlock extends CodeBlock {
     static class Element {
         int index;
-        String value;
+        Code code;
 
-        Element(int index, String value) {
+        Element(int index, Code code) {
             this.index = index;
-            this.value = value;
+            this.code = code;
         }
     }
 
@@ -30,8 +31,8 @@ public class ArrayCodeBlock extends CodeBlock {
     public void walkObjectsTree(BaseObjectCodeGenerator objectCodeGenerator) {
         int length = Array.getLength(object);
         for (int i = 0; i < length; i++) {
-            String eleVal = objectCodeGenerator.createObjectCode(Array.get(object, i), level + 1, null, null);
-            elements.add(new Element(i, eleVal));
+            Code code = objectCodeGenerator.createObjectCode(Array.get(object, i), level + 1, null, null);
+            elements.add(new Element(i, code));
         }
     }
 
@@ -55,10 +56,10 @@ public class ArrayCodeBlock extends CodeBlock {
     public String generateAssignmentCode() {
         StringBuilder str = new StringBuilder();
         for (Element element : elements) {
-            if (element.value == null && settings.isSkipNulls()) {
+            if (element.code.getCode() == null && settings.isSkipNulls()) {
                 continue;
             }
-            str.append(referenceName).append("[").append(element.index).append("] = ").append(element.value).append(";\n");
+            str.append(referenceName).append("[").append(element.index).append("] = ").append(element.code.getCode()).append(";\n");
         }
         return str.toString();
     }
@@ -83,7 +84,7 @@ public class ArrayCodeBlock extends CodeBlock {
                 line.setLength(0);
                 length = 8;
             }
-            line.append(element.value);
+            line.append(element.code.getCode());
             secondTime = true;
         }
 

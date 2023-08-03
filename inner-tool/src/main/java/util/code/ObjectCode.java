@@ -18,6 +18,8 @@ public class ObjectCode {
     int constructorLevel;
 
     final String referenceName;
+    public int referenceCount;
+
     private final String variableType;
 
     private final Object object;

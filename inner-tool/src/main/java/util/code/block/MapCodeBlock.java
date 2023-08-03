@@ -2,15 +2,27 @@ package util.code.block;
 
 import common.Settings;
 import util.code.BaseObjectCodeGenerator;
+import util.code.Code;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static util.code.ObjectCodeHelper.narrow;
 import static util.code.ObjectCodeHelper.shouldUseGenerics;
 
-
 public class MapCodeBlock extends CodeBlock {
-    private String assignmentCode;
+    static class Element {
+        Code keyCode;
+        Code valueCode;
+
+        Element(Code keyCode, Code valueCode) {
+            this.keyCode = keyCode;
+            this.valueCode = valueCode;
+        }
+    }
+
+    private final List<Element> elements = new ArrayList<>();
 
     private String keyType;
     private String valueType;
@@ -21,8 +33,6 @@ public class MapCodeBlock extends CodeBlock {
 
     @Override
     public void walkObjectsTree(BaseObjectCodeGenerator objectCodeGenerator) {
-        StringBuilder str = new StringBuilder();
-
         Class<?> keyClass = null;
         Class<?> valueClass = null;
 
@@ -35,9 +45,9 @@ public class MapCodeBlock extends CodeBlock {
                 valueClass = narrow(valueClass, value);
             }
 
-            String keyStr = objectCodeGenerator.createObjectCode(key, level + 1, null, null);
-            String valStr = objectCodeGenerator.createObjectCode(value, level + 1, null, null);
-            str.append(referenceName).append(".put(").append(keyStr).append(", ").append(valStr).append(");\n");
+            Code keyCode = objectCodeGenerator.createObjectCode(key, level + 1, null, null);
+            Code valueCode = objectCodeGenerator.createObjectCode(value, level + 1, null, null);
+            elements.add(new Element(keyCode, valueCode));
         }
 
         if (keyClass != null) {
@@ -46,13 +56,17 @@ public class MapCodeBlock extends CodeBlock {
         if (valueClass != null) {
             valueType = valueClass.getSimpleName();
         }
-
-        assignmentCode = str.toString();
     }
 
     @Override
     public String generateAssignmentCode() {
-        return assignmentCode;
+        StringBuilder str = new StringBuilder();
+        for (Element element : elements) {
+            String keyStr = element.keyCode.getCode();
+            String valStr = element.valueCode.getCode();
+            str.append(referenceName).append(".put(").append(keyStr).append(", ").append(valStr).append(");\n");
+        }
+        return str.toString();
     }
 
     @Override

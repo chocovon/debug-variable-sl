@@ -2,14 +2,25 @@ package util.code.block;
 
 import common.Settings;
 import util.code.BaseObjectCodeGenerator;
+import util.code.Code;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static util.code.ObjectCodeHelper.narrow;
 import static util.code.ObjectCodeHelper.shouldUseGenerics;
 
 public class CollectionCodeBlock extends CodeBlock {
-    private String assignmentCode;
+    static class Element {
+        Code code;
+
+        Element(Code code) {
+            this.code = code;
+        }
+    }
+
+    private final List<Element> elements = new ArrayList<>();
 
     private String keyType;
 
@@ -19,7 +30,6 @@ public class CollectionCodeBlock extends CodeBlock {
 
     @Override
     public void walkObjectsTree(BaseObjectCodeGenerator objectCodeGenerator) {
-        StringBuilder str = new StringBuilder();
         Class<?> keyClass = null;
 
         boolean shouldUseGenerics = shouldUseGenerics(settings, object.getClass());
@@ -27,20 +37,22 @@ public class CollectionCodeBlock extends CodeBlock {
             if (shouldUseGenerics) {
                 keyClass = narrow(keyClass, ele);
             }
-            String eleVal = objectCodeGenerator.createObjectCode(ele, level + 1, null, null);
-            str.append(referenceName).append(".add(").append(eleVal).append(");\n");
+            Code objectCode = objectCodeGenerator.createObjectCode(ele, level + 1, null, null);
+            elements.add(new Element(objectCode));
         }
 
         if (keyClass != null) {
             keyType = keyClass.getSimpleName();
         }
-
-        assignmentCode = str.toString();
     }
 
     @Override
     public String generateAssignmentCode() {
-        return assignmentCode;
+        StringBuilder str = new StringBuilder();
+        for (Element element : elements) {
+            str.append(referenceName).append(".add(").append(element.code.getCode()).append(");\n");
+        }
+        return str.toString();
     }
 
     @Override

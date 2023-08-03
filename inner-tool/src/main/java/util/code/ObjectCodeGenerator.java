@@ -39,7 +39,7 @@ public class ObjectCodeGenerator implements BaseObjectCodeGenerator {
     }
 
     public String genCode() {
-        String root = createObjectCode(this.rootObj, 0, this.variableType, this.variableName);
+        String root = createObjectCode(this.rootObj, 0, this.variableType, this.variableName).getCode();
 
         List<ObjectCode> outputCodes = new ArrayList<>(existingObjectCode.values());
         Collections.sort(outputCodes, new Comparator<ObjectCode>() {
@@ -113,48 +113,48 @@ public class ObjectCodeGenerator implements BaseObjectCodeGenerator {
         return ret.toString();
     }
 
-    public String createObjectCode(Object object, int level, String variableType, String variableName) {
+    public Code createObjectCode(Object object, int level, String variableType, String variableName) {
         if (object == null || level > this.settings.getMaxLevel()) {
-            return "null";
+            return new Code("null");
         } else if (isWrapperType(object.getClass())) {
             if (object instanceof Integer) {
                 if (object.equals(Integer.MAX_VALUE)) {
-                    return "Integer.MAX_VALUE";
+                    return new Code("Integer.MAX_VALUE");
                 } else if (object.equals(Integer.MIN_VALUE)) {
-                    return "Integer.MIN_VALUE";
+                    return new Code("Integer.MIN_VALUE");
                 }
-                return object.toString();
+                return new Code(object.toString());
             } else if (object instanceof Float) {
-                return object + "f";
+                return new Code(object + "f");
             } else if (object instanceof Long) {
                 if (object.equals(Long.MAX_VALUE)) {
-                    return "Long.MAX_VALUE";
+                    return new Code("Long.MAX_VALUE");
                 } else if (object.equals(Long.MIN_VALUE)) {
-                    return "Long.MIN_VALUE";
+                    return new Code("Long.MIN_VALUE");
                 }
-                return object + "L";
+                return new Code(object + "L");
             } else if (object instanceof Character) {
-                return "'" + object + "'";
+                return new Code("'" + object + "'");
             } else {
-                return object.toString();
+                return new Code(object.toString());
             }
         } else if (object instanceof String) {
-            return "\"" + escape((String) object) + "\"";
+            return new Code("\"" + escape((String) object) + "\"");
         } else if (object instanceof Enum) {
-            return object.getClass().getSimpleName() + "." + object;
+            return new Code(object.getClass().getSimpleName() + "." + object);
         } else if (object instanceof Date) {
-            return "new " + object.getClass().getSimpleName() + "(" + ((Date) object).getTime() + "L)";
+            return new Code("new " + object.getClass().getSimpleName() + "(" + ((Date) object).getTime() + "L)");
         } else if (object instanceof BigDecimal) {
-            return "new " + object.getClass().getSimpleName() + "(" + object + ")";
+            return new Code("new " + object.getClass().getSimpleName() + "(" + object + ")");
         } else if (object instanceof BigInteger) {
-            return "new " + object.getClass().getSimpleName() + "(\"" + object + "\")";
+            return new Code("new " + object.getClass().getSimpleName() + "(\"" + object + "\")");
         } else {
             ObjectCode existed = existingObjectCode.get(object);
             if (existed != null) {
                 if (existed.constructorLevel < level) {
                     existed.constructorLevel = level;
                 }
-                return existed.referenceName;
+                return new Code(existed.referenceName, existed);
             } else {
                 String referenceName = variableName != null
                         ? uniqueNameGenerator.createUniqueName(variableName)
@@ -162,7 +162,7 @@ public class ObjectCodeGenerator implements BaseObjectCodeGenerator {
                 ObjectCode objectCode = new ObjectCode(this, settings, level, referenceName, object, variableType);
                 existingObjectCode.put(object, objectCode);
                 objectCode.walkObjectsTree();
-                return referenceName;
+                return new Code(referenceName, objectCode);
             }
         }
     }
