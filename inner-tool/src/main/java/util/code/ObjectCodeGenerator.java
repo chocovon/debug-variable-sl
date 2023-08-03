@@ -77,16 +77,12 @@ public class ObjectCodeGenerator implements BaseObjectCodeGenerator {
                 curLevel = objectCode.constructorLevel;
             }
 
-            // add empty line before new block with assignments or after real assignments
-            if (ret.length() != 0 && !objectCode.hasEmptyAssignment() || assignmentJustAdded) {
-                ret.append("\n");
-            }
-
             // case when constructor and assignment are going together will be processed special way
             if (objectCode.hasEmptyAssignment() || objectCode.constructorLevel != objectCode.level) {
                 if (objectCode.hasEmptyAssignment() && objectCode.referenceCount == 1 && curLevel != 0) {
                     objectCode.forceInline = true;
                 } else {
+                    appendEmptyLine(ret, objectCode, assignmentJustAdded);
                     ret.append(objectCode.generateConstructorCode());
                     assignmentJustAdded = false;
                 }
@@ -94,6 +90,7 @@ public class ObjectCodeGenerator implements BaseObjectCodeGenerator {
 
             if (!objectCode.hasEmptyAssignment()) { // no need to handle empty assignments
                 if (objectCode.constructorLevel == objectCode.level) {
+                    appendEmptyLine(ret, objectCode, assignmentJustAdded);
                     ret.append(objectCode.generateConstructorCodeWithAssignment());
                     assignmentJustAdded = true;
                 } else {
@@ -115,6 +112,13 @@ public class ObjectCodeGenerator implements BaseObjectCodeGenerator {
         }
 
         return ret.toString();
+    }
+
+    private void appendEmptyLine(StringBuilder ret, ObjectCode objectCode, boolean assignmentJustAdded) {
+        // add empty line before new block with assignments or after real assignments
+        if (ret.length() != 0 && !objectCode.hasEmptyAssignment() || assignmentJustAdded) {
+            ret.append("\n");
+        }
     }
 
     public Code createObjectCode(Object object, int level, String variableType, String variableName) {
