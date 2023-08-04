@@ -59,8 +59,8 @@ public class ObjectCode {
         return codeBlock.generateConstructorCodeWithAssignment(variableType);
     }
 
-    String generateConstructorOnly() {
-        return codeBlock.generateConstructorOnly();
+    String generateInlineCode() {
+        return codeBlock.generateInlineCode();
     }
 
     /**

@@ -1,7 +1,7 @@
 package util.code;
 
 public class Code {
-    private final String code;
+    private final String code; // value or reference
     private final ObjectCode objectCode;
 
     public Code(String code) {
@@ -17,7 +17,7 @@ public class Code {
 
     public String getCode() {
         if (objectCode != null && objectCode.forceInline) {
-            return objectCode.generateConstructorOnly();
+            return objectCode.generateInlineCode();
         }
         return code;
     }
