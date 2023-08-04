@@ -1,8 +1,8 @@
 package util.code.block;
 
 import common.Settings;
-import util.code.BaseObjectCodeGenerator;
 import util.code.Code;
+import util.code.ObjectCodeGeneratorCore;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -36,7 +36,7 @@ public class PojoCodeBlock extends CodeBlock {
     }
 
     @Override
-    public void walkObjectsTree(BaseObjectCodeGenerator objectCodeGenerator) {
+    public void visitChildren(ObjectCodeGeneratorCore objectCodeGeneratorCore) {
         Class<?> clz = object.getClass();
         List<Field> fields = getAllFields(clz); // TODO: fix duplicate names. (LinkedHashSet?)
 
@@ -86,11 +86,13 @@ public class PojoCodeBlock extends CodeBlock {
                 if (setter != null) {
                     Class<?>[] parameterTypes = setter.getParameterTypes();
                     String fieldClassName = parameterTypes.length == 1 ? parameterTypes[0].getSimpleName() : null;
-                    Code objectCode = objectCodeGenerator.createObjectCode(value, level + 1, fieldClassName, fieldName);
+                    Code objectCode = objectCodeGeneratorCore.createObjectCode(value, level + 1, fieldClassName, fieldName);
+
                     elements.add(new Element(Type.SETTER, setter.getName(), objectCode));
                 } else {
                     String fieldClassName = field.getType().getSimpleName();
-                    Code objectCode = objectCodeGenerator.createObjectCode(value, level + 1, fieldClassName, fieldName);
+                    Code objectCode = objectCodeGeneratorCore.createObjectCode(value, level + 1, fieldClassName, fieldName);
+
                     elements.add(new Element(Type.FIELD, field.getName(), objectCode));
                 }
             } catch (IllegalAccessException e) {

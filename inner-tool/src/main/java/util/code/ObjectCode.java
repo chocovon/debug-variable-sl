@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Map;
 
 public class ObjectCode {
-    private final ObjectCodeGenerator objectCodeGenerator;
     private final Settings settings;
 
     final int level;
@@ -27,8 +26,7 @@ public class ObjectCode {
 
     private CodeBlock codeBlock;
 
-    ObjectCode(ObjectCodeGenerator objectCodeGenerator, Settings settings, int level, String referenceName, Object object, String variableType) {
-        this.objectCodeGenerator = objectCodeGenerator;
+    ObjectCode(Settings settings, int level, String referenceName, Object object, String variableType) {
         this.settings = settings;
 
         this.level = level;
@@ -40,7 +38,7 @@ public class ObjectCode {
         this.object = object;
     }
 
-    public void walkObjectsTree() {
+    public void visitChildren(ObjectCodeGeneratorCore objectCodeGeneratorCore) {
         if (object.getClass().isArray()) {
             codeBlock = new ArrayCodeBlock(object, settings, level, referenceName);
         } else if (object instanceof Collection) {
@@ -51,7 +49,7 @@ public class ObjectCode {
             codeBlock = new PojoCodeBlock(object, settings, level, referenceName);
         }
 
-        codeBlock.walkObjectsTree(objectCodeGenerator);
+        codeBlock.visitChildren(objectCodeGeneratorCore);
     }
 
     /**

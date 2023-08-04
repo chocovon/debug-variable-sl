@@ -1,8 +1,8 @@
 package util.code.block;
 
 import common.Settings;
-import util.code.BaseObjectCodeGenerator;
 import util.code.Code;
+import util.code.ObjectCodeGeneratorCore;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +29,7 @@ public class CollectionCodeBlock extends CodeBlock {
     }
 
     @Override
-    public void walkObjectsTree(BaseObjectCodeGenerator objectCodeGenerator) {
+    public void visitChildren(ObjectCodeGeneratorCore objectCodeGeneratorCore) {
         Class<?> keyClass = null;
 
         boolean shouldUseGenerics = shouldUseGenerics(settings, object.getClass());
@@ -37,7 +37,8 @@ public class CollectionCodeBlock extends CodeBlock {
             if (shouldUseGenerics) {
                 keyClass = narrow(keyClass, ele);
             }
-            Code objectCode = objectCodeGenerator.createObjectCode(ele, level + 1, null, null);
+            Code objectCode = objectCodeGeneratorCore.createObjectCode(ele, level + 1, null, null);
+
             elements.add(new Element(objectCode));
         }
 

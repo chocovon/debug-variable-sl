@@ -1,7 +1,7 @@
 package util.code.block;
 
 import common.Settings;
-import util.code.BaseObjectCodeGenerator;
+import util.code.ObjectCodeGeneratorCore;
 
 import static util.code.ObjectCodeHelper.getSimpleName;
 import static util.code.ObjectCodeHelper.getSimpleNameFromSuperClass;
@@ -56,7 +56,7 @@ public abstract class CodeBlock {
         return generateConstructorCode(variableType) + generateAssignmentCode();
     }
 
-    public abstract void walkObjectsTree(BaseObjectCodeGenerator objectCodeGenerator);
+    public abstract void visitChildren(ObjectCodeGeneratorCore objectCodeGeneratorCore);
 
     /**
      * generates 'movable' assignment

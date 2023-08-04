@@ -1,8 +1,8 @@
 package util.code.block;
 
 import common.Settings;
-import util.code.BaseObjectCodeGenerator;
 import util.code.Code;
+import util.code.ObjectCodeGeneratorCore;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -28,10 +28,11 @@ public class ArrayCodeBlock extends CodeBlock {
     }
 
     @Override
-    public void walkObjectsTree(BaseObjectCodeGenerator objectCodeGenerator) {
+    public void visitChildren(ObjectCodeGeneratorCore objectCodeGeneratorCore) {
         int length = Array.getLength(object);
         for (int i = 0; i < length; i++) {
-            Code code = objectCodeGenerator.createObjectCode(Array.get(object, i), level + 1, null, null);
+            Code code = objectCodeGeneratorCore.createObjectCode(Array.get(object, i), level + 1, null, null);
+
             elements.add(new Element(i, code));
         }
     }

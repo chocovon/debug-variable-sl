@@ -1,8 +1,8 @@
 package util.code.block;
 
 import common.Settings;
-import util.code.BaseObjectCodeGenerator;
 import util.code.Code;
+import util.code.ObjectCodeGeneratorCore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ public class MapCodeBlock extends CodeBlock {
     }
 
     @Override
-    public void walkObjectsTree(BaseObjectCodeGenerator objectCodeGenerator) {
+    public void visitChildren(ObjectCodeGeneratorCore objectCodeGeneratorCore) {
         Class<?> keyClass = null;
         Class<?> valueClass = null;
 
@@ -45,8 +45,9 @@ public class MapCodeBlock extends CodeBlock {
                 valueClass = narrow(valueClass, value);
             }
 
-            Code keyCode = objectCodeGenerator.createObjectCode(key, level + 1, null, null);
-            Code valueCode = objectCodeGenerator.createObjectCode(value, level + 1, null, null);
+            Code keyCode = objectCodeGeneratorCore.createObjectCode(key, level + 1, null, null);
+            Code valueCode = objectCodeGeneratorCore.createObjectCode(value, level + 1, null, null);
+
             elements.add(new Element(keyCode, valueCode));
         }
 
