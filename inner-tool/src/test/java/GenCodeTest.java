@@ -1,8 +1,11 @@
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import common.GenCodeRequest;
 import common.Settings;
 
+import javax.swing.*;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -594,5 +597,52 @@ public class GenCodeTest {
                 "tester.setType(\"hh\");\n" +
                 "tester.obj = obj;\n", genCode);
 
+    }
+
+    @Test
+    public void testFinal() {
+        class TestObject {
+            final long aLong = 1;
+            final float flt = 1;
+            final double dlb = 1;
+            final char c = '1';
+            final Date date = new Date(1689838505598L);
+            final E e = E.VAL;
+
+            final BigDecimal db = new BigDecimal(1);
+            final BigInteger bi = new BigInteger("1");
+        }
+
+        TestObject testObject = new TestObject();
+        Settings settings = new Settings();
+        settings.setSkipNulls(true);
+        settings.setSkipDefaults(true);
+        settings.setSkipFinal(false);
+        String genCode = GenCodeTestHelper.genCode(testObject, settings);
+        Assert.assertEquals("TestObject testObject = new TestObject();\n" +
+                "testObject.aLong = 1L;\n" +
+                "testObject.flt = 1.0f;\n" +
+                "testObject.dlb = 1.0;\n" +
+                "testObject.c = '1';\n" +
+                "testObject.date = new Date(1689838505598L);\n" +
+                "testObject.e = E.VAL;\n" +
+                "testObject.db = new BigDecimal(1);\n" +
+                "testObject.bi = new BigInteger(\"1\");\n", genCode);
+
+    }
+
+    @Test
+    @Ignore
+    public void testSkipFinal() throws NoSuchFieldException {
+        Settings settings = new Settings();
+        settings.setSkipNulls(true);
+        settings.setSkipDefaults(true);
+        settings.setSkipFinal(false);
+        settings.setSkipPrivate(false);
+
+        // Field field = settings.getClass().getDeclaredField("format");
+        JFrame frame = new JFrame();
+        String genCode = GenCodeTestHelper.genCode(frame, settings);
+        Assert.assertEquals("TestObject testObject = new TestObject();\n", genCode);
     }
 }

@@ -46,12 +46,20 @@ public class PojoCodeBlock extends CodeBlock {
 
                 int modifiers = field.getModifiers();
 
-                if (Modifier.isFinal(modifiers) || Modifier.isStatic(modifiers)) {
-                    continue; // ignore final and static fields
+                if (Modifier.isStatic(modifiers)) {
+                    continue; // ignore static fields
+                }
+
+                if (settings.isSkipFinal() && Modifier.isFinal(modifiers)) {
+                    continue;
                 }
 
                 Class<?> type = field.getType();
                 String fieldName = field.getName();
+
+                if (fieldName.startsWith("this$") && Modifier.isFinal(modifiers)) {
+                    continue;
+                }
 
                 Method setter = null;
                 try {
@@ -69,7 +77,7 @@ public class PojoCodeBlock extends CodeBlock {
                     }
                 }
 
-                if (setter == null && Modifier.isPrivate(modifiers)) {
+                if (setter == null && Modifier.isPrivate(modifiers) && settings.isSkipPrivate()) {
                     continue;
                 }
 
