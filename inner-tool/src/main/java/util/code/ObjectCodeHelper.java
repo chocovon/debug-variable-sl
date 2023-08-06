@@ -159,6 +159,10 @@ public class ObjectCodeHelper {
         }
 
         if (settings.isUseKnownGenerics()) {
+            if ("java.util.Arrays$ArrayList".equals(clazz.getName())) {
+                return true;
+            }
+
             return KNOWN_GENERICS.contains(clazz);
         }
 

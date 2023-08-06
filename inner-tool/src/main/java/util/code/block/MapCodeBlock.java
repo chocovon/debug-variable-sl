@@ -11,7 +11,7 @@ import java.util.Map;
 import static util.code.ObjectCodeHelper.narrow;
 import static util.code.ObjectCodeHelper.shouldUseGenerics;
 
-public class MapCodeBlock extends CodeBlock {
+public class MapCodeBlock extends CodeBlock<Map<?, ?>> {
     static class Element {
         Code keyCode;
         Code valueCode;
@@ -27,7 +27,7 @@ public class MapCodeBlock extends CodeBlock {
     private String keyType;
     private String valueType;
 
-    public MapCodeBlock(Object object, Settings settings, int level, String referenceName) {
+    public MapCodeBlock(Map<?, ?> object, Settings settings, int level, String referenceName) {
         super(object, settings, level, referenceName);
     }
 
@@ -37,7 +37,7 @@ public class MapCodeBlock extends CodeBlock {
         Class<?> valueClass = null;
 
         boolean shouldUseGenerics = shouldUseGenerics(settings, object.getClass());
-        for (Map.Entry<?, ?> entry : ((Map<?,?>)object).entrySet()) {
+        for (Map.Entry<?, ?> entry : object.entrySet()) {
             Object key = entry.getKey();
             Object value = entry.getValue();
             if (shouldUseGenerics) {

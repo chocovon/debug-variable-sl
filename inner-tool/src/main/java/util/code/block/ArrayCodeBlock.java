@@ -10,7 +10,7 @@ import java.util.List;
 
 import static util.code.ObjectCodeHelper.escape;
 
-public class ArrayCodeBlock extends CodeBlock {
+public class ArrayCodeBlock extends CodeBlock<Object> {
 
     public static final String NEW_LINE_WITH_SPACES = "\n        ";
 

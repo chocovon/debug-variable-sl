@@ -5,15 +5,15 @@ import util.code.ObjectCodeGeneratorCore;
 
 import static util.code.ObjectCodeHelper.getSimpleNameFromSuperClass;
 
-public abstract class CodeBlock {
-    protected final Object object;
+public abstract class CodeBlock<T> {
+    protected final T object;
 
     protected final Class<?> clazz;
     protected final Settings settings;
     protected final int level;
     protected final String referenceName;
 
-    public CodeBlock(Object object, Settings settings, int level, String referenceName) {
+    public CodeBlock(T object, Settings settings, int level, String referenceName) {
         this.object = object;
         this.clazz = object.getClass();
         this.settings = settings;

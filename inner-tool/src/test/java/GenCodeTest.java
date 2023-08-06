@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -246,7 +247,7 @@ public class GenCodeTest {
                 "testObject.xa = xa;\n", genCode);
     }
 
-        @Test
+    @Test
     public void testArrayReplaceWithBaseAndGenerics() {
         class A {
         }
@@ -440,6 +441,33 @@ public class GenCodeTest {
                 "Filter[] _filters = new Filter[]{filter, filter2};\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject._filters = _filters;\n", genCode);
+    }
+
+    @Test
+    public void testArraysAsListInField() {
+        class TestObject {
+            List<Integer> list = Arrays.asList(1, 2, 3);
+        }
+
+        String genCode = GenCodeTestHelper.genCode(new TestObject());
+        Assert.assertEquals("List<Integer> list = Arrays.asList(1, 2, 3);\n" +
+                "\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.list = list;\n", genCode);
+    }
+
+    @Test
+    public void testArraysAsList() {
+        String genCode = GenCodeTestHelper.genCode(Arrays.asList(1, 2, 3));
+
+        Assert.assertEquals("List<Integer> arrayList = Arrays.asList(1, 2, 3);\n", genCode);
+    }
+
+    @Test
+    public void testArrayLevel0() {
+        String genCode = GenCodeTestHelper.genCode(new int[]{1, 2, 3});
+
+        Assert.assertEquals("int[] intArr = new int[]{1, 2, 3};", genCode);
     }
 
     @Test

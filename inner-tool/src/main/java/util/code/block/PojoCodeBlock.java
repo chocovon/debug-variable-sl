@@ -14,7 +14,7 @@ import static util.code.ObjectCodeHelper.firstUpper;
 import static util.code.ObjectCodeHelper.getAllFields;
 import static util.code.ObjectCodeHelper.isDefaultValue;
 
-public class PojoCodeBlock extends CodeBlock {
+public class PojoCodeBlock extends CodeBlock<Object> {
     enum Type {FIELD, SETTER}
 
     static class Element {
