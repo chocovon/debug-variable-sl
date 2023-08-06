@@ -355,20 +355,9 @@ public class GenCodeTest {
         TestObject testObject = new TestObject();
         testObject.stringBuilder2.append("hello");
         String genCode = GenCodeTestHelper.genCode(testObject);
-        Assert.assertEquals("char[] value = new char[16];\n" +
-                "char[] value2 = new char[]{'h', 'e', 'l', 'l', 'o', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \n" +
-                "        0};\n" +
-                "StringBuilder stringBuilder = new StringBuilder();\n" +
-                "stringBuilder.value = value;\n" +
-                "stringBuilder.count = 0;\n" +
-                "\n" +
-                "StringBuilder stringBuilder2 = new StringBuilder();\n" +
-                "stringBuilder2.value = value2;\n" +
-                "stringBuilder2.count = 5;\n" +
-                "\n" +
-                "TestObject testObject = new TestObject();\n" +
-                "testObject.stringBuilder = stringBuilder;\n" +
-                "testObject.stringBuilder2 = stringBuilder2;\n", genCode);
+        Assert.assertEquals("TestObject testObject = new TestObject();\n" +
+                "testObject.stringBuilder = new StringBuilder(\"\");\n" +
+                "testObject.stringBuilder2 = new StringBuilder(\"hello\");\n", genCode);
     }
 
 

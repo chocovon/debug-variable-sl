@@ -47,6 +47,8 @@ public class ObjectCodeGeneratorCore {
             }
         } else if (object instanceof String) {
             return new Code('"' + escape((String) object) + '"');
+        } else if (object instanceof StringBuilder || object instanceof StringBuffer) {
+            return new Code("new " + object.getClass().getSimpleName() + "(" + '"' + escape(object.toString()) + '"' + ")");
         } else if (object instanceof Enum) {
             return new Code(object.getClass().getSimpleName() + "." + object);
         } else if (object instanceof Date) {
