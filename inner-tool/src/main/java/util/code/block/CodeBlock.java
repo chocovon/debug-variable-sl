@@ -3,7 +3,6 @@ package util.code.block;
 import common.Settings;
 import util.code.ObjectCodeGeneratorCore;
 
-import static util.code.ObjectCodeHelper.getSimpleName;
 import static util.code.ObjectCodeHelper.getSimpleNameFromSuperClass;
 
 public abstract class CodeBlock {
@@ -23,7 +22,7 @@ public abstract class CodeBlock {
     }
 
     public String generateConstructorCode(String variableType) {
-        String constructorClassName = getSimpleName(clazz.getName());
+        String constructorClassName = clazz.getSimpleName();
 
         String variableClassName = getVariableClassName(clazz, constructorClassName, variableType);
         String constructorCall = generateConstructorCall(constructorClassName);
@@ -32,7 +31,7 @@ public abstract class CodeBlock {
     }
 
     public String generateInlineCode() {
-        String constructorClassName = getSimpleName(clazz.getName());
+        String constructorClassName = clazz.getSimpleName();
         String constructorCall = generateConstructorCall(constructorClassName);
 
         return "new " + constructorCall;

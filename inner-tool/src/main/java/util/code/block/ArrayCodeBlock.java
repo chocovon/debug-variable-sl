@@ -8,9 +8,12 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import static util.code.ObjectCodeHelper.getSimpleName;
+import static util.code.ObjectCodeHelper.escape;
 
 public class ArrayCodeBlock extends CodeBlock {
+
+    public static final String NEW_LINE_WITH_SPACES = "\n        ";
+
     static class Element {
         int index;
         Code code;
@@ -22,13 +25,19 @@ public class ArrayCodeBlock extends CodeBlock {
     }
 
     private final List<Element> elements = new ArrayList<>();
+    private final boolean isCharArray;
 
     public ArrayCodeBlock(Object object, Settings settings, int level, String referenceName) {
         super(object, settings, level, referenceName);
+        this.isCharArray = "char[]".equals(object.getClass().getSimpleName());
     }
 
     @Override
     public void visitChildren(ObjectCodeGeneratorCore objectCodeGeneratorCore) {
+        if (this.isCharArray) {
+            return;
+        }
+
         int length = Array.getLength(object);
         for (int i = 0; i < length; i++) {
             Code code = objectCodeGeneratorCore.createObjectCode(Array.get(object, i), level + 1, null, null);
@@ -39,13 +48,16 @@ public class ArrayCodeBlock extends CodeBlock {
 
     @Override
     public String generateConstructorCodeWithAssignment(String variableType) {
-        String simpleName = getSimpleName(clazz.getName());
+        String simpleName = clazz.getSimpleName();
         String variableClassName = getVariableClassName(clazz, simpleName, variableType);
 
         String base = variableClassName + generateVarGenerics() + " " + referenceName
                 + " = new " + simpleName + "{";
 
-        return base + generateArraysElementsList(base.length()) + "};";
+        String elementsList = isCharArray
+                ? generateCharArraysElementsList(base.length())
+                : generateArraysElementsList(base.length());
+        return base + elementsList + "};";
     }
 
     @Override
@@ -67,7 +79,7 @@ public class ArrayCodeBlock extends CodeBlock {
 
     @Override
     public boolean hasEmptyAssignment() {
-        return elements.isEmpty();
+        return !this.isCharArray && elements.isEmpty() || this.isCharArray && ((char[]) object).length == 0;
     }
 
     private String generateArraysElementsList(int length) {
@@ -81,7 +93,7 @@ public class ArrayCodeBlock extends CodeBlock {
             }
             if (length + line.length() > 80) {
                 str.append(line);
-                str.append("\n        ");
+                str.append(NEW_LINE_WITH_SPACES);
                 line.setLength(0);
                 length = 8;
             }
@@ -92,5 +104,36 @@ public class ArrayCodeBlock extends CodeBlock {
         str.append(line);
 
         return str.toString();
+    }
+
+    private String generateCharArraysElementsList(int length) {
+        StringBuilder str = new StringBuilder();
+        StringBuilder line = new StringBuilder();
+
+        boolean secondTime = false;
+        for (char element : (char[]) object) {
+            if (secondTime) {
+                line.append(", ");
+            }
+            if (length + line.length() > 80) {
+                str.append(line);
+                str.append(NEW_LINE_WITH_SPACES);
+                line.setLength(0);
+                length = 8;
+            }
+            line.append(toChar(element));
+            secondTime = true;
+        }
+
+        str.append(line);
+
+        return str.toString();
+    }
+
+    private String toChar(char element) {
+        if (element < 32) {
+            return "" + ((int) element);
+        }
+        return "'" + escape("" + element) + "'";
     }
 }

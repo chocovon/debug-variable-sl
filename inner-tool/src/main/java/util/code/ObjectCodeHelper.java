@@ -37,7 +37,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 public class ObjectCodeHelper {
-    static String escape(String raw) {
+    public static String escape(String raw) {
         return raw.replace("\\", "\\\\")
                 .replace("\"", "\\\"")
                 .replace("\b", "\\b")
@@ -50,7 +50,7 @@ public class ObjectCodeHelper {
     public static String getSimpleNameFromSuperClass(Class<?> clazz) {
         String simpleName = "";
         while (simpleName.isEmpty() && clazz != null) {
-            simpleName = getSimpleName(clazz.getName());
+            simpleName = clazz.getSimpleName();
             clazz = clazz.getSuperclass();
         }
         return simpleName;

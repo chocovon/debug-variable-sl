@@ -333,6 +333,37 @@ public class GenCodeTest {
     }
 
     @Test
+    public void testCharArray() {
+        class TestObject {
+            char[] text = new char[]{'t', 'e', 'x', 't'};
+        }
+
+        TestObject testObject = new TestObject();
+        String genCode = GenCodeTestHelper.genCode(testObject);
+        Assert.assertEquals("char[] text = new char[]{'t', 'e', 'x', 't'};\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.text = text;\n", genCode);
+    }
+
+    @Test
+    public void testStringBuilder() {
+        class TestObject {
+            StringBuilder stringBuilder = new StringBuilder();
+        }
+
+        TestObject testObject = new TestObject();
+        String genCode = GenCodeTestHelper.genCode(testObject);
+        Assert.assertEquals("char[] value = new char[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};\n" +
+                "StringBuilder stringBuilder = new StringBuilder();\n" +
+                "stringBuilder.value = value;\n" +
+                "stringBuilder.count = 0;\n" +
+                "\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.stringBuilder = stringBuilder;\n", genCode);
+    }
+
+
+    @Test
     public void testComplexArray() {
         class TestObject {
             Integer[] some = new Integer[]{1, 2, 3};
@@ -379,7 +410,7 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         String genCode = GenCodeTestHelper.genCode(testObject);
-        Assert.assertEquals("TestObject.Inner inner = new TestObject.Inner();\n" +
+        Assert.assertEquals("Inner inner = new Inner();\n" +
                 "inner.x = 1;\n" +
                 "\n" +
                 "TestObject testObject = new TestObject();\n" +
