@@ -106,22 +106,26 @@ public class RightPanel {
         checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
 
         checkboxPanel.add(createCheckBox("Hide null values",
-                "Do not use null values in setters",
+                "Do not show null values in setters",
                 settings.isSkipNulls(), settings::setSkipNulls));
         checkboxPanel.add(createCheckBox("Hide default values",
-                "Do not use defaults values like false or zeros in setters",
+                "Do not show defaults values like false or zeros in setters",
                 settings.isSkipDefaults(), settings::setSkipDefaults));
-        checkboxPanel.add(createCheckBox("Support underscores",
-                "Recognize underscores in field names and use corresponding setters",
-                settings.isSupportUnderscores(), settings::setSupportUnderscores));
+        checkboxPanel.add(createCheckBox("Hide private values",
+                "Do not assign private values without setters (works for inner classes)",
+                settings.isSkipPrivate(), settings::setSkipPrivate));
+        checkboxPanel.add(createCheckBox("Hide final values",
+                "Do not assign final values if they do not have setters (impossible in java)",
+                settings.isSkipFinal(), settings::setSkipFinal));
+//        checkboxPanel.add(Box.createVerticalStrut(8));
         checkboxPanel.add(createCheckBox("Use base classes",
-                "Use base classes from setter or field",
+                "Use a class from the setter or field",
                 settings.isUseBaseClasses(), settings::setUseBaseClasses));
         JCheckBox useOnlyKnowGenerics = createCheckBox("Use only known generics",
-                "Use generics only for known JDK maps and collections",
+                "Use generics only for known JDK collections",
                 settings.isUseKnownGenerics(), settings::setUseKnownGenerics);
         checkboxPanel.add(createCheckBox("Use generics",
-                "Use generics for Collection and Map instances",
+                "Use generics for collections",
                 settings.isUseGenerics(), useGenerics -> {
                     settings.setUseGenerics(useGenerics);
                     useOnlyKnowGenerics.setEnabled(useGenerics);
@@ -140,6 +144,12 @@ public class RightPanel {
             checkboxPanel.add(createCheckBox("Hide null values",
                     "Do not use null values in setters",
                     settings.isSkipNulls(), settings::setSkipNulls));
+            checkboxPanel.add(createCheckBox("Hide default values",
+                    "Do not show defaults values like false or zeros in setters",
+                    settings.isSkipDefaults(), settings::setSkipDefaults));
+            checkboxPanel.add(createCheckBox("Hide final values",
+                    "Do not assign final values if they do not have setters (impossible in java)",
+                    settings.isSkipFinal(), settings::setSkipFinal));
         }
 
         checkboxPanel.add(createCheckBox("Pretty format",

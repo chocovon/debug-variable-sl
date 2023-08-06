@@ -12,6 +12,25 @@ import java.util.Set;
 import static util.debugger.ValueUtil.invokeMethod;
 
 public class JsonCodeGenerator {
+    private static final String[] TO_STRING_ENABLED_TYPES = {
+            "java.lang.Enum",
+            "java.util.Date",
+            "java.util.Calendar",
+            "java.math.BigDecimal",
+            "java.math.BigInteger"
+    };
+
+    private static final String[] WRAPPER_TYPES = {
+            "java.lang.Integer",
+            "java.lang.Byte",
+            "java.lang.Double",
+            "java.lang.Float",
+            "java.lang.Long",
+            "java.lang.Short",
+            "java.lang.Boolean",
+            "java.lang.Character"
+    };
+
     private static final String JAVA_LANG_OBJECT = "java.lang.Object";
     private static final long TIME_LIMIT = 70000000;
 
@@ -26,19 +45,47 @@ public class JsonCodeGenerator {
         this.settings = settings;
     }
 
-    public String toJson(Value value) throws ClassNotLoadedException, IncompatibleThreadStateException, InvocationException, JsonSerializeException, InvalidTypeException {
+    public String toJson(Value value) throws Exception {
         timeStamp = System.currentTimeMillis();
         refPath = new HashSet<>();
         return toJsonInner(value, 0);
     }
 
-    private String toJsonInner(Value value, int depth) throws InvocationException, InvalidTypeException, ClassNotLoadedException, IncompatibleThreadStateException, JsonSerializeException {
+    private String toJsonInner(Value value, int depth) throws Exception {
         if (System.currentTimeMillis() - timeStamp > TIME_LIMIT) {
             throw new JsonSerializeException("JSON serializing timed out, probably the object is too big to JSON.");
         }
 
         if (value == null || depth >= settings.getMaxLevel()) {
             return null;
+        }
+
+        if (value instanceof IntegerValue) {
+            return String.valueOf(((IntegerValue) value).value());
+        }
+        if (value instanceof DoubleValue) {
+            return String.valueOf(((DoubleValue) value).value());
+        }
+        if (value instanceof FloatValue) {
+            return String.valueOf(((FloatValue) value).value());
+        }
+        if (value instanceof ShortValue) {
+            return String.valueOf(((ShortValue) value).value());
+        }
+        if (value instanceof ByteValue) {
+            return String.valueOf(((ByteValue) value).value());
+        }
+        if (value instanceof LongValue) {
+            return String.valueOf(((LongValue) value).value());
+        }
+        if (value instanceof CharValue) {
+            return "\"" + escape(String.valueOf(((CharValue) value).value())) + "\"";
+        }
+        if (value instanceof BooleanValue) {
+            return String.valueOf(((BooleanValue) value).value());
+        }
+        if (value instanceof StringReference) {
+            return "\"" + escape(((StringReference) value).value()) + "\"";
         }
 
         if (value instanceof ObjectReference) {
@@ -48,36 +95,6 @@ public class JsonCodeGenerator {
             }
             refPath = new HashSet<>(refPath);
             refPath.add(id);
-        }
-
-        {
-            if (value instanceof IntegerValue) {
-                return String.valueOf(((IntegerValue) value).value());
-            }
-            if (value instanceof DoubleValue) {
-                return String.valueOf(((DoubleValue) value).value());
-            }
-            if (value instanceof FloatValue) {
-                return String.valueOf(((FloatValue) value).value());
-            }
-            if (value instanceof ShortValue) {
-                return String.valueOf(((ShortValue) value).value());
-            }
-            if (value instanceof ByteValue) {
-                return String.valueOf(((ByteValue) value).value());
-            }
-            if (value instanceof LongValue) {
-                return String.valueOf(((LongValue) value).value());
-            }
-            if (value instanceof CharValue) {
-                return "\"" + escape(String.valueOf(((CharValue) value).value())) + "\"";
-            }
-            if (value instanceof BooleanValue) {
-                return String.valueOf(((BooleanValue) value).value());
-            }
-            if (value instanceof StringReference) {
-                return "\"" + escape(((StringReference) value).value()) + "\"";
-            }
         }
 
         if (value instanceof ArrayReference) {
@@ -106,7 +123,7 @@ public class JsonCodeGenerator {
             ObjectReference objectValue = (ObjectReference) value;
 
             if (isSimpleObject(allInheritedTypes)) {
-                return toJsonInner(objectValue.getValue(((ClassType)value.type()).fieldByName("value")), depth + 1);
+                return toJsonInner(objectValue.getValue(((ClassType) value.type()).fieldByName("value")), depth + 1);
             } else if (allInheritedTypes.contains("java.util.Map")) {
                 ObjectReference keySet = (ObjectReference) invokeMethod(objectValue, "keySet", thread);
                 ArrayReference keyArr = (ArrayReference) invokeMethod(keySet, "toArray", thread);
@@ -122,15 +139,15 @@ public class JsonCodeGenerator {
                         if (simpleValStr != null && simpleValStr.startsWith("\"")) {
                             keyStr = simpleValStr;
                         } else {
-                            keyStr = "\"" + simpleValStr + "\"";
+                            keyStr = '"' + simpleValStr + '"';
                         }
                     } else {
                         Value stringValue = invokeMethod((ObjectReference) key, "toString", thread);
-                        keyStr = "\"" + escape(((StringReference) stringValue).value()) + "\"";
+                        keyStr = '"' + escape(((StringReference) stringValue).value()) + '"';
                     }
 
                     String valueString = toJsonInner(val, depth + 1);
-                    if (valueString == null && settings.isSkipNulls()) {
+                    if (shouldSkipValue(valueString)) {
                         continue;
                     }
                     str.append(keyStr).append(":").append(valueString);
@@ -147,8 +164,7 @@ public class JsonCodeGenerator {
             }
 
             // types enabled with toString() method usage
-            String[] toStringTypes = {"java.lang.Enum", "java.util.Date",  "java.util.Calendar", "java.math.BigDecimal", "java.math.BigInteger"};
-            for (String toStringType : toStringTypes) {
+            for (String toStringType : TO_STRING_ENABLED_TYPES) {
                 if (allInheritedTypes.contains(toStringType)) {
                     return toJsonInner(invokeMethod(objectValue, "toString", thread), depth + 1);
                 }
@@ -158,18 +174,22 @@ public class JsonCodeGenerator {
             StringBuilder str = new StringBuilder();
             str.append("{");
             boolean hasOne = false;
-            for (Map.Entry<Field, Value> fieldValueEntry : objectValue.getValues(((ClassType)value.type()).allFields()).entrySet()) {
+            for (Map.Entry<Field, Value> fieldValueEntry : objectValue.getValues(((ClassType) value.type()).allFields()).entrySet()) {
                 if (fieldValueEntry.getKey().isStatic()) {
                     continue;
                 }
 
+                if (fieldValueEntry.getKey().isFinal() && settings.isSkipFinal()) {
+                    continue;
+                }
+
                 String fieldName = fieldValueEntry.getKey().name();
-                if (fieldName.startsWith("this$")) {
+                if (fieldName.startsWith("this$") && fieldValueEntry.getKey().isFinal()) {
                     continue;
                 }
 
                 String fieldValue = toJsonInner(fieldValueEntry.getValue(), depth + 1);
-                if (fieldValue == null && settings.isSkipNulls()) {
+                if (shouldSkipValue(fieldValue)) {
                     continue;
                 }
 
@@ -190,15 +210,25 @@ public class JsonCodeGenerator {
         throw new JsonSerializeException("Unforeseen value type for : " + value.type().name());
     }
 
+    private boolean shouldSkipValue(String valueString) {
+        if (valueString == null && settings.isSkipNulls()) {
+            return true;
+        }
+
+        return settings.isSkipDefaults() && (
+                "false".equals(valueString)
+                        || "0".equals(valueString)
+                        || "0.0".equals(valueString)
+        );
+    }
+
     private static boolean isSimpleObject(Set<String> allInheritedTypes) {
-        return allInheritedTypes.contains("java.lang.Integer")
-                || allInheritedTypes.contains("java.lang.Byte")
-                || allInheritedTypes.contains("java.lang.Double")
-                || allInheritedTypes.contains("java.lang.Float")
-                || allInheritedTypes.contains("java.lang.Long")
-                || allInheritedTypes.contains("java.lang.Short")
-                || allInheritedTypes.contains("java.lang.Boolean")
-                || allInheritedTypes.contains("java.lang.Character");
+        for (String wrapperType : WRAPPER_TYPES) {
+            if (allInheritedTypes.contains(wrapperType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isSimpleValue(Value value) {

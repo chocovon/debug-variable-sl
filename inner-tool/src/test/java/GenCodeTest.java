@@ -1,8 +1,11 @@
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import common.GenCodeRequest;
 import common.Settings;
 
+import javax.swing.*;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -125,9 +128,7 @@ public class GenCodeTest {
                 "TestObject testObject2 = new TestObject();\n" +
                 "testObject2.some = 1;\n" +
                 "\n" +
-                "TestObject[] testObjectArr = new TestObject[2];\n" +
-                "testObjectArr[0] = testObject;\n" +
-                "testObjectArr[1] = testObject2;\n", genCode);
+                "TestObject[] testObjectArr = new TestObject[]{testObject, testObject2};", genCode);
     }
 
     @Test
@@ -185,12 +186,9 @@ public class GenCodeTest {
         settings.setUseBaseClasses(true);
 
         String genCode = GenCodeTestHelper.genCode(testObject, settings);
-        Assert.assertEquals("U1 u1 = new U1();\n" +
-                "U2 u2 = new U2();\n" +
-                "\n" +
-                "Map<Integer, U> users = new HashMap<>();\n" +
-                "users.put(1, u1);\n" +
-                "users.put(2, u2);\n" +
+        Assert.assertEquals("Map<Integer, U> users = new HashMap<>();\n" +
+                "users.put(1, new U1());\n" +
+                "users.put(2, new U2());\n" +
                 "\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.users = users;\n", genCode);
@@ -287,33 +285,23 @@ public class GenCodeTest {
         settings.setUseBaseClasses(true);
 
         String genCode = GenCodeTestHelper.genCode(testObject, settings);
-        Assert.assertEquals("A a = new A();\n" +
-                "A a2 = new A();\n" +
-                "B b = new B();\n" +
-                "B b2 = new B();\n" +
-                "B b3 = new B();\n" +
-                "B b4 = new B();\n" +
-                "B b5 = new B();\n" +
-                "C c = new C();\n" +
-                "C c2 = new C();\n" +
-                "\n" +
-                "List<A> users1 = new ArrayList<>();\n" +
+        Assert.assertEquals("List<A> users1 = new ArrayList<>();\n" +
                 "users1.add(null);\n" +
-                "users1.add(b);\n" +
-                "users1.add(b2);\n" +
-                "users1.add(c);\n" +
+                "users1.add(new B());\n" +
+                "users1.add(new B());\n" +
+                "users1.add(new C());\n" +
                 "\n" +
                 "List<A> users2 = new ArrayList<>();\n" +
-                "users2.add(b3);\n" +
-                "users2.add(a);\n" +
+                "users2.add(new B());\n" +
+                "users2.add(new A());\n" +
                 "\n" +
                 "List<A> users3 = new ArrayList<>();\n" +
-                "users3.add(a2);\n" +
-                "users3.add(b4);\n" +
+                "users3.add(new A());\n" +
+                "users3.add(new B());\n" +
                 "\n" +
                 "List<A> users4 = new ArrayList<>();\n" +
-                "users4.add(b5);\n" +
-                "users4.add(c2);\n" +
+                "users4.add(new B());\n" +
+                "users4.add(new C());\n" +
                 "\n" +
                 "List<Object> users5 = new ArrayList<>();\n" +
                 "users5.add(1);\n" +
@@ -352,11 +340,7 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         String genCode = GenCodeTestHelper.genCode(testObject);
-        Assert.assertEquals("Integer[] some = new Integer[3];\n" +
-                "some[0] = 1;\n" +
-                "some[1] = 2;\n" +
-                "some[2] = 3;\n" +
-                "\n" +
+        Assert.assertEquals("Integer[] some = new Integer[]{1, 2, 3};\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.some = some;\n", genCode);
     }
@@ -370,25 +354,15 @@ public class GenCodeTest {
 
         TestObject[] testObject = new TestObject[]{new TestObject(), new TestObject()};
         String genCode = GenCodeTestHelper.genCode(testObject);
-        Assert.assertEquals("Integer[] some = new Integer[3];\n" +
-                "some[0] = 1;\n" +
-                "some[1] = 2;\n" +
-                "some[2] = 3;\n" +
-                "\n" +
-                "Integer[] some2 = new Integer[3];\n" +
-                "some2[0] = 1;\n" +
-                "some2[1] = 2;\n" +
-                "some2[2] = 3;\n" +
-                "\n" +
+        Assert.assertEquals("Integer[] some = new Integer[]{1, 2, 3};\n" +
+                "Integer[] some2 = new Integer[]{1, 2, 3};\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.some = some;\n" +
                 "\n" +
                 "TestObject testObject2 = new TestObject();\n" +
                 "testObject2.some = some2;\n" +
                 "\n" +
-                "TestObject[] testObjectArr = new TestObject[2];\n" +
-                "testObjectArr[0] = testObject;\n" +
-                "testObjectArr[1] = testObject2;\n", genCode);
+                "TestObject[] testObjectArr = new TestObject[]{testObject, testObject2};", genCode);
     }
 
 
@@ -434,10 +408,7 @@ public class GenCodeTest {
                 "filter2.name = \"name\";\n" +
                 "filter2.value = \"value\";\n" +
                 "\n" +
-                "Filter[] _filters = new Filter[2];\n" +
-                "_filters[0] = filter;\n" +
-                "_filters[1] = filter2;\n" +
-                "\n" +
+                "Filter[] _filters = new Filter[]{filter, filter2};\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject._filters = _filters;\n", genCode);
     }
@@ -472,10 +443,7 @@ public class GenCodeTest {
                 "filter2.name = \"name\";\n" +
                 "filter2.value = \"value\";\n" +
                 "\n" +
-                "Filter[] filters = new Filter[2];\n" +
-                "filters[0] = filter;\n" +
-                "filters[1] = filter2;\n" +
-                "\n" +
+                "Filter[] filters = new Filter[]{filter, filter2};\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject.setFilters(filters);\n", genCode);
     }
@@ -629,5 +597,52 @@ public class GenCodeTest {
                 "tester.setType(\"hh\");\n" +
                 "tester.obj = obj;\n", genCode);
 
+    }
+
+    @Test
+    public void testFinal() {
+        class TestObject {
+            final long aLong = 1;
+            final float flt = 1;
+            final double dlb = 1;
+            final char c = '1';
+            final Date date = new Date(1689838505598L);
+            final E e = E.VAL;
+
+            final BigDecimal db = new BigDecimal(1);
+            final BigInteger bi = new BigInteger("1");
+        }
+
+        TestObject testObject = new TestObject();
+        Settings settings = new Settings();
+        settings.setSkipNulls(true);
+        settings.setSkipDefaults(true);
+        settings.setSkipFinal(false);
+        String genCode = GenCodeTestHelper.genCode(testObject, settings);
+        Assert.assertEquals("TestObject testObject = new TestObject();\n" +
+                "testObject.aLong = 1L;\n" +
+                "testObject.flt = 1.0f;\n" +
+                "testObject.dlb = 1.0;\n" +
+                "testObject.c = '1';\n" +
+                "testObject.date = new Date(1689838505598L);\n" +
+                "testObject.e = E.VAL;\n" +
+                "testObject.db = new BigDecimal(1);\n" +
+                "testObject.bi = new BigInteger(\"1\");\n", genCode);
+
+    }
+
+    @Test
+    @Ignore
+    public void testSkipFinal() throws NoSuchFieldException {
+        Settings settings = new Settings();
+        settings.setSkipNulls(true);
+        settings.setSkipDefaults(true);
+        settings.setSkipFinal(false);
+        settings.setSkipPrivate(false);
+
+        // Field field = settings.getClass().getDeclaredField("format");
+        JFrame frame = new JFrame();
+        String genCode = GenCodeTestHelper.genCode(frame, settings);
+        Assert.assertEquals("TestObject testObject = new TestObject();\n", genCode);
     }
 }

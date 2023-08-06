@@ -5,6 +5,8 @@ public class Settings {
 
     private boolean skipNulls = true;
     private boolean skipDefaults = true;
+    private boolean skipPrivate = true;
+    private boolean skipFinal = true;
     private boolean supportUnderscores = true;
     private boolean useBaseClasses = true;
     private boolean useGenerics = true;
@@ -36,6 +38,22 @@ public class Settings {
 
     public void setSkipDefaults(boolean skipDefaults) {
         this.skipDefaults = skipDefaults;
+    }
+
+    public boolean isSkipPrivate() {
+        return skipPrivate;
+    }
+
+    public void setSkipPrivate(boolean skipPrivate) {
+        this.skipPrivate = skipPrivate;
+    }
+
+    public boolean isSkipFinal() {
+        return skipFinal;
+    }
+
+    public void setSkipFinal(boolean skipFinal) {
+        this.skipFinal = skipFinal;
     }
 
     public boolean isUseBaseClasses() {
