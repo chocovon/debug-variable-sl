@@ -26,6 +26,7 @@ public class ArrayCodeBlock extends CodeBlock {
 
     private final List<Element> elements = new ArrayList<>();
     private final boolean isCharArray;
+    private boolean isAllNulls;
 
     public ArrayCodeBlock(Object object, Settings settings, int level, String referenceName) {
         super(object, settings, level, referenceName);
@@ -39,9 +40,10 @@ public class ArrayCodeBlock extends CodeBlock {
         }
 
         int length = Array.getLength(object);
+        isAllNulls = true;
         for (int i = 0; i < length; i++) {
             Code code = objectCodeGeneratorCore.createObjectCode(Array.get(object, i), level + 1, null, null);
-
+            isAllNulls = isAllNulls && code.isNull();
             elements.add(new Element(i, code));
         }
     }
@@ -51,13 +53,31 @@ public class ArrayCodeBlock extends CodeBlock {
         String simpleName = clazz.getSimpleName();
         String variableClassName = getVariableClassName(clazz, simpleName, variableType);
 
-        String base = variableClassName + generateVarGenerics() + " " + referenceName
+        if (isCharArray) {
+            checkCharArrayForNullableElements();
+        }
+
+        if (isAllNulls) {
+            return variableClassName + " " + referenceName
+                    + " = new " + generateConstructorCall(variableClassName) + ";";
+        }
+
+        String base = variableClassName + " " + referenceName
                 + " = new " + simpleName + "{";
 
         String elementsList = isCharArray
-                ? generateCharArraysElementsList(base.length())
+                ? generateCharArrayElementsList(base.length())
                 : generateArraysElementsList(base.length());
+
         return base + elementsList + "};";
+    }
+
+    private void checkCharArrayForNullableElements() {
+        char[] chars = (char[]) this.object;
+        isAllNulls = true;
+        for (char aChar : chars) {
+            isAllNulls = isAllNulls && (aChar == 0);
+        }
     }
 
     @Override
@@ -106,12 +126,14 @@ public class ArrayCodeBlock extends CodeBlock {
         return str.toString();
     }
 
-    private String generateCharArraysElementsList(int length) {
+    private String generateCharArrayElementsList(int length) {
+        char[] chars = (char[]) this.object;
+
         StringBuilder str = new StringBuilder();
         StringBuilder line = new StringBuilder();
 
         boolean secondTime = false;
-        for (char element : (char[]) object) {
+        for (char element : chars) {
             if (secondTime) {
                 line.append(", ");
             }

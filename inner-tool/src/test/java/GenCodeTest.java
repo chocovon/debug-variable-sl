@@ -349,17 +349,26 @@ public class GenCodeTest {
     public void testStringBuilder() {
         class TestObject {
             StringBuilder stringBuilder = new StringBuilder();
+            StringBuilder stringBuilder2 = new StringBuilder();
         }
 
         TestObject testObject = new TestObject();
+        testObject.stringBuilder2.append("hello");
         String genCode = GenCodeTestHelper.genCode(testObject);
-        Assert.assertEquals("char[] value = new char[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};\n" +
+        Assert.assertEquals("char[] value = new char[16];\n" +
+                "char[] value2 = new char[]{'h', 'e', 'l', 'l', 'o', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \n" +
+                "        0};\n" +
                 "StringBuilder stringBuilder = new StringBuilder();\n" +
                 "stringBuilder.value = value;\n" +
                 "stringBuilder.count = 0;\n" +
                 "\n" +
+                "StringBuilder stringBuilder2 = new StringBuilder();\n" +
+                "stringBuilder2.value = value2;\n" +
+                "stringBuilder2.count = 5;\n" +
+                "\n" +
                 "TestObject testObject = new TestObject();\n" +
-                "testObject.stringBuilder = stringBuilder;\n", genCode);
+                "testObject.stringBuilder = stringBuilder;\n" +
+                "testObject.stringBuilder2 = stringBuilder2;\n", genCode);
     }
 
 
@@ -440,6 +449,24 @@ public class GenCodeTest {
                 "filter2.value = \"value\";\n" +
                 "\n" +
                 "Filter[] _filters = new Filter[]{filter, filter2};\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject._filters = _filters;\n", genCode);
+    }
+
+    @Test
+    public void testAllNull() {
+        class Filter {
+            String name = "name";
+            String value = "value";
+        }
+
+        class TestObject {
+            Filter[] _filters = new Filter[5];
+        }
+
+        TestObject testObject = new TestObject();
+        String genCode = GenCodeTestHelper.genCode(testObject);
+        Assert.assertEquals("Filter[] _filters = new Filter[5];\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject._filters = _filters;\n", genCode);
     }
