@@ -21,11 +21,13 @@ public class PojoCodeBlock extends CodeBlock {
         Type type;
         String name;
         Code code;
+        boolean isFinal;
 
-        Element(Type type, String name, Code code) {
+        Element(Type type, String name, Code code, boolean isFinal) {
             this.type = type;
             this.name = name;
             this.code = code;
+            this.isFinal = isFinal;
         }
     }
 
@@ -50,14 +52,15 @@ public class PojoCodeBlock extends CodeBlock {
                     continue; // ignore static fields
                 }
 
-                if (settings.isSkipFinal() && Modifier.isFinal(modifiers)) {
+                boolean isFinal = Modifier.isFinal(modifiers);
+                if (settings.isSkipFinal() && isFinal) {
                     continue;
                 }
 
                 Class<?> type = field.getType();
                 String fieldName = field.getName();
 
-                if (fieldName.startsWith("this$") && Modifier.isFinal(modifiers)) {
+                if (fieldName.startsWith("this$") && isFinal) {
                     continue;
                 }
 
@@ -96,12 +99,12 @@ public class PojoCodeBlock extends CodeBlock {
                     String fieldClassName = parameterTypes.length == 1 ? parameterTypes[0].getSimpleName() : null;
                     Code objectCode = objectCodeGeneratorCore.createObjectCode(value, level + 1, fieldClassName, fieldName);
 
-                    elements.add(new Element(Type.SETTER, setter.getName(), objectCode));
+                    elements.add(new Element(Type.SETTER, setter.getName(), objectCode, isFinal));
                 } else {
                     String fieldClassName = field.getType().getSimpleName();
                     Code objectCode = objectCodeGeneratorCore.createObjectCode(value, level + 1, fieldClassName, fieldName);
 
-                    elements.add(new Element(Type.FIELD, field.getName(), objectCode));
+                    elements.add(new Element(Type.FIELD, field.getName(), objectCode, isFinal));
                 }
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Cannot access field", e);
@@ -117,6 +120,9 @@ public class PojoCodeBlock extends CodeBlock {
             switch (element.type) {
                 case FIELD:
                     str.append(element.name).append(" = ").append(element.code.getCode());
+                    if (element.isFinal) {
+                        str.append("; // final field");
+                    }
                     break;
                 case SETTER:
                     str.append(element.name).append("(").append(element.code.getCode()).append(")");

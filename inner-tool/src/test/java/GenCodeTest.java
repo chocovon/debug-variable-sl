@@ -620,29 +620,41 @@ public class GenCodeTest {
         settings.setSkipFinal(false);
         String genCode = GenCodeTestHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n" +
-                "testObject.aLong = 1L;\n" +
-                "testObject.flt = 1.0f;\n" +
-                "testObject.dlb = 1.0;\n" +
-                "testObject.c = '1';\n" +
-                "testObject.date = new Date(1689838505598L);\n" +
-                "testObject.e = E.VAL;\n" +
-                "testObject.db = new BigDecimal(1);\n" +
-                "testObject.bi = new BigInteger(\"1\");\n", genCode);
-
+                "testObject.aLong = 1L; // final field;\n" +
+                "testObject.flt = 1.0f; // final field;\n" +
+                "testObject.dlb = 1.0; // final field;\n" +
+                "testObject.c = '1'; // final field;\n" +
+                "testObject.date = new Date(1689838505598L); // final field;\n" +
+                "testObject.e = E.VAL; // final field;\n" +
+                "testObject.db = new BigDecimal(1); // final field;\n" +
+                "testObject.bi = new BigInteger(\"1\"); // final field;\n", genCode);
     }
 
     @Test
-    @Ignore
-    public void testSkipFinal() throws NoSuchFieldException {
+    @Ignore("lots of code with timestamps")
+    public void testField() throws NoSuchFieldException {
         Settings settings = new Settings();
         settings.setSkipNulls(true);
         settings.setSkipDefaults(true);
         settings.setSkipFinal(false);
         settings.setSkipPrivate(false);
 
-        // Field field = settings.getClass().getDeclaredField("format");
+        Field field = settings.getClass().getDeclaredField("format");
+        String genCode = GenCodeTestHelper.genCode(field, settings);
+        Assert.assertEquals("lots of code", genCode);
+    }
+
+    @Test
+    @Ignore("lots of code with timestamps")
+    public void testFrame() throws NoSuchFieldException {
+        Settings settings = new Settings();
+        settings.setSkipNulls(true);
+        settings.setSkipDefaults(true);
+        settings.setSkipFinal(false);
+        settings.setSkipPrivate(false);
+
         JFrame frame = new JFrame();
         String genCode = GenCodeTestHelper.genCode(frame, settings);
-        Assert.assertEquals("TestObject testObject = new TestObject();\n", genCode);
+        Assert.assertEquals("lots of code", genCode);
     }
 }
