@@ -28,7 +28,7 @@ patchPluginXml {
     untilBuild(251)
 
     changeNotes """
-      2.3.0 added more options to code generator <br/>
+      2.3.0 code inlining, array constructor, more options for code generator <br/>
       2.2.0 added code folding support in the dialog <br/>
       2.1.0 added extracting variable as JSON to the dialog
       """

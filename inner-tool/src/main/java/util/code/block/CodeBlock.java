@@ -76,19 +76,19 @@ public abstract class CodeBlock<T> {
 
 
     protected String getVariableClassName(Class<?> clazz, String constructorClassName, String variableType) {
-        String className;
+        String className = constructorClassName;
 
-        if (variableType == null) {
-            className = constructorClassName;
-        } else {
-            className = settings.isUseBaseClasses() ? variableType : constructorClassName;
+        if (variableType != null && !"Object".equals(variableType)) {
+            if (settings.isUseBaseClasses()) {
+                className = variableType;
+            }
+
+            if (className == null || className.isEmpty()) {
+                className = variableType;
+            }
         }
 
-        if (className.isEmpty() && variableType != null) {
-            className = variableType;
-        }
-
-        if (className.isEmpty()) {
+        if (className == null || className.isEmpty()) {
             // it is anonymous, find base class
             className = getSimpleNameFromSuperClass(clazz);
         }

@@ -330,7 +330,7 @@ public class GenCodeTest {
         genCodeRequest.setVariableType("Object");
         genCodeRequest.setVariableName("hello");
         String genCode = GenCodeTestHelper.genCode(testObject, genCodeRequest);
-        Assert.assertEquals("Object hello = new TestObject();\n", genCode);
+        Assert.assertEquals("TestObject hello = new TestObject();\n", genCode);
     }
 
     @Test
