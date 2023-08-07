@@ -40,6 +40,11 @@ task copyPluginXml (type: Copy) {
     include "**"
 }
 
+// set buildSearchableOptions=false in settings.properties to disable slow buildSearchableOptions
+if (gradle.buildSearchableOptions) {
+    buildSearchableOptions.enabled = false
+}
+
 task dvslBuild(type: GradleBuild) {
     tasks = ['copyPluginXml', ':inner-tool:buildInnerTool', 'buildPlugin']
 }
