@@ -28,7 +28,7 @@ patchPluginXml {
     untilBuild(251)
 
     changeNotes """
-      2.4.0 bug fixes <br/>
+      2.4.0 fixed problems with scrolling, other bug fixes <br/>
       2.3.0 added more options to code generator <br/>
       2.2.0 added code folding support in the dialog <br/>
       2.1.0 added extracting variable as JSON to the dialog
@@ -41,7 +41,7 @@ task copyPluginXml (type: Copy) {
     include "**"
 }
 
-// set buildSearchableOptions=false in settings.properties to disable slow buildSearchableOptions
+// set buildSearchableOptions=false in settings.properties to disable slow buildSearchableOptions while developing.
 if (gradle.buildSearchableOptions) {
     buildSearchableOptions.enabled = false
 }

@@ -5,7 +5,6 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.LabeledComponent;
-import com.intellij.ui.components.JBScrollPane;
 import common.Settings;
 import org.jetbrains.annotations.Nullable;
 import ui.dialog.TextEditorComponent.CodeProvider;
@@ -71,11 +70,13 @@ public class CopyValueDialog extends DialogWrapper {
         JPanel panel = new JPanel(new BorderLayout());
 
         // Add the text area
-        LabeledComponent<JScrollPane> textAreaComponent = new LabeledComponent<>();
+        LabeledComponent<JComponent> textAreaComponent = new LabeledComponent<>();
         textAreaComponent.setText("Extracted code");
-        JScrollPane component = new JBScrollPane(textArea, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        component.setBorder(null);
-        textAreaComponent.setComponent(component);
+        JPanel textAreaPanel = new JPanel();
+        textAreaPanel.setLayout(new BorderLayout());
+        textAreaPanel.setBorder(null);
+        textAreaPanel.add(textArea);
+        textAreaComponent.setComponent(textAreaPanel);
         panel.add(textAreaComponent, BorderLayout.CENTER);
 
         panel.add(new RightPanel().createRightPanel(settings, this::handleUpdate), BorderLayout.EAST);
