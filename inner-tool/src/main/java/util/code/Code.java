@@ -21,4 +21,9 @@ public class Code {
         }
         return code;
     }
+
+    public boolean isNull() {
+        return code.equals("null");
+    }
+
 }

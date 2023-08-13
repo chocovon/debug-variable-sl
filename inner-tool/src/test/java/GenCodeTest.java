@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -246,7 +247,7 @@ public class GenCodeTest {
                 "testObject.xa = xa;\n", genCode);
     }
 
-        @Test
+    @Test
     public void testArrayReplaceWithBaseAndGenerics() {
         class A {
         }
@@ -329,8 +330,37 @@ public class GenCodeTest {
         genCodeRequest.setVariableType("Object");
         genCodeRequest.setVariableName("hello");
         String genCode = GenCodeTestHelper.genCode(testObject, genCodeRequest);
-        Assert.assertEquals("Object hello = new TestObject();\n", genCode);
+        Assert.assertEquals("TestObject hello = new TestObject();\n", genCode);
     }
+
+    @Test
+    public void testCharArray() {
+        class TestObject {
+            char[] text = new char[]{'t', 'e', 'x', 't'};
+        }
+
+        TestObject testObject = new TestObject();
+        String genCode = GenCodeTestHelper.genCode(testObject);
+        Assert.assertEquals("char[] text = new char[]{'t', 'e', 'x', 't'};\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.text = text;\n", genCode);
+    }
+
+    @Test
+    public void testStringBuilder() {
+        class TestObject {
+            StringBuilder stringBuilder = new StringBuilder();
+            StringBuilder stringBuilder2 = new StringBuilder();
+        }
+
+        TestObject testObject = new TestObject();
+        testObject.stringBuilder2.append("hello");
+        String genCode = GenCodeTestHelper.genCode(testObject);
+        Assert.assertEquals("TestObject testObject = new TestObject();\n" +
+                "testObject.stringBuilder = new StringBuilder(\"\");\n" +
+                "testObject.stringBuilder2 = new StringBuilder(\"hello\");\n", genCode);
+    }
+
 
     @Test
     public void testComplexArray() {
@@ -379,7 +409,7 @@ public class GenCodeTest {
 
         TestObject testObject = new TestObject();
         String genCode = GenCodeTestHelper.genCode(testObject);
-        Assert.assertEquals("TestObject.Inner inner = new TestObject.Inner();\n" +
+        Assert.assertEquals("Inner inner = new Inner();\n" +
                 "inner.x = 1;\n" +
                 "\n" +
                 "TestObject testObject = new TestObject();\n" +
@@ -409,6 +439,51 @@ public class GenCodeTest {
                 "filter2.value = \"value\";\n" +
                 "\n" +
                 "Filter[] _filters = new Filter[]{filter, filter2};\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject._filters = _filters;\n", genCode);
+    }
+
+    @Test
+    public void testArraysAsListInField() {
+        class TestObject {
+            List<Integer> list = Arrays.asList(1, 2, 3);
+        }
+
+        String genCode = GenCodeTestHelper.genCode(new TestObject());
+        Assert.assertEquals("List<Integer> list = Arrays.asList(1, 2, 3);\n" +
+                "\n" +
+                "TestObject testObject = new TestObject();\n" +
+                "testObject.list = list;\n", genCode);
+    }
+
+    @Test
+    public void testArraysAsList() {
+        String genCode = GenCodeTestHelper.genCode(Arrays.asList(1, 2, 3));
+
+        Assert.assertEquals("List<Integer> arrayList = Arrays.asList(1, 2, 3);\n", genCode);
+    }
+
+    @Test
+    public void testArrayLevel0() {
+        String genCode = GenCodeTestHelper.genCode(new int[]{1, 2, 3});
+
+        Assert.assertEquals("int[] intArr = new int[]{1, 2, 3};", genCode);
+    }
+
+    @Test
+    public void testAllNull() {
+        class Filter {
+            String name = "name";
+            String value = "value";
+        }
+
+        class TestObject {
+            Filter[] _filters = new Filter[5];
+        }
+
+        TestObject testObject = new TestObject();
+        String genCode = GenCodeTestHelper.genCode(testObject);
+        Assert.assertEquals("Filter[] _filters = new Filter[5];\n" +
                 "TestObject testObject = new TestObject();\n" +
                 "testObject._filters = _filters;\n", genCode);
     }
@@ -620,29 +695,41 @@ public class GenCodeTest {
         settings.setSkipFinal(false);
         String genCode = GenCodeTestHelper.genCode(testObject, settings);
         Assert.assertEquals("TestObject testObject = new TestObject();\n" +
-                "testObject.aLong = 1L;\n" +
-                "testObject.flt = 1.0f;\n" +
-                "testObject.dlb = 1.0;\n" +
-                "testObject.c = '1';\n" +
-                "testObject.date = new Date(1689838505598L);\n" +
-                "testObject.e = E.VAL;\n" +
-                "testObject.db = new BigDecimal(1);\n" +
-                "testObject.bi = new BigInteger(\"1\");\n", genCode);
-
+                "testObject.aLong = 1L; // final field;\n" +
+                "testObject.flt = 1.0f; // final field;\n" +
+                "testObject.dlb = 1.0; // final field;\n" +
+                "testObject.c = '1'; // final field;\n" +
+                "testObject.date = new Date(1689838505598L); // final field;\n" +
+                "testObject.e = E.VAL; // final field;\n" +
+                "testObject.db = new BigDecimal(1); // final field;\n" +
+                "testObject.bi = new BigInteger(\"1\"); // final field;\n", genCode);
     }
 
     @Test
-    @Ignore
-    public void testSkipFinal() throws NoSuchFieldException {
+    @Ignore("lots of code with timestamps")
+    public void testField() throws NoSuchFieldException {
         Settings settings = new Settings();
         settings.setSkipNulls(true);
         settings.setSkipDefaults(true);
         settings.setSkipFinal(false);
         settings.setSkipPrivate(false);
 
-        // Field field = settings.getClass().getDeclaredField("format");
+        Field field = settings.getClass().getDeclaredField("format");
+        String genCode = GenCodeTestHelper.genCode(field, settings);
+        Assert.assertEquals("lots of code", genCode);
+    }
+
+    @Test
+    @Ignore("lots of code with timestamps")
+    public void testFrame() throws NoSuchFieldException {
+        Settings settings = new Settings();
+        settings.setSkipNulls(true);
+        settings.setSkipDefaults(true);
+        settings.setSkipFinal(false);
+        settings.setSkipPrivate(false);
+
         JFrame frame = new JFrame();
         String genCode = GenCodeTestHelper.genCode(frame, settings);
-        Assert.assertEquals("TestObject testObject = new TestObject();\n", genCode);
+        Assert.assertEquals("lots of code", genCode);
     }
 }

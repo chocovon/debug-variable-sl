@@ -3,18 +3,17 @@ package util.code.block;
 import common.Settings;
 import util.code.ObjectCodeGeneratorCore;
 
-import static util.code.ObjectCodeHelper.getSimpleName;
 import static util.code.ObjectCodeHelper.getSimpleNameFromSuperClass;
 
-public abstract class CodeBlock {
-    protected final Object object;
+public abstract class CodeBlock<T> {
+    protected final T object;
 
     protected final Class<?> clazz;
     protected final Settings settings;
     protected final int level;
     protected final String referenceName;
 
-    public CodeBlock(Object object, Settings settings, int level, String referenceName) {
+    public CodeBlock(T object, Settings settings, int level, String referenceName) {
         this.object = object;
         this.clazz = object.getClass();
         this.settings = settings;
@@ -23,7 +22,7 @@ public abstract class CodeBlock {
     }
 
     public String generateConstructorCode(String variableType) {
-        String constructorClassName = getSimpleName(clazz.getName());
+        String constructorClassName = clazz.getSimpleName();
 
         String variableClassName = getVariableClassName(clazz, constructorClassName, variableType);
         String constructorCall = generateConstructorCall(constructorClassName);
@@ -32,7 +31,7 @@ public abstract class CodeBlock {
     }
 
     public String generateInlineCode() {
-        String constructorClassName = getSimpleName(clazz.getName());
+        String constructorClassName = clazz.getSimpleName();
         String constructorCall = generateConstructorCall(constructorClassName);
 
         return "new " + constructorCall;
@@ -77,19 +76,19 @@ public abstract class CodeBlock {
 
 
     protected String getVariableClassName(Class<?> clazz, String constructorClassName, String variableType) {
-        String className;
+        String className = constructorClassName;
 
-        if (variableType == null) {
-            className = constructorClassName;
-        } else {
-            className = settings.isUseBaseClasses() ? variableType : constructorClassName;
+        if (variableType != null && !"Object".equals(variableType)) {
+            if (settings.isUseBaseClasses()) {
+                className = variableType;
+            }
+
+            if (className == null || className.isEmpty()) {
+                className = variableType;
+            }
         }
 
-        if (className.isEmpty() && variableType != null) {
-            className = variableType;
-        }
-
-        if (className.isEmpty()) {
+        if (className == null || className.isEmpty()) {
             // it is anonymous, find base class
             className = getSimpleNameFromSuperClass(clazz);
         }

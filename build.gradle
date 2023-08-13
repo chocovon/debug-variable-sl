@@ -28,6 +28,7 @@ patchPluginXml {
     untilBuild(251)
 
     changeNotes """
+      2.4.0 fixed problems with scrolling, other bug fixes <br/>
       2.3.0 added more options to code generator <br/>
       2.2.0 added code folding support in the dialog <br/>
       2.1.0 added extracting variable as JSON to the dialog
@@ -38,6 +39,11 @@ task copyPluginXml (type: Copy) {
     from "src/configurations/meta-inf/" + rootProject.name
     into "src/main/resources/META-INF"
     include "**"
+}
+
+// set buildSearchableOptions=false in settings.properties to disable slow buildSearchableOptions while developing.
+if (gradle.buildSearchableOptions) {
+    buildSearchableOptions.enabled = false
 }
 
 task dvslBuild(type: GradleBuild) {

@@ -67,6 +67,7 @@ public class TextEditorComponent extends JComponent {
             // Support only JSON for now
             if (language.is(JsonLanguage.INSTANCE)) {
                 psiFile = PsiFileFactory.getInstance(project).createFileFromText(language, content);
+                psiFile.setName("snippet.json");
 
                 if (psiFile != null) {
                     document = PsiDocumentManager.getInstance(project).getDocument(psiFile);

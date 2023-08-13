@@ -24,7 +24,7 @@ public class ObjectCode {
 
     private final Object object;
 
-    private CodeBlock codeBlock;
+    private CodeBlock<?> codeBlock;
 
     ObjectCode(Settings settings, int level, String referenceName, Object object, String variableType) {
         this.settings = settings;
@@ -42,9 +42,9 @@ public class ObjectCode {
         if (object.getClass().isArray()) {
             codeBlock = new ArrayCodeBlock(object, settings, level, referenceName);
         } else if (object instanceof Collection) {
-            codeBlock = new CollectionCodeBlock(object, settings, level, referenceName);
+            codeBlock = new CollectionCodeBlock((Collection<?>) object, settings, level, referenceName);
         } else if (object instanceof Map) {
-            codeBlock = new MapCodeBlock(object, settings, level, referenceName);
+            codeBlock = new MapCodeBlock((Map<?, ?>) object, settings, level, referenceName);
         } else {
             codeBlock = new PojoCodeBlock(object, settings, level, referenceName);
         }
@@ -59,6 +59,9 @@ public class ObjectCode {
         return codeBlock.generateConstructorCodeWithAssignment(variableType);
     }
 
+    /**
+     * generates code for inlining
+     */
     String generateInlineCode() {
         return codeBlock.generateInlineCode();
     }

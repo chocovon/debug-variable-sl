@@ -46,6 +46,9 @@ public class JsonTest {
         Map<Tester, Tester> map = new HashMap<>();
         Tester t1 = new Tester("t1", "tt");
         Tester t2 = new Tester("t2", "pp");
+
+        Tester[] array = new Tester[]{t1, t2};
+        
         map.put(t1, t2);
         map.put(t2, t1);
         Tester t3 = new Tester("t3", "hh", t1);
@@ -54,6 +57,10 @@ public class JsonTest {
 
         Map map2 = new HashMap();
         map2.put(map, map);
+
+        Map<String, String> mymap = new HashMap<>();
+        mymap.put("1", "2");
+        mymap.put("2", "1");
 
         ObjectMapper objectMapper = new ObjectMapper();
         System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(map));
