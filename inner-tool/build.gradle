@@ -15,23 +15,7 @@ dependencies {
     implementation group: 'com.alibaba', name: 'fastjson', version: '1.2.76'
     implementation group: 'com.esotericsoftware', name: 'kryo', version: '5.1.0'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-}
-
-task buildInnerTool(dependsOn: ['buildInnerJar']) {
-    def dxPath = "D:\\dev\\Android\\Sdk\\build-tools\\29.0.3\\dx.bat"
-
-    if (exist(dxPath)) {
-        exec {
-            commandLine dxPath \
-            , "--dex" \
-            , "--min-sdk-version=26" \
-            , "--output=../src/main/resources/lib/android-inner-tool.dex" \
-            , "../src/main/resources/lib/inner-tool.jar"
-        }
-    } else {
-        println "[warn] Cannot find Android SDK. Android support will be unavailable."
-    }
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 def exist(String dxPath) {
@@ -48,6 +32,6 @@ task buildInnerJar(type: Jar) {
             configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
         }
     }
-    destinationDir(file('../src/main/resources/lib'))
+    destinationDirectory.set(file('../src/main/resources/lib'))
     with jar
 }
