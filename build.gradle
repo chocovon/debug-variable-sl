@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.7.2'
+    id 'org.jetbrains.intellij.platform' version '2.1.0'
 }
 
 sourceCompatibility = 1.8
@@ -11,23 +11,31 @@ version '2.3.0'
 
 repositories {
     mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     implementation files("${System.getProperty("java.home")}/../lib/tools.jar")
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
-intellij {
-    version '2020.2.3'
-    plugins = ['java', 'android']
+dependencies {
+  intellijPlatform {
+    intellijIdeaCommunity '2024.2.3'
+    bundledPlugin 'com.intellij.java'
+    instrumentationTools()
+  }
 }
 patchPluginXml {
-    sinceBuild(193)
-    untilBuild(251)
+    dependsOn 'copyPluginXml'
 
-    changeNotes """
+//     sinceBuild(193)
+//     untilBuild(251)
+
+    changeNotes = """
       2.4.0 fixed problems with scrolling, other bug fixes <br/>
       2.3.0 added more options to code generator <br/>
       2.2.0 added code folding support in the dialog <br/>

@@ -1,10 +1,10 @@
+/.intellijPlatform/
 /settings.properties
 /src/main/resources/lib/
 /src/main/resources/META-INF/
 /lib/tools.jar
 /.idea
 /.gradle
-gradle*
 *.iml
 build
 out
