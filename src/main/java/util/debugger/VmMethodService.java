@@ -74,46 +74,6 @@ public class VmMethodService {
     }
 
     private static ArrayReference getMethodsFromVm(NodeComponents comp) throws IOException {
-        Value retObj = null;
-        try {
-            if (checkAndroid(comp)) {
-                InputStream resourceAsStream = VmMethodService.class.getResourceAsStream("/lib/" + DEX_NAME);
-
-                String bytes = StreamUtil.readBytesAsISOString(resourceAsStream);
-                String androidExprText =
-                        "        String str = \"" + escape(bytes) + "\";" +
-                                "        byte[] bytes = str.getBytes(StandardCharsets.ISO_8859_1);\n" +
-                                "        ByteBuffer bb = ByteBuffer.wrap(bytes);\n" +
-                                "        ClassLoader parentClassLoader = ClassLoader.getSystemClassLoader().getParent();\n" +
-                                "        InMemoryDexClassLoader dexClassLoader = new InMemoryDexClassLoader(bb, parentClassLoader);" +
-                                "        Class<?> clz = Class.forName(\"SaveLoader\", true, dexClassLoader);" +
-                                "        Method method = clz.getMethod(\"saveLoadMethods\");\n" +
-                                "        Object ms = method.invoke(null);" +
-                                "        Method[] methods = (Method[]) ms;\n" +
-                                "        methods";
-                String androidImports =
-                        "dalvik.system.InMemoryDexClassLoader," +
-                                "java.lang.Class," +
-                                "java.lang.ClassLoader," +
-                                "java.lang.Object," +
-                                "java.lang.String," +
-                                "java.lang.reflect.Method," +
-                                "java.nio.ByteBuffer," +
-                                "java.nio.charset.StandardCharsets,";
-                XExpression expression = new XExpressionImpl(androidExprText, JavaLanguage.INSTANCE, androidImports, EvaluationMode.CODE_FRAGMENT);
-                retObj = evaluateExpr(expression, comp.evaluator);
-            }
-        } catch (Throwable ex) {
-            ex.printStackTrace();
-            SimplePopupHint.error("Fail to inject DVM: " + ex.getMessage());
-        }
-
-        if (retObj instanceof ArrayReference) {
-            return (ArrayReference) retObj;
-        } else if (retObj != null){
-            SimplePopupHint.error("Fail to inject DVM: " + retObj);
-        }
-
         InputStream resourceAsStream = VmMethodService.class.getResourceAsStream("/lib/" + JAR_NAME);
 
         String bytes = StreamUtil.readBytesAsISOString(resourceAsStream);

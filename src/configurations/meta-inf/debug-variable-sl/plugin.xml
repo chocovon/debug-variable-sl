@@ -42,6 +42,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.xdebugger</depends>
     <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.json</depends>
 
     <actions>
         <action class="action.LoadValueAction" id="LoadValueAction"

@@ -10,7 +10,6 @@ public class Config {
     public static String DEFAULT_PATH_ABSOLUTE = new File(System.getProperty("user.home")).getAbsolutePath() + DEFAULT_PATH_SUFFIX;
 
     public static String JAR_NAME = "inner-tool.jar";
-    public static String DEX_NAME = "android-inner-tool.dex";
     public static String META_NAME = "meta";
     public static String JSON_SUFFIX = ".json";
     public static String ERR_SUFFIX = ".error.log";

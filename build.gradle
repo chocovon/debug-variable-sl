@@ -7,7 +7,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 group 'com.github.chocovon'
-version '2.4.0'
+version '2.5.0'
 
 repositories {
     mavenCentral()
@@ -19,24 +19,12 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        intellijIdeaCommunity '2024.2.3'
+        intellijIdeaCommunity '2024.3'
 
         bundledPlugin 'com.intellij.java'
 
         instrumentationTools()
     }
-}
-
-patchPluginXml {
-    sinceBuild = '193'
-    untilBuild = '251'
-
-    changeNotes = """
-      2.4.0 fixed problems with scrolling, other bug fixes <br/>
-      2.3.0 added more options to code generator <br/>
-      2.2.0 added code folding support in the dialog <br/>
-      2.1.0 added extracting variable as JSON to the dialog
-      """
 }
 
 task copyPluginXml (type: Copy) {
@@ -45,11 +33,26 @@ task copyPluginXml (type: Copy) {
     include "**"
 }
 
+patchPluginXml {
+    mustRunAfter(copyPluginXml)
+
+    sinceBuild = '242'
+
+    changeNotes = """
+      2.5.0 support for IDEA 2024.3, remove support for Android <br/>
+      2.4.0 fixed problems with scrolling, other bug fixes <br/>
+      2.3.0 added more options to code generator <br/>
+      2.2.0 added code folding support in the dialog <br/>
+      2.1.0 added extracting variable as JSON to the dialog
+      """
+}
+
 // set buildSearchableOptions=false in settings.properties to disable slow buildSearchableOptions while developing.
 if (gradle.buildSearchableOptions) {
     buildSearchableOptions.enabled = false
 }
 
 task dvslBuild(type: GradleBuild) {
-    tasks = ['copyPluginXml', ':inner-tool:buildInnerTool', 'buildPlugin']
+    processResources.dependsOn(':inner-tool:buildInnerJar')
+    tasks = ['copyPluginXml', ':inner-tool:buildInnerJar', 'buildPlugin']
 }
