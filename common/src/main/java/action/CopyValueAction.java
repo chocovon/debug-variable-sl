@@ -12,7 +12,7 @@ import config.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ui.dialog.CopyValueDialog;
 import util.debugger.JsonCodeProvider;
-import util.debugger.PluginSaveLoader;
+import util.debugger.InnerToolAdapter;
 import util.json.JsonUtil;
 
 import static config.Config.GEN_CODE_SETTINGS_KEY;
@@ -45,7 +45,7 @@ public class CopyValueAction extends XDebuggerTreeActionBase {
                     }
                     return jsonString;
                 } else {
-                    return PluginSaveLoader.genJavaCode(node, settings);
+                    return InnerToolAdapter.genJavaCode(node, settings);
                 }
             } catch (Throwable throwable) {
                 throwable.printStackTrace();

@@ -10,9 +10,9 @@ import com.sun.jdi.*;
 import common.Settings;
 import org.jetbrains.annotations.NotNull;
 import ui.common.SimplePopupHint;
-import util.debugger.NodeComponents;
-import util.debugger.PluginSaveLoader;
+import util.PluginValueSaver;
 import util.debugger.JsonCodeGenerator;
+import util.debugger.NodeComponents;
 import util.debugger.ValueUtil;
 import util.exception.JsonSerializeException;
 import util.exception.SaveValueInnerException;
@@ -24,7 +24,7 @@ public class SaveValueAction extends XDebuggerTreeActionBase {
     @Override
     protected void perform(XValueNodeImpl node, @NotNull String nodeName, AnActionEvent e) {
         try {
-            PluginSaveLoader.save(node);
+            PluginValueSaver.save(node);
             SimplePopupHint.ok("Value saved", e.getDataContext());
         } catch (ClassNotLoadedException | EvaluateException | IOException |
                 IncompatibleThreadStateException | InvalidTypeException | StackFrameThreadException knownException) {

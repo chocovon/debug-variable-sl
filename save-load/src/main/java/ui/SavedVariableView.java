@@ -10,9 +10,10 @@ import data.model.SavedValue;
 import data.model.SavedValueTableModel;
 import org.jetbrains.annotations.NotNull;
 import ui.common.SimplePopupHint;
+import util.PluginValueLoader;
 import util.file.FileUtil;
 import util.debugger.NodeComponents;
-import util.debugger.PluginSaveLoader;
+import util.debugger.InnerToolAdapter;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -87,7 +88,7 @@ public class SavedVariableView extends BorderLayoutPanel {
             if (row >= 0) {
                 SavedValue value = this.tableModel.getRow(this.table.convertRowIndexToModel(row));
                 try {
-                    PluginSaveLoader.load(this.node, value);
+                    PluginValueLoader.load(this.node, value);
                     SimplePopupHint.ok("Value loaded", this);
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -264,7 +265,7 @@ public class SavedVariableView extends BorderLayoutPanel {
         if (row >= 0) {
             SavedValue value = this.tableModel.getRow(this.table.convertRowIndexToModel(row));
             try {
-                String code = PluginSaveLoader.getCode(this.node, value);
+                String code = InnerToolAdapter.getCode(this.node, value);
                 Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(code), null);
                 SimplePopupHint.ok("Code copied", this);
             } catch (Exception ex) {

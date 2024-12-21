@@ -1,25 +1,18 @@
 package util.debugger;
 
-import com.intellij.debugger.DebuggerInvocationUtil;
 import com.intellij.debugger.DebuggerManagerEx;
 import com.intellij.debugger.engine.JavaValue;
 import com.intellij.debugger.engine.evaluation.EvaluateException;
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl;
-import com.intellij.debugger.engine.events.DebuggerCommandImpl;
 import com.intellij.debugger.impl.DebuggerContextImpl;
-import com.intellij.debugger.impl.DebuggerSession;
 import com.intellij.debugger.jdi.LocalVariableProxyImpl;
 import com.intellij.debugger.jdi.StackFrameProxyImpl;
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl;
 import com.intellij.debugger.ui.impl.watch.*;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.AppUIUtil;
 import com.intellij.xdebugger.XDebuggerManager;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import com.intellij.xdebugger.frame.XValue;
-import com.intellij.xdebugger.impl.XDebuggerUtilImpl;
-import com.intellij.xdebugger.impl.ui.tree.XDebuggerTree;
-import com.intellij.xdebugger.impl.ui.tree.XDebuggerTreeState;
 import com.intellij.xdebugger.impl.ui.tree.nodes.XValueNodeImpl;
 import com.sun.jdi.*;
 import data.VariableInfo;
@@ -27,7 +20,6 @@ import util.debugger.idea.OldLocalVariablesUtil;
 import util.exception.LoadValueInnerException;
 import util.exception.StackFrameThreadException;
 import util.reflect.ReflectUtil;
-import util.thread.AsyncTask;
 
 import static util.thread.DebuggerThreadUtils.invokeOnDebuggerThread;
 
@@ -60,12 +52,12 @@ public class NodeComponents {
     ArgumentValueDescriptorImpl argumentValueDescriptor;
     EvaluationDescriptor evaluationDescriptor;
 
-    Project project;
-    DebuggerContextImpl debuggerContext;
-    EvaluationContextImpl evalContext;
+    public Project project;
+    public DebuggerContextImpl debuggerContext;
+    public EvaluationContextImpl evalContext;
     public ThreadReference thread;
-    Value value;
-    VirtualMachine vm;
+    public Value value;
+    public VirtualMachine vm;
     XDebuggerEvaluator evaluator;
     StackFrameProxyImpl frameProxy;
 
@@ -119,29 +111,6 @@ public class NodeComponents {
         }, this.evalContext);
     }
 
-    public void setValue(Value value) throws StackFrameThreadException {
-        AsyncTask<Object> t = new AsyncTask<Object>() {
-            @Override
-            protected void asyncCodeRun() {
-                evalContext.getDebugProcess().getManagerThread().invoke(new DebuggerCommandImpl() {
-                    @Override
-                    protected void action() {
-                        try {
-                            setValueInner(value);
-                            finishRet(null);
-                        } catch (Exception e) {
-                            finishError(e);
-                        }
-                    }
-                });
-            }
-        };
-        if (!t.run()) {
-            throw new StackFrameThreadException(t.getError());
-        }
-        update(debuggerContext);
-    }
-
     private String varName() {
         // avoid returning index as name
         if (this.desType == DesType.ARRAY_ELE) {
@@ -170,7 +139,7 @@ public class NodeComponents {
         }
     }
 
-    private void setValueInner(Value value) throws EvaluateException, ClassNotLoadedException, InvalidTypeException, LoadValueInnerException {
+    public void setNodeValue(Value value) throws EvaluateException, ClassNotLoadedException, InvalidTypeException, LoadValueInnerException {
         switch (desType) {
             case LOCAL:
                 this.frameProxy.setValue(this.localVariableProxy, value);
@@ -214,24 +183,5 @@ public class NodeComponents {
             default:
                 throw new LoadValueInnerException("Unknown value descriptor type");
         }
-    }
-
-    private void update(final DebuggerContextImpl context) {
-        DebuggerInvocationUtil.swingInvokeLater(context.getProject(), () -> {
-            final DebuggerSession session = context.getDebuggerSession();
-            if (session != null) {
-                session.refresh(false);
-            }
-        });
-
-        XDebuggerTree tree = this.node.getTree();
-        XDebuggerTreeState treeState = XDebuggerTreeState.saveState(tree);
-
-        if (tree.isDetached()) {
-            AppUIUtil.invokeOnEdt(() -> tree.rebuildAndRestore(treeState));
-        }
-        XDebuggerUtilImpl.rebuildAllSessionsViews(this.project);
-
-        //node.setState(context);
     }
 }
