@@ -24,6 +24,6 @@ task buildInnerJar(type: Jar) {
             configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
         }
     }
-    destinationDirectory.set(file('../src/main/resources/lib'))
+    destinationDirectory.set(file('../common/src/main/resources/lib'))
     with jar
 }

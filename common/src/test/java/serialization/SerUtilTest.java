@@ -1,4 +1,4 @@
-package util.serialization;
+package serialization;
 
 import common.GenCodeRequest;
 import common.Settings;

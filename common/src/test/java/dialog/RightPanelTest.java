@@ -1,4 +1,4 @@
-package ui.dialog;
+package dialog;
 
 import common.Settings;
 

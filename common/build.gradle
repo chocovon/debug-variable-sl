@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij.platform' version '2.1.0'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+group = 'com.github.chocovon'
+version = '2.5.0'
+
+repositories {
+    mavenCentral()
+
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
+
+dependencies {
+    intellijPlatform {
+        intellijIdeaCommunity '2024.3'
+
+        bundledPlugin 'com.intellij.java'
+
+        instrumentationTools()
+    }
+}
+
+processResources.dependsOn(':inner-tool:buildInnerJar')

@@ -1,16 +1,3 @@
-def configuration = 'debug-variable-sl'
-
-gradle.ext.buildSearchableOptions = true
-
-def propertiesFile = file('settings.properties')
-if (propertiesFile.exists()) {
-    def properties = new Properties()
-    properties.load(propertiesFile.newReader())
-    configuration = properties.getProperty('configuration')
-    gradle.ext.buildSearchableOptions = properties.getProperty('buildSearchableOptions')
-}
-
-println("Using $configuration configuration. (You can change it using settings.properties file)")
-
-rootProject.name = configuration
 include 'inner-tool'
+include 'common'
+include 'extractor'
