@@ -18,6 +18,8 @@ repositories {
 }
 
 dependencies {
+    implementation(project(':inner-tool'))
+
     intellijPlatform {
         intellijIdeaCommunity '2024.3'
 
