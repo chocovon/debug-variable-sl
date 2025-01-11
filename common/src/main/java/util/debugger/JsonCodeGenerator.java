@@ -90,7 +90,8 @@ public class JsonCodeGenerator {
 
         if (value instanceof ObjectReference) {
             long id = ((ObjectReference) value).uniqueID();
-            if (refPath.contains(id)) {
+            if (refPath.contains(id)
+                    && !isSimpleValue(value)) {  // boxed primitive type may have same id, which should not be treated as recursive object
                 return null;
             }
             refPath = new HashSet<>(refPath);

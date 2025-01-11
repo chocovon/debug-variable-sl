@@ -1,10 +1,10 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij.platform' version '2.1.0'
+    id 'org.jetbrains.intellij.platform' version "${intellijPluginVersion}"
 }
 
 group = 'com.github.chocovon'
-version = '2.5.1'
+version = '2.5.2'
 
 repositories {
     mavenCentral()
@@ -30,11 +30,12 @@ patchPluginXml {
     sinceBuild = '242'
 
     changeNotes = """
+      2.5.2 fixed bug with boxed types <br/>
       2.5.0 support for IDEA 2024.3, remove support for Android <br/>
       2.4.0 fixed problems with scrolling, other bug fixes <br/>
       2.3.0 added more options to code generator <br/>
       2.2.0 added code folding support in the dialog <br/>
-      2.1.0 added extracting variable as JSON to the dialog
+      ...
       """
 }
 
