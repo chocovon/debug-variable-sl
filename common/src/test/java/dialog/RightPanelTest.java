@@ -1,9 +1,11 @@
 package dialog;
 
 import common.Settings;
+import ui.dialog.RightPanel;
 
 import javax.swing.*;
 
+// unable to test this, some mysterious error happens
 public class RightPanelTest {
 
     public static void main(String[] args) {

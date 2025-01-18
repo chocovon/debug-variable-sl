@@ -5,7 +5,6 @@ import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import common.Settings;
-import config.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -59,9 +58,7 @@ public class RightPanel {
         jsonPanel.setVisible("json".equals(format));
         jsonPanel.setLayout(new BoxLayout(jsonPanel, BoxLayout.Y_AXIS));
         jsonPanel.add(stickLeft(createJsonCheckBoxes()));
-        if (Plugin.isExtractorPlugin) {
-            jsonPanel.add(stickLeft(createDepthSpinner()));
-        }
+        jsonPanel.add(stickLeft(createDepthSpinner()));
         return jsonPanel;
     }
 
@@ -139,19 +136,15 @@ public class RightPanel {
     private JPanel createJsonCheckBoxes() {
         JPanel checkboxPanel = new JPanel();
         checkboxPanel.setLayout(new BoxLayout(checkboxPanel, BoxLayout.Y_AXIS));
-
-        if (Plugin.isExtractorPlugin) {
-            checkboxPanel.add(createCheckBox("Hide null values",
-                    "Do not use null values in setters",
-                    settings.isSkipNulls(), settings::setSkipNulls));
-            checkboxPanel.add(createCheckBox("Hide default values",
-                    "Do not show defaults values like false or zeros in setters",
-                    settings.isSkipDefaults(), settings::setSkipDefaults));
-            checkboxPanel.add(createCheckBox("Hide final values",
-                    "Do not assign final values if they do not have setters (impossible in java)",
-                    settings.isSkipFinal(), settings::setSkipFinal));
-        }
-
+        checkboxPanel.add(createCheckBox("Hide null values",
+                "Do not use null values in setters",
+                settings.isSkipNulls(), settings::setSkipNulls));
+        checkboxPanel.add(createCheckBox("Hide default values",
+                "Do not show defaults values like false or zeros in setters",
+                settings.isSkipDefaults(), settings::setSkipDefaults));
+        checkboxPanel.add(createCheckBox("Hide final values",
+                "Do not assign final values if they do not have setters (impossible in java)",
+                settings.isSkipFinal(), settings::setSkipFinal));
         checkboxPanel.add(createCheckBox("Pretty format",
                 "Format JSON to human readable text",
                 settings.isPrettyFormat(), settings::setPrettyFormat));

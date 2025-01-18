@@ -109,8 +109,9 @@ public class SaveLoader {
         Settings settings = genCodeRequest.getSettings();
         String format = settings.getFormat();
         switch (format) {
-            case "json":
-                return JsonUtil.toJSONString(object, settings.isPrettyFormat());
+            case "json": // old self-made json serializer has more options, temporarily remove this simple one, but still retained in "Copy JSON" function
+//                return JsonUtil.toJSONString(object, settings.isPrettyFormat());
+                return "";
             case "java":
                 return new ObjectCodeGenerator(object, genCodeRequest).genCode();
             default:

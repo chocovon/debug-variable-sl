@@ -5,7 +5,8 @@ import com.intellij.debugger.engine.events.DebuggerCommandImpl;
 import com.intellij.debugger.impl.DebuggerContextImpl;
 import com.intellij.debugger.impl.DebuggerSession;
 import com.intellij.ui.AppUIUtil;
-import com.intellij.xdebugger.impl.XDebuggerUtilImpl;
+import com.intellij.xdebugger.XDebugSession;
+import com.intellij.xdebugger.XDebuggerManager;
 import com.intellij.xdebugger.impl.ui.tree.XDebuggerTree;
 import com.intellij.xdebugger.impl.ui.tree.XDebuggerTreeState;
 import com.sun.jdi.*;
@@ -18,6 +19,7 @@ import util.file.FileUtil;
 import util.thread.AsyncTask;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import static config.Config.DEFAULT_PATH_ABSOLUTE;
 import static config.Config.ERR_SUFFIX;
@@ -89,7 +91,6 @@ public class PluginValueLoader {
             AppUIUtil.invokeOnEdt(() -> tree.rebuildAndRestore(treeState));
         }
 
-        // internal API, waiting for replacement solution
-        XDebuggerUtilImpl.rebuildAllSessionsViews(node.project);
+        Arrays.stream(XDebuggerManager.getInstance(node.project).getDebugSessions()).filter(XDebugSession::isSuspended).forEach(XDebugSession::rebuildViews);
     }
 }

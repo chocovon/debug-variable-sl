@@ -8,7 +8,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.xdebugger.impl.ui.tree.actions.XDebuggerTreeActionBase;
 import com.intellij.xdebugger.impl.ui.tree.nodes.XValueNodeImpl;
 import common.Settings;
-import config.Plugin;
 import org.jetbrains.annotations.NotNull;
 import ui.dialog.CopyValueDialog;
 import util.debugger.JsonCodeProvider;
@@ -25,7 +24,7 @@ public class CopyValueAction extends XDebuggerTreeActionBase {
             String defaultJson = "{}";
             String json = PropertiesComponent.getInstance().getValue(GEN_CODE_SETTINGS_KEY, defaultJson);
             Settings ret = new ObjectMapper().readValue(json, Settings.class);
-            if (defaultJson.equals(json) && Plugin.isExtractorPlugin) {
+            if (defaultJson.equals(json)) {
                 ret.setFormat("json");
             }
             return ret;
@@ -38,7 +37,7 @@ public class CopyValueAction extends XDebuggerTreeActionBase {
     protected void perform(XValueNodeImpl node, @NotNull String nodeName, AnActionEvent e) {
         CopyValueDialog popup = new CopyValueDialog(e.getProject(), initialSettings, settings -> {
             try {
-                if (Plugin.isExtractorPlugin && settings.getFormat().equals("json")) {
+                if (settings.getFormat().equals("json")) {
                     String jsonString = JsonCodeProvider.genJsonString(node, settings);
                     if (settings.isPrettyFormat()) {
                         jsonString = JsonUtil.formatJson(node.getTree().getProject(), jsonString);
