@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.github.chocovon'
-version = '2.5.3'
+version = '2.5.4'
 
 repositories {
     mavenCentral()
@@ -29,8 +29,10 @@ dependencies {
 
 patchPluginXml {
     sinceBuild = '242'
+    untilBuild = provider { null }
 
     changeNotes = """
+      2.5.4 unset plugin's untilVersion number <br/>
       2.5.3 added extract JSON options <br/>
       2.5.0 support for IDEA 2024.3, remove support for Android <br/>
       2.4.0 fixed problems with scrolling, other bug fixes <br/>

@@ -27,6 +27,9 @@
                     <a href="https://plugins.jetbrains.com/plugin/16513-debug-variable-save-load">Debug Variable Save Load</a>
                     plugin.
             </p>
+            <p>
+                Last tested IDEA version is 2024.3, the author may not follow and test later versions. Any feedback is welcomed.
+            </p>
             <br>
 
             <h3>Authors</h3>

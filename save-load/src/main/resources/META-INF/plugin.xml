@@ -27,6 +27,7 @@
                 It is basically designed to save/load pure data objects.
                 If the type of the object is not supported by Kryo's default serializer, it cannot be saved. </li>
                 <li>All Kryo data are saved in USER_HOME/.IntelliJPlugin/DebuggerVariableSaveLoader/</li>
+                <li>Last tested IDEA version is 2024.3, the author may not follow and test later versions. Any feedback is welcomed.</li>
             </ul>
 
             <br>
