@@ -1,7 +1,8 @@
 package util;
 
 import com.intellij.debugger.DebuggerInvocationUtil;
-import com.intellij.debugger.engine.events.DebuggerCommandImpl;
+import com.intellij.debugger.engine.evaluation.EvaluationContext;
+import com.intellij.debugger.engine.managerThread.DebuggerCommand;
 import com.intellij.debugger.impl.DebuggerContextImpl;
 import com.intellij.debugger.impl.DebuggerSession;
 import com.intellij.ui.AppUIUtil;
@@ -56,9 +57,9 @@ public class PluginValueLoader {
         AsyncTask<Object> t = new AsyncTask<Object>() {
             @Override
             protected void asyncCodeRun() {
-                node.evalContext.getDebugProcess().getManagerThread().invoke(new DebuggerCommandImpl() {
+                ((EvaluationContext) node.evalContext).getDebugProcess().getManagerThread().invokeCommand(new DebuggerCommand() {
                     @Override
-                    protected void action() {
+                    public void action() {
                         try {
                             node.setNodeValue(value);
                             finishRet(null);
@@ -66,6 +67,9 @@ public class PluginValueLoader {
                             finishError(e);
                         }
                     }
+
+                    @Override
+                    public void commandCancelled() {}
                 });
             }
         };

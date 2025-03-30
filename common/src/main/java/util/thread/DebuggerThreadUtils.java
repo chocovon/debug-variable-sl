@@ -1,7 +1,7 @@
 package util.thread;
 
-import com.intellij.debugger.engine.evaluation.EvaluationContextImpl;
-import com.intellij.debugger.engine.events.DebuggerCommandImpl;
+import com.intellij.debugger.engine.evaluation.EvaluationContext;
+import com.intellij.debugger.engine.managerThread.DebuggerCommand;
 import util.exception.StackFrameThreadException;
 
 public class DebuggerThreadUtils {
@@ -10,19 +10,22 @@ public class DebuggerThreadUtils {
     }
 
     public static <T> T invokeOnDebuggerThread(SupplierEx<T> invokeOnDebuggerThreadCode,
-                                               EvaluationContextImpl evalContext) throws StackFrameThreadException {
+                                               EvaluationContext evalContext) throws StackFrameThreadException {
         AsyncTask<T> t = new AsyncTask<T>() {
             @Override
             protected void asyncCodeRun() {
-                evalContext.getDebugProcess().getManagerThread().invoke(new DebuggerCommandImpl() {
+                evalContext.getDebugProcess().getManagerThread().invokeCommand(new DebuggerCommand() {
                     @Override
-                    protected void action() {
+                    public void action() {
                         try {
                             finishRet(invokeOnDebuggerThreadCode.get());
                         } catch (Exception e) {
                             finishError(e);
                         }
                     }
+
+                    @Override
+                    public void commandCancelled() {}
                 });
             }
         };
