@@ -19,9 +19,10 @@ dependencies {
     implementation(project(':common'))
 
     intellijPlatform {
-        intellijIdeaCommunity '2024.3'
+        intellijIdeaCommunity '251.23774.200'
 
         bundledPlugin 'com.intellij.java'
+        bundledModule("com.intellij.modules.json")
 
         instrumentationTools()
     }
